@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/jetson/miniforge3/envs/tashan_danxia_py310/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/jetson/miniforge3/envs/tashan_danxia_py310/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/jetson/tashan/tashan_robot/readCaohy/third_party/curobo/curobo/examples/getting_started/motion_planning.py", line 641, in <module>
+    main()
+  File "/home/jetson/tashan/tashan_robot/readCaohy/third_party/curobo/curobo/examples/getting_started/motion_planning.py", line 632, in main
+    pose_planning_example(output_dir=output_dir)
+  File "/home/jetson/tashan/tashan_robot/readCaohy/third_party/curobo/curobo/examples/getting_started/motion_planning.py", line 228, in pose_planning_example
+    _plot_trajectory(
+  File "/home/jetson/tashan/tashan_robot/readCaohy/third_party/curobo/curobo/examples/getting_started/motion_planning.py", line 161, in _plot_trajectory
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
+ERROR conda.cli.main_run:execute(142): `conda run python -m curobo.examples.getting_started.motion_planning --mode pose` failed. (See above for error)
+=== Pose-to-Pose Motion Planning ===
+✓ Planning succeeded!
+Trajectory has 61 waypoints
+Duration: 1.53s

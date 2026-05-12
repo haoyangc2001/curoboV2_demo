@@ -1,0 +1,6 @@
+MuJoCo playback succeeded
+Output dir: /home/jetson/tashan/curobo2_demo_ws/evidence/s1_006/review_20260512_143417/run_02/playback
+Waypoints: 61
+Sample period: 0.025000s
+Rendered frames: 61
+End-effector displacement: 0.477697m

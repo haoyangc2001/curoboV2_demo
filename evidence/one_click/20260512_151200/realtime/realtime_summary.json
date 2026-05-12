@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "contract_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/one_click/20260512_151200/contract/playback_contract.json",
+  "model_xml_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/one_click/20260512_151200/realtime/franka_stage1_realtime.xml",
+  "playback_speed": 1.0,
+  "requested_waypoints": 61,
+  "rendered_waypoints": 61,
+  "sample_period_s": 0.025,
+  "final_hold_s": 1.0,
+  "elapsed_wall_time_s": 2.744486285999301,
+  "viewer_shutdown_wait_s": 5.0,
+  "viewer_shutdown_completed": true,
+  "stopped_early": false
+}

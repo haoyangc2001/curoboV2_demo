@@ -1,0 +1,14 @@
+{
+  "stage": "S1-005",
+  "passed": true,
+  "checks": {
+    "real_planning_result_inspected": true,
+    "interpolated_joint_order_matches_cspace": true,
+    "cspace_joint_order_matches_urdf_movable_joints": true,
+    "mujoco_mapping_defined_without_ros_topics": true,
+    "fixed_dt_policy_defined": true
+  },
+  "artifacts": {
+    "contract_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_005/review_20260512_142203/run_1/playback_contract.json"
+  }
+}

@@ -1,0 +1,6 @@
+=== Pose-to-Pose Motion Planning ===
+✓ Planning succeeded!
+Trajectory has 61 waypoints
+Duration: 1.53s
+Trajectory plot saved to: /home/jetson/tashan/curobo2_demo_ws/evidence/s1_003/run_02/motion_plan.pdf
+
