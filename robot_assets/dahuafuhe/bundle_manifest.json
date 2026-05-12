@@ -1,0 +1,57 @@
+{
+  "bundle_name": "dahuafuhe_stage1_asset_bundle",
+  "generated_at": "2026-05-12T15:34:05.852443+08:00",
+  "workspace_root": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe",
+  "copied_files": {
+    "start_launch": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/start.launch.yaml",
+    "robot_config": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/rokae_cr7_dahuafuhe.yml",
+    "urdf": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/rokae_cr7_dahuafuhe.urdf",
+    "collision_spheres": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/spheres/rokae_cr7_dahuafuhe_spherized.yml",
+    "hand_mesh": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/dahuafuhe_v2.stl",
+    "rokae_meshes": [
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl",
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl",
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl",
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl",
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl",
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl",
+      "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl"
+    ]
+  },
+  "path_normalization": {
+    "urdf_mesh_rewrites": {
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl",
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl",
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl",
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl",
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl",
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl",
+      "../../../../../src/robot_description/curobo/content/assets/robot/rokae/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl",
+      "meshes/dahuafuhe_v2.stl": "meshes/dahuafuhe_v2.stl"
+    },
+    "robot_config_style_adaptation": {
+      "added_tool_frames_from_ee_link": [
+        "tool0"
+      ],
+      "inlined_collision_spheres": true,
+      "removed_legacy_keys": [
+        "usd_path",
+        "usd_robot_root",
+        "isaac_usd_path",
+        "usd_flip_joints",
+        "usd_flip_joint_limits",
+        "ee_link"
+      ],
+      "default_joint_position": [
+        -1.571,
+        1.571,
+        0.0,
+        1.571,
+        1.571,
+        0.0
+      ]
+    },
+    "note": "The copied URDF no longer points to tashan_robot/src/robot_description. All mesh paths now resolve within curobo2_demo_ws/robot_assets/dahuafuhe."
+  },
+  "scope_note": "Stage-1 bundle only supports dahuafuhe as the first project robot target."
+}

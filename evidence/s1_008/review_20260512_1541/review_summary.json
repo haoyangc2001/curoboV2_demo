@@ -1,0 +1,174 @@
+{
+  "stage": "S1-008",
+  "generated_at": "2026-05-12T15:52:57.330925+08:00",
+  "repeat_count": 10,
+  "passed": true,
+  "goal_delta_xyz": [
+    0.05,
+    0.0,
+    0.02
+  ],
+  "robot_config_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/rokae_cr7_dahuafuhe.yml",
+  "runs": [
+    {
+      "run_index": 1,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.1824377555847168,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 2,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.19574812483787538,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 3,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.20918643498420716,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 4,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.19030214047431945,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 5,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.16728173232078553,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 6,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.18697397899627685,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 7,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.18771397876739504,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 8,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.19064935088157653,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 9,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.18848802924156188,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    },
+    {
+      "run_index": 10,
+      "success": true,
+      "trajectory_waypoints": 21,
+      "trajectory_duration": 0.525,
+      "result_total_time": 0.19293974518775941,
+      "goal_position_error_norm": 1.519626238177807e-07,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ]
+    }
+  ]
+}

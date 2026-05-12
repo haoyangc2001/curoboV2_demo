@@ -1,0 +1,179 @@
+{
+  "stage": "S1-009",
+  "generated_at": "2026-05-12T16:12:40.966452+08:00",
+  "repeat_count": 10,
+  "render_every": 1,
+  "passed": true,
+  "runs": [
+    {
+      "run_index": 1,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 2,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 3,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 4,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 5,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 6,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 7,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 8,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 9,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    },
+    {
+      "run_index": 10,
+      "success": true,
+      "contract_waypoint_count": 21,
+      "contract_sample_period_s": 0.025,
+      "offscreen_rendered_frames": 21,
+      "ee_displacement": 0.05385160380597667,
+      "ee_direction_alignment": 0.9999999999978894,
+      "checks": {
+        "all_contract_joints_resolved": true,
+        "waypoint_width_matches_joint_count": true,
+        "ee_displacement_gt_0_02m": true,
+        "ee_direction_alignment_gt_0_95": true,
+        "start_ee_matches_contract_lt_1e_4m": true,
+        "end_ee_matches_contract_lt_1e_4m": true
+      }
+    }
+  ]
+}

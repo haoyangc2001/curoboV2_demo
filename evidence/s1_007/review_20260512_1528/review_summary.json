@@ -1,0 +1,122 @@
+{
+  "stage": "S1-007",
+  "generated_at": "2026-05-12T15:34:53.743201+08:00",
+  "repeat_count": 5,
+  "passed": true,
+  "bundle_manifest_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/bundle_manifest.json",
+  "robot_config_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/rokae_cr7_dahuafuhe.yml",
+  "urdf_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/rokae_cr7_dahuafuhe.urdf",
+  "collision_spheres_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/spheres/rokae_cr7_dahuafuhe_spherized.yml",
+  "runs": [
+    {
+      "run_index": 1,
+      "passed": true,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "movable_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "mesh_count": 16,
+      "sphere_link_count": 7
+    },
+    {
+      "run_index": 2,
+      "passed": true,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "movable_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "mesh_count": 16,
+      "sphere_link_count": 7
+    },
+    {
+      "run_index": 3,
+      "passed": true,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "movable_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "mesh_count": 16,
+      "sphere_link_count": 7
+    },
+    {
+      "run_index": 4,
+      "passed": true,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "movable_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "mesh_count": 16,
+      "sphere_link_count": 7
+    },
+    {
+      "run_index": 5,
+      "passed": true,
+      "joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "movable_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "mesh_count": 16,
+      "sphere_link_count": 7
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "success": true,
+  "contract_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260512_171426/contract/playback_contract.json",
+  "model_xml_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260512_171426/playback/dahuafuhe_stage1_playback.xml",
+  "mujoco_version": "3.4.0",
+  "joint_names": [
+    "joint_1",
+    "joint_2",
+    "joint_3",
+    "joint_4",
+    "joint_5",
+    "joint_6"
+  ],
+  "qpos_mapping": [
+    {
+      "joint_name": "joint_1",
+      "joint_id": 0,
+      "qpos_adr": 0,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "joint_2",
+      "joint_id": 1,
+      "qpos_adr": 1,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "joint_3",
+      "joint_id": 2,
+      "qpos_adr": 2,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "joint_4",
+      "joint_id": 3,
+      "qpos_adr": 3,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "joint_5",
+      "joint_id": 4,
+      "qpos_adr": 4,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "joint_6",
+      "joint_id": 5,
+      "qpos_adr": 5,
+      "joint_type": 3
+    }
+  ],
+  "waypoint_count": 21,
+  "sample_period_s": 0.025,
+  "trajectory_span_s": 0.5,
+  "render_summary": {
+    "frame_count": 21,
+    "render_every": 1,
+    "ee_positions": [
+      [
+        -0.37045312492637894,
+        -0.8538283756547764,
+        0.19385068700340977
+      ],
+      [
+        -0.37045312492637894,
+        -0.8538283756547764,
+        0.19385068700340977
+      ],
+      [
+        -0.3699285457177705,
+        -0.8538862405065271,
+        0.19409613899921743
+      ],
+      [
+        -0.3668921849862965,
+        -0.8542099006400663,
+        0.195493527539211
+      ],
+      [
+        -0.36131888276160135,
+        -0.8547568975195967,
+        0.19796833009517073
+      ],
+      [
+        -0.35360258970004627,
+        -0.8554344218509021,
+        0.20132961147407447
+      ],
+      [
+        -0.34410517873758684,
+        -0.8561474302994851,
+        0.20539910992191351
+      ],
+      [
+        -0.33318526706155316,
+        -0.8568052981261483,
+        0.21000037215734352
+      ],
+      [
+        -0.3211992497392804,
+        -0.8573306232351834,
+        0.21496436865841084
+      ],
+      [
+        -0.3085034499077942,
+        -0.8576649150477851,
+        0.2201304170496563
+      ],
+      [
+        -0.2954529700046141,
+        -0.8577722287315116,
+        0.22534747605650476
+      ],
+      [
+        -0.28240266924683427,
+        -0.8576417047413484,
+        0.2304746226338647
+      ],
+      [
+        -0.2697071805348972,
+        -0.8572879928987965,
+        0.23538017140782366
+      ],
+      [
+        -0.2577217242526169,
+        -0.856750068288006,
+        0.23994144593775024
+      ],
+      [
+        -0.24680250367711365,
+        -0.85608829233799,
+        0.24404279238862994
+      ],
+      [
+        -0.23730533813245513,
+        -0.8553804685891622,
+        0.24757354321642228
+      ],
+      [
+        -0.22958858743238386,
+        -0.8547152235020821,
+        0.25042537295732953
+      ],
+      [
+        -0.22401488818598947,
+        -0.8541854522199389,
+        0.25249059195927187
+      ],
+      [
+        -0.22097794738981513,
+        -0.8538818030213174,
+        0.2536479385406156
+      ],
+      [
+        -0.22045326537622545,
+        -0.8538283123836008,
+        0.25385061584647645
+      ],
+      [
+        -0.22045326537622545,
+        -0.8538283123836008,
+        0.25385061584647645
+      ]
+    ],
+    "ee_start": [
+      -0.37045312492637894,
+      -0.8538283756547764,
+      0.19385068700340977
+    ],
+    "ee_end": [
+      -0.22045326537622545,
+      -0.8538283123836008,
+      0.25385061584647645
+    ],
+    "ee_displacement": 0.1615547873826178,
+    "ee_delta_xyz": [
+      0.1499998595501535,
+      6.327117563209583e-08,
+      0.05999992884306668
+    ],
+    "ee_direction_alignment": 0.9999999999999196,
+    "expected_start_ee_error_norm": 2.5359409473231518e-08,
+    "expected_end_ee_error_norm": 2.3263945782275506e-08,
+    "gif_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260512_171426/playback/playback.gif",
+    "start_png": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260512_171426/playback/playback_start.png",
+    "end_png": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260512_171426/playback/playback_end.png"
+  },
+  "checks": {
+    "all_contract_joints_resolved": true,
+    "waypoint_width_matches_joint_count": true,
+    "ee_displacement_gt_0_02m": true,
+    "ee_direction_alignment_gt_0_95": true,
+    "start_ee_matches_contract_lt_1e_4m": true,
+    "end_ee_matches_contract_lt_1e_4m": true
+  }
+}

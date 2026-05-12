@@ -1,0 +1,14 @@
+{
+  "stage": "S1-009",
+  "passed": true,
+  "checks": {
+    "real_planning_result_inspected": true,
+    "interpolated_joint_order_matches_urdf_movable_joints": true,
+    "mujoco_mapping_defined_without_ros_topics": true,
+    "fixed_dt_policy_defined": true
+  },
+  "artifacts": {
+    "plan_summary_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/review_20260512_1600/run_06/plan/summary.json",
+    "contract_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/review_20260512_1600/run_06/contract/playback_contract.json"
+  }
+}

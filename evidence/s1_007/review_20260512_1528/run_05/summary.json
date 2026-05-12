@@ -1,0 +1,185 @@
+{
+  "passed": true,
+  "start_launch_robot_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/rokae_cr7_dahuafuhe.urdf",
+  "required_paths_within_workspace": {
+    "start_launch_robot_abs": true,
+    "resolved_urdf_path": true,
+    "resolved_asset_root_path": true,
+    "copied_collision_spheres_path": true
+  },
+  "urdf": {
+    "path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/rokae_cr7_dahuafuhe.urdf",
+    "link_count": 10,
+    "joint_count": 9,
+    "movable_joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "mesh_count": 16,
+    "mesh_checks": [
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/dahuafuhe_v2.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/dahuafuhe_v2.stl",
+        "exists": true,
+        "within_workspace": true
+      },
+      {
+        "filename": "meshes/dahuafuhe_v2.stl",
+        "absolute_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/meshes/dahuafuhe_v2.stl",
+        "exists": true,
+        "within_workspace": true
+      }
+    ]
+  },
+  "robot_config": {
+    "path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/rokae_cr7_dahuafuhe.yml",
+    "base_link": "Link_00",
+    "tool_frames": [
+      "tool0"
+    ],
+    "joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "collision_link_names": [
+      "Link_01",
+      "Link_02",
+      "Link_03",
+      "Link_04",
+      "Link_05",
+      "Link_06"
+    ],
+    "mesh_link_names": [
+      "Link_01",
+      "Link_02",
+      "Link_03",
+      "Link_04",
+      "Link_05",
+      "Link_06",
+      "hand_link"
+    ]
+  },
+  "collision_spheres": {
+    "path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/spheres/rokae_cr7_dahuafuhe_spherized.yml",
+    "link_count": 7,
+    "sphere_counts_by_link": {
+      "Link_00": 10,
+      "Link_01": 3,
+      "Link_02": 9,
+      "Link_03": 4,
+      "Link_04": 6,
+      "Link_05": 5,
+      "Link_06": 27
+    },
+    "missing_collision_links": []
+  },
+  "curobo_load": {
+    "joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "link_name_count": 8,
+    "total_spheres": 54
+  },
+  "workspace_independence": {
+    "workspace_root": "/home/jetson/tashan/curobo2_demo_ws",
+    "disallowed_external_prefix": "/home/jetson/tashan/tashan_robot"
+  },
+  "run_index": 5
+}

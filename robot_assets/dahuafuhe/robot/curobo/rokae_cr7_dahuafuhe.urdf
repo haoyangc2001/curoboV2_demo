@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="rokae_cr7">
+
+  <link name="world" />
+
+  <joint name="fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="world" />
+    <child link="Link_00" />
+  </joint>
+
+  <link name="Link_00">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_base.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_1" type="revolute">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+    <parent link="Link_00" />
+    <child link="Link_01" />
+    <axis xyz="0 0 1" />
+    <limit lower="-6.2832" upper="6.2832" effort="194" velocity="3.141592653589793" />
+  </joint>
+
+  <link name="Link_01">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <inertial>
+      <origin xyz="-0.000006 0.035426 0.227861" rpy="0 0 0" />
+      <mass value="5.489" />
+      <inertia ixx="0.04930387" ixy="-0.00001090" ixz="0.00000512" iyy="0.03722179" iyz="0.01326200" izz="0.02823666" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_2" type="revolute">
+    <origin xyz="0.0 0.0 0.296" rpy="0 0 0" />
+    <parent link="Link_01" />
+    <child link="Link_02" />
+    <axis xyz="0 1 0" />
+    <limit lower="-6.2832" upper="6.2832" effort="194" velocity="3.141592653589793" />
+  </joint>
+
+  <link name="Link_02">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <inertial>
+      <origin xyz="-0.000006 0.155018 0.199572" rpy="0 0 0" />
+      <mass value="7.281" />
+      <inertia ixx="0.34218339" ixy="-0.00000243" ixz="-0.00005916" iyy="0.33734902" iyz="0.00746656" izz="0.02516474" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link2.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_3" type="revolute">
+    <origin xyz="0.0 0.0 0.49" rpy="0 0 0" />
+    <parent link="Link_02" />
+    <child link="Link_03" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-6.2832" upper="6.2832" effort="102" velocity="4.084070449666731" />
+  </joint>
+
+  <link name="Link_03">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <inertial>
+      <origin xyz="-0.000012 -0.044249 0.048945" rpy="0 0 0" />
+      <mass value="2.872" />
+      <inertia ixx="0.02089959" ixy="-0.00000193" ixz="0.00000024" iyy="0.01307617" iyz="0.00629374" izz="0.01213645" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link3.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_4" type="revolute">
+    <origin xyz="0.0 0.0 0.36" rpy="0 0 0" />
+    <parent link="Link_03" />
+    <child link="Link_04" />
+    <axis xyz="0 0 1" />
+    <limit lower="-6.2832" upper="6.2832" effort="66" velocity="4.1887902047863905" />
+  </joint>
+
+  <link name="Link_04">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <inertial>
+      <origin xyz="0.000024 0.018331 -0.086517" rpy="0 0 0" />
+      <mass value="2.823" />
+      <inertia ixx="0.03166823" ixy="-0.00000022" ixz="-0.00000044" iyy="0.03030476" iyz="0.00436788" izz="0.00568926" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link4.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_5" type="revolute">
+    <origin xyz="0.0 -0.15 0.004" rpy="0 0 0" />
+    <parent link="Link_04" />
+    <child link="Link_05" />
+    <axis xyz="0 -1 0" />
+    <limit lower="-6.2832" upper="6.2832" effort="66" velocity="4.1887902047863905" />
+  </joint>
+
+  <link name="Link_05">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <inertial>
+      <origin xyz="-0.000043 -0.031099 0.014133" rpy="0 0 0" />
+      <mass value="2.34" />
+      <inertia ixx="0.00953363" ixy="-0.00000282" ixz="0.00000824" iyy="0.00581555" iyz="0.00099717" izz="0.00692085" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link5.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint_6" type="revolute">
+    <origin xyz="0.0 0.0 0.123" rpy="0 0 0" />
+    <parent link="Link_05" />
+    <child link="Link_06" />
+    <axis xyz="0 0 1" />
+    <limit lower="-6.2832" upper="6.2832" effort="66" velocity="4.1887902047863905" />
+  </joint>
+
+  <link name="Link_06">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <inertial>
+      <origin xyz="0.000001 -0.000201 -0.049302" rpy="0 0 0" />
+      <mass value="1.142" />
+      <inertia ixx="0.00217743" ixy="-0.00000018" ixz="-0.00000015" iyy="0.00218830" iyz="-0.00000570" izz="0.00125122" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/rokae_cr7_meshes/XMC7-R850-W4X3B4_link6.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="hand_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/dahuafuhe_v2.stl" scale="1 1 1" />
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/dahuafuhe_v2.stl" scale="1 1 1" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="link_joint" type="fixed">
+    <origin xyz="-0.01 -0.043 0.075" rpy="0 0 -1.571" />
+    <parent link="Link_06" />
+    <child link="hand_link" />
+  </joint>
+
+  <link name="tool0" />
+
+  <joint name="joint_tool0" type="fixed">
+    <parent link="Link_06" />
+    <child link="tool0" />
+    <origin xyz="0 0.0481 0.2473" rpy="0.698131689 0 0" />
+  </joint>
+
+</robot>
