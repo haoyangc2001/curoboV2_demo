@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Copy and normalize the minimal dahuafuhe asset bundle for stage-1 demo use."""
+"""生成阶段一演示所需的大花复合末端资产包。
+
+本文件负责从源项目复制最小必要资产到当前工作区，
+同时改写 URDF 网格路径、规整 CuRobo 配置，并生成资产清单。
+"""
 
 from __future__ import annotations
 
@@ -36,11 +40,29 @@ ROKAE_MESH_DIR_NAME = "rokae_cr7_meshes"
 
 
 def _copy_file(src: Path, dst: Path) -> None:
+    """复制单个文件并自动创建目标目录。
+
+    Args:
+        src: 源文件路径。
+        dst: 目标文件路径。
+
+    Returns:
+        无返回值。
+    """
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
 
 
 def _rewrite_and_copy_urdf(src: Path, dst: Path) -> dict[str, str]:
+    """复制 URDF 并重写其中的网格文件路径。
+
+    Args:
+        src: 源 URDF 路径。
+        dst: 目标 URDF 路径。
+
+    Returns:
+        原始网格路径到工作区内新路径的映射字典。
+    """
     dst.parent.mkdir(parents=True, exist_ok=True)
     root = ET.fromstring(src.read_text())
     rewritten_meshes: dict[str, str] = {}
@@ -64,6 +86,11 @@ def _rewrite_and_copy_urdf(src: Path, dst: Path) -> dict[str, str]:
 
 
 def _write_adapted_robot_config() -> dict:
+    """生成适配当前工作区的机器人配置文件。
+
+    Returns:
+        写入磁盘后的机器人配置字典。
+    """
     source_robot_cfg = yaml.safe_load(source_robot_config_path().read_text())
     source_start_launch = yaml.safe_load(source_start_launch_path().read_text())
     source_spheres = yaml.safe_load(source_spheres_path().read_text())
@@ -122,6 +149,11 @@ def _write_adapted_robot_config() -> dict:
 
 
 def materialize_bundle() -> dict:
+    """物化完整的阶段一资产包。
+
+    Returns:
+        描述复制结果、路径归一化信息与产物范围的清单字典。
+    """
     rokae_mesh_src_root = SOURCE_CUROBO_ROBOT_ASSET_ROOT / "meshes" / ROKAE_MESH_DIR_NAME
     rokae_mesh_dst_root = WORKSPACE_DAHUAFUHE_MESH_ROOT / ROKAE_MESH_DIR_NAME
 
@@ -180,6 +212,11 @@ def materialize_bundle() -> dict:
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；标准输出打印生成的资产包清单。
+    """
     parser = argparse.ArgumentParser(description="Materialize the stage-1 dahuafuhe asset bundle")
     parser.parse_args()
 

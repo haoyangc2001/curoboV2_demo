@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Minimal standalone pose-planning demo for the stage-1 dahuafuhe robot."""
+"""大花复合末端阶段一最小位姿规划示例。
+
+本文件基于工作区内已适配的机器人资产，执行一次从当前工具位姿出发的
+相对位移规划，并导出便于后续回放和验收的摘要数据。
+"""
 
 from __future__ import annotations
 
@@ -28,6 +32,14 @@ DEFAULT_GOAL_DELTA_XYZ = (0.12, 0.0, 0.05)
 
 
 def _to_float(value: Any) -> float | None:
+    """把张量或标量安全转换为 `float`。
+
+    Args:
+        value: `None`、Python 标量或 Torch 张量。
+
+    Returns:
+        转换后的浮点数；若输入为空或空张量则返回 `None`。
+    """
     if value is None:
         return None
     if torch.is_tensor(value):
@@ -39,6 +51,15 @@ def _to_float(value: Any) -> float | None:
 
 
 def _squeeze_positions(position: torch.Tensor, expected_joint_count: int) -> list[list[float]]:
+    """把轨迹张量压缩为二维关节序列。
+
+    Args:
+        position: CuRobo 输出的轨迹位置张量。
+        expected_joint_count: 每个 waypoint 期望的关节数。
+
+    Returns:
+        `[[joint0, joint1, ...], ...]` 形式的关节位置序列。
+    """
     cpu = position.detach().to("cpu")
     while cpu.ndim > 2:
         if cpu.shape[0] != 1:
@@ -56,7 +77,18 @@ def build_demo_goal(
     current_state: JointState,
     goal_delta_xyz: tuple[float, float, float] = DEFAULT_GOAL_DELTA_XYZ,
 ) -> tuple[GoalToolPose, dict[str, list[float]]]:
-    """Build a reachable goal by offsetting the current tool pose."""
+    """基于当前工具位姿构造一个相对平移目标。
+
+    Args:
+        planner: 已初始化的运动规划器。
+        current_state: 当前关节状态。
+        goal_delta_xyz: 相对当前工具位姿的 XYZ 平移增量，单位米。
+
+    Returns:
+        二元组：
+        1. `GoalToolPose` 目标位姿。
+        2. 便于调试记录的起点/目标位姿信息字典。
+    """
     kin_state = planner.compute_kinematics(current_state)
     tool_pose = kin_state.tool_poses.get_link_pose(planner.tool_frames[0])
 
@@ -84,7 +116,15 @@ def run_demo(
     output_dir: Path | None = None,
     goal_delta_xyz: tuple[float, float, float] = DEFAULT_GOAL_DELTA_XYZ,
 ) -> dict[str, Any]:
-    """Run a minimal standalone dahuafuhe pose-planning flow and return a summary dict."""
+    """执行一次大花复合末端位姿规划。
+
+    Args:
+        output_dir: 可选输出目录；若提供则写出 `summary.json`。
+        goal_delta_xyz: 相对起始工具位姿的目标平移增量。
+
+    Returns:
+        包含规划结果、轨迹合同、末端误差和调试信息的摘要字典。
+    """
     robot_cfg = resolve_robot_config_for_workspace()
     config = MotionPlannerCfg.create(
         robot=robot_cfg,
@@ -181,6 +221,11 @@ def run_demo(
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；根据规划结果设置退出码。
+    """
     parser = argparse.ArgumentParser(description="Minimal standalone CuRobo2 dahuafuhe pose demo")
     parser.add_argument(
         "--output-dir",

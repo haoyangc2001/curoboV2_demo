@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Repeatedly verify the self-contained dahuafuhe asset bundle for stage 1."""
+"""校验阶段一自包含机器人资产包。
+
+本文件负责反复检查工作区内资产包是否完整、自洽且能被 CuRobo 正常加载，
+包括 URDF、碰撞球配置、网格路径和关节顺序的一致性。
+"""
 
 from __future__ import annotations
 
@@ -31,6 +35,14 @@ from dahuafuhe_asset_utils import (
 
 
 def _parse_urdf(urdf_path: Path) -> dict:
+    """解析 URDF 的基础结构信息。
+
+    Args:
+        urdf_path: 待解析的 URDF 文件路径。
+
+    Returns:
+        包含 link、joint、可动关节和网格路径检查结果的摘要字典。
+    """
     root = ET.fromstring(urdf_path.read_text())
     link_names = [link.attrib["name"] for link in root.findall("link")]
     movable_joint_names = []
@@ -66,11 +78,24 @@ def _parse_urdf(urdf_path: Path) -> dict:
 
 
 def _collision_sphere_counts(spheres_payload: dict) -> dict[str, int]:
+    """统计每个 link 的碰撞球数量。
+
+    Args:
+        spheres_payload: 碰撞球 YAML 解析后的字典。
+
+    Returns:
+        `link_name -> sphere_count` 的映射。
+    """
     collision_spheres = spheres_payload.get("collision_spheres", {})
     return {str(link_name): len(link_spheres) for link_name, link_spheres in collision_spheres.items()}
 
 
 def verify_once() -> dict:
+    """执行一次资产包完整性校验。
+
+    Returns:
+        描述路径有效性、URDF/配置一致性和 CuRobo 加载结果的摘要字典。
+    """
     manifest_path = workspace_manifest_path()
     if not manifest_path.exists():
         raise FileNotFoundError(
@@ -167,6 +192,11 @@ def verify_once() -> dict:
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；根据重复校验是否全部通过设置退出码。
+    """
     parser = argparse.ArgumentParser(description="Verify the stage-1 dahuafuhe asset bundle")
     parser.add_argument(
         "--repeat-count",

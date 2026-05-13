@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Replay a stage-1 dahuafuhe playback contract directly in MuJoCo."""
+"""在 MuJoCo 中直接回放大花复合末端阶段一合同。
+
+本文件负责把工作区内的 URDF 动态转换为 MJCF，加载合同中的关节轨迹，
+完成离屏渲染，并输出末端运动一致性检查结果。
+"""
 
 from __future__ import annotations
 
@@ -24,12 +28,16 @@ DAHUAFUHE_URDF_PATH = (
 
 @dataclass
 class CollisionMeshInfo:
+    """记录单个碰撞网格的路径和缩放信息。"""
+
     path: Path
     scale: tuple[float, float, float]
 
 
 @dataclass
 class LinkInfo:
+    """描述 URDF 中一个 link 的碰撞与惯性信息。"""
+
     name: str
     collision_meshes: list[CollisionMeshInfo]
     mass: float
@@ -38,6 +46,8 @@ class LinkInfo:
 
 @dataclass
 class JointInfo:
+    """描述 URDF 中一个 joint 的拓扑与运动学属性。"""
+
     name: str
     joint_type: str
     parent: str
@@ -50,6 +60,15 @@ class JointInfo:
 
 
 def _parse_triplet(text: str | None, default: tuple[float, float, float]) -> tuple[float, float, float]:
+    """把 URDF/MJCF 中的三元字符串解析为浮点三元组。
+
+    Args:
+        text: 类似 `"x y z"` 的字符串；为空时使用默认值。
+        default: 默认三元组。
+
+    Returns:
+        长度为 3 的浮点数元组。
+    """
     if text is None:
         return default
     values = [float(x) for x in text.split()]
@@ -59,16 +78,44 @@ def _parse_triplet(text: str | None, default: tuple[float, float, float]) -> tup
 
 
 def _format_triplet(values: tuple[float, float, float]) -> str:
+    """把浮点三元组格式化为 MJCF 属性字符串。
+
+    Args:
+        values: 三元浮点数。
+
+    Returns:
+        以空格分隔的字符串表示。
+    """
     return " ".join(f"{v:.9g}" for v in values)
 
 
 def _mesh_asset_name(mesh_path: Path) -> str:
+    """为网格文件生成稳定的 MJCF asset 名称。
+
+    Args:
+        mesh_path: 网格文件路径。
+
+    Returns:
+        基于文件名生成的 mesh asset 名称。
+    """
     return f"{mesh_path.stem}_mesh"
 
 
 def _load_urdf_model(
     urdf_path: Path,
 ) -> tuple[dict[str, LinkInfo], dict[str, JointInfo], dict[str, list[str]], str]:
+    """解析 URDF，提取 link/joint 树结构。
+
+    Args:
+        urdf_path: 待转换的 URDF 文件路径。
+
+    Returns:
+        四元组：
+        1. link 名到 `LinkInfo` 的映射。
+        2. joint 名到 `JointInfo` 的映射。
+        3. 父 link 到子 joint 名列表的映射。
+        4. 根 link 名称。
+    """
     root = ET.fromstring(urdf_path.read_text())
 
     links: dict[str, LinkInfo] = {}
@@ -154,6 +201,18 @@ def _build_link_body(
     joints: dict[str, JointInfo],
     children_by_parent: dict[str, list[str]],
 ) -> None:
+    """递归把 URDF link 树写成 MJCF body 树。
+
+    Args:
+        body_parent: 当前要写入子节点的 XML 元素。
+        link_name: 当前父 link 名称。
+        links: link 信息映射。
+        joints: joint 信息映射。
+        children_by_parent: 父 link 到子 joint 的映射。
+
+    Returns:
+        无返回值；结果直接写入 XML 树。
+    """
     for joint_name in children_by_parent.get(link_name, []):
         joint = joints[joint_name]
         child_body = ET.SubElement(
@@ -210,6 +269,15 @@ def _build_link_body(
 
 
 def generate_dahuafuhe_stage1_mjcf(output_xml_path: Path, urdf_path: Path | None = None) -> Path:
+    """根据 URDF 生成可直接加载的 MJCF 文件。
+
+    Args:
+        output_xml_path: 输出 MJCF 文件路径。
+        urdf_path: 可选 URDF 路径；为空时使用默认大花复合末端 URDF。
+
+    Returns:
+        生成后的 MJCF 文件路径。
+    """
     if urdf_path is None:
         urdf_path = DAHUAFUHE_URDF_PATH
     links, joints, children_by_parent, root_link = _load_urdf_model(urdf_path)
@@ -253,10 +321,27 @@ def generate_dahuafuhe_stage1_mjcf(output_xml_path: Path, urdf_path: Path | None
 
 
 def _load_contract(contract_path: Path) -> dict[str, Any]:
+    """读取回放合同 JSON。
+
+    Args:
+        contract_path: 合同文件路径。
+
+    Returns:
+        解析后的合同字典。
+    """
     return json.loads(contract_path.read_text())
 
 
 def _resolve_qpos_addresses(model: mujoco.MjModel, joint_names: list[str]) -> list[dict[str, Any]]:
+    """解析合同关节名在 MuJoCo `qpos` 中的地址。
+
+    Args:
+        model: 已加载的 MuJoCo 模型。
+        joint_names: 合同要求的关节名列表。
+
+    Returns:
+        每个关节对应的 joint id、qpos 地址和类型信息列表。
+    """
     mapping = []
     for joint_name in joint_names:
         joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
@@ -274,6 +359,14 @@ def _resolve_qpos_addresses(model: mujoco.MjModel, joint_names: list[str]) -> li
 
 
 def _camera_for_dahuafuhe(model: mujoco.MjModel) -> mujoco.MjvCamera:
+    """创建适合大花复合末端回放视角的相机。
+
+    Args:
+        model: MuJoCo 模型。
+
+    Returns:
+        已配置好的自由相机对象。
+    """
     camera = mujoco.MjvCamera()
     mujoco.mjv_defaultFreeCamera(model, camera)
     camera.azimuth = 60.0
@@ -297,6 +390,24 @@ def _render_frames(
     expected_end_ee: list[float] | None,
     expected_goal_delta_xyz: list[float] | None,
 ) -> dict[str, Any]:
+    """按合同轨迹渲染回放帧并保存 GIF/首尾图。
+
+    Args:
+        model: MuJoCo 模型。
+        data: MuJoCo 仿真数据。
+        qpos_mapping: 关节名到 qpos 地址的映射。
+        waypoints: 关节轨迹序列。
+        output_dir: 图像输出目录。
+        dt: 合同采样周期。
+        render_every: 每隔多少个 waypoint 渲染一帧。
+        ee_body_name: 末端 body 名称。
+        expected_start_ee: 可选合同起始末端位置。
+        expected_end_ee: 可选合同结束末端位置。
+        expected_goal_delta_xyz: 可选合同目标位移，用于方向一致性检查。
+
+    Returns:
+        包含渲染文件路径、末端轨迹和一致性指标的摘要字典。
+    """
     renderer = mujoco.Renderer(model, height=720, width=960)
     camera = _camera_for_dahuafuhe(model)
     body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, ee_body_name)
@@ -380,6 +491,16 @@ def _render_frames(
 
 
 def replay_contract(contract_path: Path, output_dir: Path, render_every: int) -> dict[str, Any]:
+    """执行一次 MuJoCo 离屏回放。
+
+    Args:
+        contract_path: 回放合同 JSON 路径。
+        output_dir: 回放产物输出目录。
+        render_every: 每隔多少个 waypoint 渲染一帧。
+
+    Returns:
+        包含模型路径、回放统计、检查项和渲染摘要的结果字典。
+    """
     contract = _load_contract(contract_path)
     joint_names = list(contract["joint_contract"]["mujoco_expected_joint_names"])
     waypoints = list(contract["trajectory_contract"]["waypoints"])
@@ -448,6 +569,11 @@ def replay_contract(contract_path: Path, output_dir: Path, render_every: int) ->
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；成功时打印回放统计信息。
+    """
     parser = argparse.ArgumentParser(description="Replay a dahuafuhe playback contract in MuJoCo")
     parser.add_argument("--contract-json", type=Path, required=True, help="Path to playback_contract.json")
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory for playback evidence")

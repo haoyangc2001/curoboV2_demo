@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Inspect the official cuRobo pose-planning example API surface."""
+"""检查官方位姿规划示例的 API 基线。
+
+本文件用于记录官方 Franka 示例在当前工作区中的关键 API 形态，
+把规划器、输入输出对象与张量形状落盘到证据目录，便于后续迁移对照。
+"""
 
 from __future__ import annotations
 
@@ -19,6 +23,11 @@ from curobo.types import GoalToolPose, JointState
 
 
 def main() -> None:
+    """执行一次官方示例并输出 API 基线信息。
+
+    Returns:
+        无返回值；成功时把基线 JSON 写入 `evidence/s1_003/`。
+    """
     config = MotionPlannerCfg.create(
         robot="franka.yml",
         scene_model="collision_test.yml",

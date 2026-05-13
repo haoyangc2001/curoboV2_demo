@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Export a stage-1 CuRobo2 to MuJoCo playback contract for dahuafuhe."""
+"""导出大花复合末端从 CuRobo 到 MuJoCo 的回放合同。
+
+本文件把真实规划结果转换为直接可回放的关节序列合同，
+明确关节映射、采样周期、轨迹数据和验收断言。
+"""
 
 from __future__ import annotations
 
@@ -21,6 +25,14 @@ from dahuafuhe_asset_utils import workspace_robot_config_path, workspace_urdf_pa
 
 
 def _parse_movable_urdf_joint_names(urdf_path: Path) -> list[str]:
+    """读取 URDF 中全部非固定关节名称。
+
+    Args:
+        urdf_path: 机器人 URDF 路径。
+
+    Returns:
+        按 URDF 定义顺序排列的可动关节名称列表。
+    """
     root = ET.fromstring(urdf_path.read_text())
     movable = []
     for joint in root.findall("joint"):
@@ -30,6 +42,15 @@ def _parse_movable_urdf_joint_names(urdf_path: Path) -> list[str]:
 
 
 def _build_joint_mapping(source_joint_names: list[str], target_joint_names: list[str]) -> dict[str, Any]:
+    """构造源关节顺序到目标关节顺序的映射。
+
+    Args:
+        source_joint_names: 源序列关节名列表。
+        target_joint_names: 目标序列关节名列表。
+
+    Returns:
+        包含索引映射和是否为恒等映射的字典。
+    """
     target_index = {name: idx for idx, name in enumerate(target_joint_names)}
     if len(target_index) != len(target_joint_names):
         raise ValueError("duplicate joint names detected in target joint order")
@@ -58,6 +79,16 @@ def export_contract(
     plan_output_dir: Path | None = None,
     goal_delta_xyz: tuple[float, float, float] | None = None,
 ) -> dict[str, Any]:
+    """导出一次可供 MuJoCo 使用的回放合同。
+
+    Args:
+        output_dir: 合同与复核摘要的输出目录。
+        plan_output_dir: 可选规划输出目录；为空时使用 `output_dir/plan`。
+        goal_delta_xyz: 可选目标相对位移；为空时复用规划脚本默认值。
+
+    Returns:
+        包含轨迹、关节映射、时序约束和来源信息的合同字典。
+    """
     if plan_output_dir is None:
         plan_output_dir = output_dir / "plan"
     if goal_delta_xyz is None:
@@ -177,6 +208,11 @@ def export_contract(
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；成功时输出合同路径与轨迹采样信息。
+    """
     parser = argparse.ArgumentParser(
         description="Export a dahuafuhe MuJoCo playback contract from a real pose plan"
     )

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""One-click official Franka planning + MuJoCo playback entrypoint."""
+"""官方 Franka 一键规划与 MuJoCo 回放入口。
+
+本文件面向官方 Franka 基线流程，串联合同导出、离屏回放和可选实时回放，
+用于快速验证官方链路在当前工作区的可用性。
+"""
 
 from __future__ import annotations
 
@@ -27,6 +31,18 @@ def _realtime_replay(
     final_hold_s: float,
     shutdown_wait_s: float = 5.0,
 ) -> dict[str, Any]:
+    """在 MuJoCo viewer 中实时回放官方 Franka 合同。
+
+    Args:
+        contract_path: 回放合同路径。
+        output_dir: 实时回放摘要输出目录。
+        playback_speed: 播放速度倍率。
+        final_hold_s: 末帧保持时间，单位秒。
+        shutdown_wait_s: 关闭 viewer 后等待资源释放的最长时间，单位秒。
+
+    Returns:
+        包含播放完成情况、耗时和关闭状态的摘要字典。
+    """
     contract = _load_contract(contract_path)
     joint_names = list(contract["joint_contract"]["mujoco_expected_joint_names"])
     waypoints = list(contract["trajectory_contract"]["waypoints"])
@@ -96,6 +112,11 @@ def _realtime_replay(
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；成功时打印主要产物路径。
+    """
     parser = argparse.ArgumentParser(
         description="One-click official Franka planning plus MuJoCo playback"
     )

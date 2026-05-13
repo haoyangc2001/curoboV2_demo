@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Repeat the stage-1 dahuafuhe planning plus MuJoCo playback loop for S1-009."""
+"""重复执行大花复合末端规划与 MuJoCo 回放闭环。
+
+本文件通过多次运行一键流程，验证从规划、合同导出到离屏回放的完整链路稳定性。
+"""
 
 from __future__ import annotations
 
@@ -12,6 +15,11 @@ from run_dahuafuhe_demo import run_all
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；根据批量回放复核是否通过设置退出码。
+    """
     parser = argparse.ArgumentParser(description="Repeat the dahuafuhe MuJoCo playback loop")
     parser.add_argument(
         "--repeat-count",

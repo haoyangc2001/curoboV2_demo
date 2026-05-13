@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Export a stage-1 CuRobo2 to MuJoCo playback contract from a real plan."""
+"""导出官方 Franka 的 MuJoCo 回放合同。
+
+本文件基于真实的 CuRobo 规划结果生成关节轨迹合同，
+用于定义官方 Franka 阶段一的关节顺序、时序和回放输入格式。
+"""
 
 from __future__ import annotations
 
@@ -28,6 +32,14 @@ FRANKA_CFG_PATH = LOCAL_CUROBO_ROOT / "curobo" / "content" / "configs" / "robot"
 
 
 def build_demo_goal(tool_frames: list[str]) -> GoalToolPose:
+    """构造官方 Franka 示例目标位姿。
+
+    Args:
+        tool_frames: 规划器使用的末端工具坐标系名称列表。
+
+    Returns:
+        固定目标位姿对象。
+    """
     return GoalToolPose(
         tool_frames=tool_frames,
         position=torch.tensor([[[[[0.5, 0.0, 0.3]]]]], device="cuda", dtype=torch.float32),
@@ -38,6 +50,14 @@ def build_demo_goal(tool_frames: list[str]) -> GoalToolPose:
 
 
 def _to_float(value: Any) -> float | None:
+    """把张量或标量安全转换为浮点数。
+
+    Args:
+        value: `None`、Python 标量或 Torch 张量。
+
+    Returns:
+        转换后的浮点数；无法取值时返回 `None`。
+    """
     if value is None:
         return None
     if torch.is_tensor(value):
@@ -49,6 +69,15 @@ def _to_float(value: Any) -> float | None:
 
 
 def _squeeze_positions(position: torch.Tensor, expected_joint_count: int) -> list[list[float]]:
+    """把轨迹张量压缩为二维 waypoint 列表。
+
+    Args:
+        position: 规划结果位置张量。
+        expected_joint_count: 每个 waypoint 的目标关节数。
+
+    Returns:
+        二维关节位置序列。
+    """
     cpu = position.detach().to("cpu")
     while cpu.ndim > 2:
         if cpu.shape[0] != 1:
@@ -68,16 +97,37 @@ def _squeeze_positions(position: torch.Tensor, expected_joint_count: int) -> lis
 
 
 def _load_franka_cfg() -> dict[str, Any]:
+    """读取官方 Franka 的 CuRobo 配置。
+
+    Returns:
+        `franka.yml` 解析后的字典。
+    """
     return yaml.safe_load(FRANKA_CFG_PATH.read_text())
 
 
 def _resolve_franka_urdf_path(franka_cfg: dict[str, Any]) -> Path:
+    """从 CuRobo 配置推导官方 Franka URDF 路径。
+
+    Args:
+        franka_cfg: `franka.yml` 解析结果。
+
+    Returns:
+        对应 URDF 的绝对路径。
+    """
     rel = franka_cfg["robot_cfg"]["kinematics"]["urdf_path"]
     asset_root = franka_cfg["robot_cfg"]["kinematics"]["asset_root_path"]
     return LOCAL_CUROBO_ROOT / "curobo" / "content" / "assets" / asset_root / Path(rel).name
 
 
 def _parse_movable_urdf_joint_names(urdf_path: Path) -> list[str]:
+    """读取 URDF 中的可动关节名称列表。
+
+    Args:
+        urdf_path: URDF 文件路径。
+
+    Returns:
+        按文件顺序排列的非固定关节名称列表。
+    """
     root = ET.fromstring(urdf_path.read_text())
     movable = []
     for joint in root.findall("joint"):
@@ -88,6 +138,15 @@ def _parse_movable_urdf_joint_names(urdf_path: Path) -> list[str]:
 
 
 def _build_joint_mapping(source_joint_names: list[str], target_joint_names: list[str]) -> dict[str, Any]:
+    """构造源关节顺序到目标关节顺序的映射描述。
+
+    Args:
+        source_joint_names: 源序列关节名列表。
+        target_joint_names: 目标序列关节名列表。
+
+    Returns:
+        含索引对应关系与身份映射标记的字典。
+    """
     target_index = {name: idx for idx, name in enumerate(target_joint_names)}
     if len(target_index) != len(target_joint_names):
         raise ValueError("duplicate joint names detected in target joint order")
@@ -113,6 +172,14 @@ def _build_joint_mapping(source_joint_names: list[str], target_joint_names: list
 
 
 def export_contract(output_dir: Path) -> dict[str, Any]:
+    """导出官方 Franka 回放合同。
+
+    Args:
+        output_dir: 合同与复核文件输出目录。
+
+    Returns:
+        包含规划来源、关节映射、时序策略和轨迹序列的合同字典。
+    """
     franka_cfg = _load_franka_cfg()
     urdf_path = _resolve_franka_urdf_path(franka_cfg)
     cspace_joint_names = list(franka_cfg["robot_cfg"]["kinematics"]["cspace"]["joint_names"])
@@ -248,6 +315,11 @@ def export_contract(output_dir: Path) -> dict[str, Any]:
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；成功时打印合同的关节顺序与采样信息。
+    """
     parser = argparse.ArgumentParser(description="Export the stage-1 MuJoCo playback contract")
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory for evidence output")
     args = parser.parse_args()

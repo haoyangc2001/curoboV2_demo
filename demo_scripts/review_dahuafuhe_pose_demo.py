@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Repeat the stage-1 dahuafuhe pose demo for S1-008 verification."""
+"""重复执行大花复合末端位姿规划，用于阶段一稳定性复核。
+
+本文件通过多次调用单次规划脚本，收集成功率、轨迹长度和误差信息，
+生成可归档的批量复核摘要。
+"""
 
 from __future__ import annotations
 
@@ -13,6 +17,11 @@ from demo_plan_pose_dahuafuhe import DEFAULT_GOAL_DELTA_XYZ, run_demo
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；根据全部重复运行是否通过设置退出码。
+    """
     parser = argparse.ArgumentParser(description="Repeat the dahuafuhe pose demo for review")
     parser.add_argument(
         "--repeat-count",

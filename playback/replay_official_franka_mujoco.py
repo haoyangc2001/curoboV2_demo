@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Replay a stage-1 Franka playback contract directly in MuJoCo."""
+"""在 MuJoCo 中直接回放官方 Franka 阶段一合同。
+
+本文件将官方 Franka URDF 转换为最小 MJCF 模型，加载合同中的轨迹，
+执行离屏渲染，并输出基本回放检查结果。
+"""
 
 from __future__ import annotations
 
@@ -32,6 +36,8 @@ FRANKA_URDF_PATH = CUROBO_FRANKA_DIR / "franka_panda.urdf"
 
 @dataclass
 class LinkInfo:
+    """描述 URDF 中一个 link 的碰撞与惯性信息。"""
+
     name: str
     collision_meshes: list[Path]
     mass: float
@@ -40,6 +46,8 @@ class LinkInfo:
 
 @dataclass
 class JointInfo:
+    """描述 URDF 中一个 joint 的拓扑、轴和约束信息。"""
+
     name: str
     joint_type: str
     parent: str
@@ -52,6 +60,15 @@ class JointInfo:
 
 
 def _parse_triplet(text: str | None, default: tuple[float, float, float]) -> tuple[float, float, float]:
+    """把三元字符串解析为浮点三元组。
+
+    Args:
+        text: 类似 `"x y z"` 的字符串；为空时回退默认值。
+        default: 默认三元组。
+
+    Returns:
+        长度为 3 的浮点数元组。
+    """
     if text is None:
         return default
     values = [float(x) for x in text.split()]
@@ -61,10 +78,26 @@ def _parse_triplet(text: str | None, default: tuple[float, float, float]) -> tup
 
 
 def _format_triplet(values: tuple[float, float, float]) -> str:
+    """把三元浮点数格式化为 MJCF 属性字符串。
+
+    Args:
+        values: 三元浮点数。
+
+    Returns:
+        以空格分隔的字符串。
+    """
     return " ".join(f"{v:.9g}" for v in values)
 
 
 def _load_urdf_model(urdf_path: Path) -> tuple[dict[str, LinkInfo], dict[str, JointInfo], dict[str, list[str]], str]:
+    """解析 Franka URDF 结构。
+
+    Args:
+        urdf_path: Franka URDF 路径。
+
+    Returns:
+        link 信息、joint 信息、父子关系映射以及根 link 名称。
+    """
     root = ET.fromstring(urdf_path.read_text())
 
     links: dict[str, LinkInfo] = {}
@@ -140,6 +173,14 @@ def _load_urdf_model(urdf_path: Path) -> tuple[dict[str, LinkInfo], dict[str, Jo
 
 
 def _mesh_asset_name(mesh_path: Path) -> str:
+    """为网格路径生成 MJCF asset 名称。
+
+    Args:
+        mesh_path: 网格文件路径。
+
+    Returns:
+        对应的 mesh asset 名称。
+    """
     return f"{mesh_path.stem}_mesh"
 
 
@@ -150,6 +191,18 @@ def _build_link_body(
     joints: dict[str, JointInfo],
     children_by_parent: dict[str, list[str]],
 ) -> None:
+    """递归构建 MJCF body 树。
+
+    Args:
+        body_parent: 当前父 XML 节点。
+        link_name: 当前父 link 名。
+        links: link 信息映射。
+        joints: joint 信息映射。
+        children_by_parent: 父 link 到子 joint 名列表的映射。
+
+    Returns:
+        无返回值；直接修改 XML 树。
+    """
     for joint_name in children_by_parent.get(link_name, []):
         joint = joints[joint_name]
         child_body = ET.SubElement(
@@ -206,6 +259,14 @@ def _build_link_body(
 
 
 def generate_franka_stage1_mjcf(output_xml_path: Path) -> Path:
+    """生成官方 Franka 的最小 MJCF 模型。
+
+    Args:
+        output_xml_path: 目标 MJCF 输出路径。
+
+    Returns:
+        生成后的 MJCF 文件路径。
+    """
     links, joints, children_by_parent, root_link = _load_urdf_model(FRANKA_URDF_PATH)
 
     model = ET.Element("mujoco", model="franka_stage1_playback")
@@ -244,10 +305,27 @@ def generate_franka_stage1_mjcf(output_xml_path: Path) -> Path:
 
 
 def _load_contract(contract_path: Path) -> dict[str, Any]:
+    """读取回放合同 JSON。
+
+    Args:
+        contract_path: 合同文件路径。
+
+    Returns:
+        解析后的合同字典。
+    """
     return json.loads(contract_path.read_text())
 
 
 def _resolve_qpos_addresses(model: mujoco.MjModel, joint_names: list[str]) -> list[dict[str, Any]]:
+    """解析关节名在 MuJoCo `qpos` 中的地址。
+
+    Args:
+        model: MuJoCo 模型。
+        joint_names: 合同中的关节名称顺序。
+
+    Returns:
+        每个关节对应的索引与类型信息列表。
+    """
     mapping = []
     for joint_name in joint_names:
         joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
@@ -265,6 +343,14 @@ def _resolve_qpos_addresses(model: mujoco.MjModel, joint_names: list[str]) -> li
 
 
 def _camera_for_franka(model: mujoco.MjModel) -> mujoco.MjvCamera:
+    """创建适合官方 Franka 演示的相机参数。
+
+    Args:
+        model: MuJoCo 模型。
+
+    Returns:
+        已配置好的自由相机对象。
+    """
     camera = mujoco.MjvCamera()
     mujoco.mjv_defaultFreeCamera(model, camera)
     camera.azimuth = 135.0
@@ -283,6 +369,20 @@ def _render_frames(
     dt: float,
     render_every: int,
 ) -> dict[str, Any]:
+    """渲染离屏回放帧并导出 GIF/首尾图。
+
+    Args:
+        model: MuJoCo 模型。
+        data: MuJoCo 仿真数据。
+        qpos_mapping: 关节到 `qpos` 的映射。
+        waypoints: 轨迹关节序列。
+        output_dir: 图像输出目录。
+        dt: 合同采样周期。
+        render_every: 每隔多少个 waypoint 渲染一帧。
+
+    Returns:
+        包含帧数、末端轨迹和图像文件路径的摘要字典。
+    """
     renderer = mujoco.Renderer(model, height=720, width=960)
     camera = _camera_for_franka(model)
     body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "panda_hand")
@@ -346,6 +446,16 @@ def _render_frames(
 
 
 def replay_contract(contract_path: Path, output_dir: Path, render_every: int) -> dict[str, Any]:
+    """执行一次官方 Franka 合同回放。
+
+    Args:
+        contract_path: 回放合同 JSON 路径。
+        output_dir: 回放产物输出目录。
+        render_every: 每隔多少个 waypoint 渲染一帧。
+
+    Returns:
+        包含回放统计、检查项和渲染结果的摘要字典。
+    """
     contract = _load_contract(contract_path)
     joint_names = list(contract["joint_contract"]["mujoco_expected_joint_names"])
     waypoints = list(contract["trajectory_contract"]["waypoints"])
@@ -382,6 +492,11 @@ def replay_contract(contract_path: Path, output_dir: Path, render_every: int) ->
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；成功时打印回放统计信息。
+    """
     parser = argparse.ArgumentParser(description="Replay an official Franka playback contract in MuJoCo")
     parser.add_argument("--contract-json", type=Path, required=True, help="Path to playback_contract.json")
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory for playback evidence")

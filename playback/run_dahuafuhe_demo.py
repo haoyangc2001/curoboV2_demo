@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""One-click dahuafuhe planning plus MuJoCo playback entrypoint."""
+"""大花复合末端一键规划与 MuJoCo 回放入口。
+
+本文件把规划、合同导出、离屏回放和可选实时回放串起来，
+用于快速执行完整阶段一演示链路。
+"""
 
 from __future__ import annotations
 
@@ -33,6 +37,18 @@ def _realtime_replay(
     final_hold_s: float,
     shutdown_wait_s: float = 5.0,
 ) -> dict[str, Any]:
+    """在 MuJoCo viewer 中按真实时间节奏回放合同。
+
+    Args:
+        contract_path: 回放合同路径。
+        output_dir: 实时回放摘要输出目录。
+        playback_speed: 播放速度倍率。
+        final_hold_s: 最后一帧停留时长，单位秒。
+        shutdown_wait_s: 关闭 viewer 后等待资源释放的最长时间，单位秒。
+
+    Returns:
+        包含是否完整播放、耗时和关闭状态的摘要字典。
+    """
     contract = _load_contract(contract_path)
     joint_names = list(contract["joint_contract"]["mujoco_expected_joint_names"])
     waypoints = list(contract["trajectory_contract"]["waypoints"])
@@ -111,6 +127,16 @@ def run_all(
     render_every: int,
     goal_delta_xyz: tuple[float, float, float] = (0.12, 0.0, 0.05),
 ) -> dict[str, Any]:
+    """执行完整的大花复合末端离屏演示流程。
+
+    Args:
+        output_root: 本次运行的根输出目录。
+        render_every: 离屏回放渲染步长。
+        goal_delta_xyz: 规划目标相对位移。
+
+    Returns:
+        汇总规划、合同与回放关键结果的运行摘要字典。
+    """
     plan_dir = output_root / "plan"
     contract_dir = output_root / "contract"
     playback_dir = output_root / "playback"
@@ -146,6 +172,11 @@ def run_all(
 
 
 def main() -> None:
+    """命令行入口。
+
+    Returns:
+        无返回值；成功时打印一键流程的核心产物路径。
+    """
     parser = argparse.ArgumentParser(
         description="One-click dahuafuhe planning plus MuJoCo playback"
     )
