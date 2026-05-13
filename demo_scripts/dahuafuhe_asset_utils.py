@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Helpers for stage-1 dahuafuhe asset adaptation inside the demo workspace."""
+"""Helpers for the active ROKAE asset bundle inside the demo workspace."""
 
 from __future__ import annotations
 
@@ -19,15 +19,15 @@ SOURCE_CUROBO_ROBOT_ASSET_ROOT = (
     PROJECT_ROOT / "src" / "robot_description" / "curobo" / "content" / "assets" / "robot" / "rokae"
 )
 
-WORKSPACE_DAHUAFUHE_ROOT = WORKSPACE_ROOT / "robot_assets" / "dahuafuhe"
+WORKSPACE_DAHUAFUHE_ROOT = WORKSPACE_ROOT / "robot_assets" / "ROKAE"
 WORKSPACE_DAHUAFUHE_ROBOT_ROOT = WORKSPACE_DAHUAFUHE_ROOT / "robot"
 WORKSPACE_DAHUAFUHE_CUROBO_ROOT = WORKSPACE_DAHUAFUHE_ROBOT_ROOT / "curobo"
 WORKSPACE_DAHUAFUHE_MESH_ROOT = WORKSPACE_DAHUAFUHE_CUROBO_ROOT / "meshes"
 
 START_LAUNCH_NAME = "start.launch.yaml"
-ROBOT_CONFIG_NAME = "rokae_cr7_dahuafuhe.yml"
-URDF_NAME = "rokae_cr7_dahuafuhe.urdf"
-SPHERES_NAME = "rokae_cr7_dahuafuhe_spherized.yml"
+ROBOT_CONFIG_NAME = "xms5_r800_w4g3b4c_dahuafuhe.yml"
+URDF_NAME = "xms5_r800_w4g3b4c_dahuafuhe.urdf"
+SPHERES_NAME = "xms5_r800_w4g3b4c_spherized.yml"
 HAND_MESH_NAME = "dahuafuhe_v2.stl"
 
 

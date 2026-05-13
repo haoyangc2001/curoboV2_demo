@@ -1,0 +1,111 @@
+launch:
+  launch_arguments:
+    real_driver_backend:
+      default: "rokae"
+      description: Real robot driver backend for the ROKAE bundle.
+    rokae_robot_ip:
+      default: "192.168.2.160"
+      description: ROKAE robot controller IP for the active robot bundle.
+    rokae_local_ip:
+      default: "192.168.2.66"
+      description: Optional local NIC IP for ROKAE SDK.
+    use_real_robot:
+      default: "false"
+      description: Use real robot feedback and hardware drivers.
+    enable_real_feedback:
+      default: "true"
+      description: Start the selected real robot feedback driver to publish real_joint_states even when execution mode is sim.
+    camera_backend:
+      default: "realsense"
+      description: Camera backend for the active ROKAE bundle. Fixed to realsense for the current project.
+  robot:
+    urdf: robot/curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf
+  rviz:
+    display: displayV10_realsense_debug.rviz
+    fixed_frame: XMS5-R800-W4G3B4C_base
+    gripper_configs:
+      - 主夹爪:gripper_driver:1000:0
+      - 副夹爪:gripper_2_srv:900:10
+  files:
+    main_flow: main.yaml
+    state_machine: state_machines/unload/state_machine.yaml
+    vision: vision/realsense_vision_server.yaml
+    realsense_tag_vision: vision/realsense_cgb020_tag_server.yaml
+    obstacle_json: obstacles/abs.autosave.json
+    obstacle_rel_json: obstacles/rel.autosave.json
+    scene_meshes: scene_meshes.yaml
+  obstacle_panel:
+    frame_id: XMS5-R800-W4G3B4C_base
+    output_topic: /obstacle_boxes
+    default_size: 0.1
+  scene_mesh_marker:
+    frame_id: XMS5-R800-W4G3B4C_base
+    topic: visualization_marker_array
+    publish_period: 1.0
+  nodes:
+    robot_driver:
+      robot_mod: rokae_sr5
+      robot_ip:
+        launch_arg: rokae_robot_ip
+      local_ip:
+        launch_arg: rokae_local_ip
+      joint_state_pub_name: real_joint_states
+      joint_name: [XMS5-R800-W4G3B4C_joint_1, XMS5-R800-W4G3B4C_joint_2, XMS5-R800-W4G3B4C_joint_3, XMS5-R800-W4G3B4C_joint_4, XMS5-R800-W4G3B4C_joint_5, XMS5-R800-W4G3B4C_joint_6]
+      frame_id: XMS5-R800-W4G3B4C_base
+      speed: 50
+      line_speed: 40
+      default_zone: 0
+      move_timeout: 30.0
+      rt_speed_ratio: 0.05
+    driver_common:
+      frame_id: XMS5-R800-W4G3B4C_base
+      joint_name: [XMS5-R800-W4G3B4C_joint_1, XMS5-R800-W4G3B4C_joint_2, XMS5-R800-W4G3B4C_joint_3, XMS5-R800-W4G3B4C_joint_4, XMS5-R800-W4G3B4C_joint_5, XMS5-R800-W4G3B4C_joint_6]
+      joint_state_pub_name: real_joint_states
+      tool_name: dahuafuhe
+      wobj_name: wobj0
+    gripper_driver:
+      gripper_type: PGE
+      gripper_srv_name: gripper_driver
+      port: /dev/ttyUSB0
+      gripper_force: 30.0
+      gripper_acc: 100.0
+      gripper_push_length: 0.0
+      gripper_push_speed: 40.0
+    sim_joint_state_publisher:
+      input_topic: joint_states
+      output_topic: sim_joint_states
+      publish_rate: 30.0
+      joint_names: [XMS5-R800-W4G3B4C_joint_1, XMS5-R800-W4G3B4C_joint_2, XMS5-R800-W4G3B4C_joint_3, XMS5-R800-W4G3B4C_joint_4, XMS5-R800-W4G3B4C_joint_5, XMS5-R800-W4G3B4C_joint_6]
+      initial_joint_position: [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0]
+    external_comm:
+      http_port: 8082
+      entry_state: PREPARE_REFERENCE
+      default_real_mode:
+        launch_arg: use_real_robot
+    trajectory_planning:
+      robot_config: robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+      curr_joint_state: real_joint_states
+      real_joint_state_topic: real_joint_states
+      sim_joint_state_topic: sim_joint_states
+      collision_cache_obb: 10
+      use_cuda_graph: true
+      use_real_robot:
+        launch_arg: use_real_robot
+      wait_for_box_update: false
+      initial_joint_position: [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0]
+    realsense_source:
+      pointcloud_topic: /realsense/points
+      color_topic: /realsense/color/image_raw
+      depth_topic: /realsense/depth/image_rect_raw
+      color_camera_info_topic: /realsense/color/camera_info
+      frame_id: camera_link
+      publish_rate: 5.0
+      depth_width: 640
+      depth_height: 480
+      depth_fps: 15
+      color_width: 640
+      color_height: 480
+      color_fps: 15
+      align_to_color: false
+      frame_timeout_ms: 5000
+      startup_warmup_frames: 15

@@ -1,0 +1,11 @@
+<launch>
+  <param name="robot_description"
+    textfile="$(find XMS5-R800-W4G3B4C_description)/urdf/XMS5-R800-W4G3B4C.urdf" />
+   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    <param name="use_gui" value="FALSE"/>
+  </node> 
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find XMS5-R800-W4G3B4C_description)/launch/XMS5-R800-W4G3B4C.rviz"/>
+
+</launch>

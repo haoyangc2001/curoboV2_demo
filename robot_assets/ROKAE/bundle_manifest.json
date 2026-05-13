@@ -1,0 +1,16 @@
+{
+  "bundle_name": "ROKAE_asset_bundle",
+  "generated_at": "2026-05-13T12:49:25+0800",
+  "workspace_root": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE",
+  "active_robot_model": "XMS5-R800-W4G3B4C",
+  "active_files": {
+    "robot_config": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\xms5_r800_w4g3b4c_dahuafuhe.yml",
+    "urdf": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\curobo\\xms5_r800_w4g3b4c_dahuafuhe.urdf",
+    "collision_spheres": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\spheres\\xms5_r800_w4g3b4c_spherized.yml",
+    "mesh_root": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\curobo\\meshes\\xms5_r800_w4g3b4c_meshes"
+  },
+  "notes": [
+    "The active workspace robot model now points to XMS5-R800-W4G3B4C assets under robot_assets/ROKAE.",
+    "Collision spheres were remapped from the previous stage-1 robot by corresponding link index."
+  ]
+}
