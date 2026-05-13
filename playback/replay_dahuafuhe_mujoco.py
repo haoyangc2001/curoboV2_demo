@@ -209,8 +209,10 @@ def _build_link_body(
         _build_link_body(child_body, joint.child, links, joints, children_by_parent)
 
 
-def generate_dahuafuhe_stage1_mjcf(output_xml_path: Path) -> Path:
-    links, joints, children_by_parent, root_link = _load_urdf_model(DAHUAFUHE_URDF_PATH)
+def generate_dahuafuhe_stage1_mjcf(output_xml_path: Path, urdf_path: Path | None = None) -> Path:
+    if urdf_path is None:
+        urdf_path = DAHUAFUHE_URDF_PATH
+    links, joints, children_by_parent, root_link = _load_urdf_model(urdf_path)
 
     model = ET.Element("mujoco", model="dahuafuhe_stage1_playback")
     ET.SubElement(model, "compiler", angle="radian", autolimits="true", balanceinertia="true")
@@ -383,8 +385,12 @@ def replay_contract(contract_path: Path, output_dir: Path, render_every: int) ->
     waypoints = list(contract["trajectory_contract"]["waypoints"])
     dt = float(contract["timing_contract"]["sample_period_s"])
     ee_body_name = str(contract["robot_source"]["ee_body_name"])
+    urdf_path = Path(contract["robot_source"]["urdf_path"])
 
-    model_xml_path = generate_dahuafuhe_stage1_mjcf(output_dir / "dahuafuhe_stage1_playback.xml")
+    model_xml_path = generate_dahuafuhe_stage1_mjcf(
+        output_dir / "dahuafuhe_stage1_playback.xml",
+        urdf_path=urdf_path,
+    )
     model = mujoco.MjModel.from_xml_path(str(model_xml_path))
     data = mujoco.MjData(model)
 
@@ -424,6 +430,7 @@ def replay_contract(contract_path: Path, output_dir: Path, render_every: int) ->
     summary = {
         "success": all(checks.values()),
         "contract_path": str(contract_path),
+        "urdf_path": str(urdf_path),
         "model_xml_path": str(model_xml_path),
         "mujoco_version": mujoco.__version__,
         "joint_names": joint_names,

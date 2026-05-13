@@ -1,0 +1,359 @@
+{
+  "contract_name": "curobo_v2_stage1_dahuafuhe_mujoco_playback_contract",
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-05-13T05:24:28.549447+00:00",
+  "stage": "S1-009",
+  "workspace_root": "/home/jetson/tashan/curobo2_demo_ws",
+  "source": {
+    "planner_class": "MotionPlanner",
+    "result_class": "TrajOptSolverResult",
+    "robot_config_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml",
+    "tool_frames": [
+      "tool0"
+    ],
+    "goal_delta_xyz": [
+      0.15,
+      0.0,
+      0.06
+    ],
+    "start_tool_position": [
+      -0.10369061678647995,
+      -0.7999855875968933,
+      0.4638160169124603
+    ],
+    "start_tool_quaternion_wxyz": [
+      0.4997963309288025,
+      0.4999999403953552,
+      -0.5001018047332764,
+      -0.5001018047332764
+    ],
+    "goal_position": [
+      0.04630938917398453,
+      -0.7999855875968933,
+      0.5238159894943237
+    ],
+    "goal_quaternion_wxyz": [
+      0.4997963309288025,
+      0.4999999403953552,
+      -0.5001018047332764,
+      -0.5001018047332764
+    ],
+    "final_tool_position": [
+      0.04630942642688751,
+      -0.7999854683876038,
+      0.523815929889679
+    ],
+    "final_tool_quaternion_wxyz": [
+      0.49979639053344727,
+      0.49999991059303284,
+      -0.5001018047332764,
+      -0.5001017451286316
+    ],
+    "goal_position_error_norm": 1.383883869721103e-07,
+    "warmup_enable_graph": true,
+    "warmup_iterations": 5
+  },
+  "robot_source": {
+    "robot_config_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml",
+    "urdf_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/ROKAE/robot/curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf",
+    "ee_body_name": "tool0"
+  },
+  "joint_contract": {
+    "planner_active_joint_names": [
+      "XMS5-R800-W4G3B4C_joint_1",
+      "XMS5-R800-W4G3B4C_joint_2",
+      "XMS5-R800-W4G3B4C_joint_3",
+      "XMS5-R800-W4G3B4C_joint_4",
+      "XMS5-R800-W4G3B4C_joint_5",
+      "XMS5-R800-W4G3B4C_joint_6"
+    ],
+    "interpolated_joint_names": [
+      "XMS5-R800-W4G3B4C_joint_1",
+      "XMS5-R800-W4G3B4C_joint_2",
+      "XMS5-R800-W4G3B4C_joint_3",
+      "XMS5-R800-W4G3B4C_joint_4",
+      "XMS5-R800-W4G3B4C_joint_5",
+      "XMS5-R800-W4G3B4C_joint_6"
+    ],
+    "urdf_movable_joint_names": [
+      "XMS5-R800-W4G3B4C_joint_1",
+      "XMS5-R800-W4G3B4C_joint_2",
+      "XMS5-R800-W4G3B4C_joint_3",
+      "XMS5-R800-W4G3B4C_joint_4",
+      "XMS5-R800-W4G3B4C_joint_5",
+      "XMS5-R800-W4G3B4C_joint_6"
+    ],
+    "mujoco_expected_joint_names": [
+      "XMS5-R800-W4G3B4C_joint_1",
+      "XMS5-R800-W4G3B4C_joint_2",
+      "XMS5-R800-W4G3B4C_joint_3",
+      "XMS5-R800-W4G3B4C_joint_4",
+      "XMS5-R800-W4G3B4C_joint_5",
+      "XMS5-R800-W4G3B4C_joint_6"
+    ],
+    "mapping_policy": "Resolve MuJoCo joints strictly by joint name. Build the target qpos vector in MuJoCo joint order, and fail fast on any missing or duplicate names.",
+    "interpolated_to_mujoco_mapping": {
+      "source_joint_names": [
+        "XMS5-R800-W4G3B4C_joint_1",
+        "XMS5-R800-W4G3B4C_joint_2",
+        "XMS5-R800-W4G3B4C_joint_3",
+        "XMS5-R800-W4G3B4C_joint_4",
+        "XMS5-R800-W4G3B4C_joint_5",
+        "XMS5-R800-W4G3B4C_joint_6"
+      ],
+      "target_joint_names": [
+        "XMS5-R800-W4G3B4C_joint_1",
+        "XMS5-R800-W4G3B4C_joint_2",
+        "XMS5-R800-W4G3B4C_joint_3",
+        "XMS5-R800-W4G3B4C_joint_4",
+        "XMS5-R800-W4G3B4C_joint_5",
+        "XMS5-R800-W4G3B4C_joint_6"
+      ],
+      "source_to_target": [
+        {
+          "joint_name": "XMS5-R800-W4G3B4C_joint_1",
+          "source_index": 0,
+          "target_index": 0
+        },
+        {
+          "joint_name": "XMS5-R800-W4G3B4C_joint_2",
+          "source_index": 1,
+          "target_index": 1
+        },
+        {
+          "joint_name": "XMS5-R800-W4G3B4C_joint_3",
+          "source_index": 2,
+          "target_index": 2
+        },
+        {
+          "joint_name": "XMS5-R800-W4G3B4C_joint_4",
+          "source_index": 3,
+          "target_index": 3
+        },
+        {
+          "joint_name": "XMS5-R800-W4G3B4C_joint_5",
+          "source_index": 4,
+          "target_index": 4
+        },
+        {
+          "joint_name": "XMS5-R800-W4G3B4C_joint_6",
+          "source_index": 5,
+          "target_index": 5
+        }
+      ],
+      "is_identity": true
+    }
+  },
+  "timing_contract": {
+    "sample_period_s": 0.025,
+    "sample_count": 21,
+    "trajectory_span_s": 0.5,
+    "final_hold_s": 0.025,
+    "playback_policy": "Replay the exported waypoint sequence in order. Apply one waypoint every sample_period_s seconds without ROS topics or additional interpolation."
+  },
+  "trajectory_contract": {
+    "format": "joint_position_sequence",
+    "storage_layout": "[waypoint_index][joint_index]",
+    "waypoint_joint_count": 6,
+    "waypoints": [
+      [
+        -1.5709999799728394,
+        1.5709999799728394,
+        0.0,
+        1.5709999799728394,
+        1.5709999799728394,
+        0.0
+      ],
+      [
+        -1.5709999799728394,
+        1.5709999799728394,
+        0.0,
+        1.5709999799728394,
+        1.5709999799728394,
+        0.0
+      ],
+      [
+        -1.5703164339065552,
+        1.5701853036880493,
+        -0.0010754000395536423,
+        1.5710556507110596,
+        1.5716816186904907,
+        0.0002888825547415763
+      ],
+      [
+        -1.566396713256836,
+        1.5655053853988647,
+        -0.007272104732692242,
+        1.5713701248168945,
+        1.5755903720855713,
+        0.0019318789709359407
+      ],
+      [
+        -1.5593401193618774,
+        1.5570510625839233,
+        -0.01853468455374241,
+        1.5719177722930908,
+        1.582626461982727,
+        0.004837322048842907
+      ],
+      [
+        -1.5496371984481812,
+        1.5454180240631104,
+        -0.03404800221323967,
+        1.57266104221344,
+        1.592301368713379,
+        0.00880382489413023
+      ],
+      [
+        -1.5377434492111206,
+        1.5311542749404907,
+        -0.05307578295469284,
+        1.573566198348999,
+        1.6041604280471802,
+        0.013647785410284996
+      ],
+      [
+        -1.5241096019744873,
+        1.5147995948791504,
+        -0.07489626854658127,
+        1.5745996236801147,
+        1.6177539825439453,
+        0.01918763294816017
+      ],
+      [
+        -1.5091782808303833,
+        1.496885061264038,
+        -0.09880232065916061,
+        1.5757290124893188,
+        1.6326411962509155,
+        0.025246160104870796
+      ],
+      [
+        -1.4933847188949585,
+        1.4779350757598877,
+        -0.12409341335296631,
+        1.5769221782684326,
+        1.6483876705169678,
+        0.03164885565638542
+      ],
+      [
+        -1.4771602153778076,
+        1.4584678411483765,
+        -0.15007545053958893,
+        1.578147292137146,
+        1.6645640134811401,
+        0.038223255425691605
+      ],
+      [
+        -1.4609341621398926,
+        1.438999891281128,
+        -0.17605780065059662,
+        1.579372763633728,
+        1.6807421445846558,
+        0.044797737151384354
+      ],
+      [
+        -1.4451355934143066,
+        1.4200472831726074,
+        -0.2013496309518814,
+        1.580566644668579,
+        1.6964939832687378,
+        0.05120063200592995
+      ],
+      [
+        -1.4301962852478027,
+        1.4021291732788086,
+        -0.22525626420974731,
+        1.5816972255706787,
+        1.711389422416687,
+        0.05725932493805885
+      ],
+      [
+        -1.4165526628494263,
+        1.3857702016830444,
+        -0.2470768690109253,
+        1.582732081413269,
+        1.724993109703064,
+        0.06279926002025604
+      ],
+      [
+        -1.4046481847763062,
+        1.371502161026001,
+        -0.26610448956489563,
+        1.5836386680603027,
+        1.7368627786636353,
+        0.06764323264360428
+      ],
+      [
+        -1.394935131072998,
+        1.3598651885986328,
+        -0.2816177308559418,
+        1.5843836069107056,
+        1.746546983718872,
+        0.07160968333482742
+      ],
+      [
+        -1.3878703117370605,
+        1.3514078855514526,
+        -0.29288068413734436,
+        1.5849324464797974,
+        1.7535902261734009,
+        0.07451517134904861
+      ],
+      [
+        -1.383945345878601,
+        1.3467261791229248,
+        -0.2990778684616089,
+        1.5852477550506592,
+        1.7575029134750366,
+        0.07615822553634644
+      ],
+      [
+        -1.3832608461380005,
+        1.3459111452102661,
+        -0.30015337467193604,
+        1.585303544998169,
+        1.7581851482391357,
+        0.07644711434841156
+      ],
+      [
+        -1.3832608461380005,
+        1.3459111452102661,
+        -0.30015337467193604,
+        1.585303544998169,
+        1.7581851482391357,
+        0.07644711434841156
+      ]
+    ],
+    "first_waypoint": [
+      -1.5709999799728394,
+      1.5709999799728394,
+      0.0,
+      1.5709999799728394,
+      1.5709999799728394,
+      0.0
+    ],
+    "last_waypoint": [
+      -1.3832608461380005,
+      1.3459111452102661,
+      -0.30015337467193604,
+      1.585303544998169,
+      1.7581851482391357,
+      0.07644711434841156
+    ]
+  },
+  "review_assertions": [
+    "The playback input is the interpolated CuRobo joint sequence extracted from the minimal dahuafuhe pose demo.",
+    "MuJoCo joint mapping must be resolved by joint name instead of relying on positional identity.",
+    "The direct MuJoCo playback script must stay independent from ROS topics and main-project launch files.",
+    "The direct playback must preserve the dahuafuhe URDF mesh scale values when generating MJCF."
+  ],
+  "notes": [
+    "The stage-1 dahuafuhe contract is derived from the workspace-local adapted robot bundle created in S1-007.",
+    "The first validation target is a small relative translation from the start tool0 pose, chosen for stability."
+  ],
+  "runtime": {
+    "result_total_time_s": 0.18316904973983764,
+    "solve_time_s": 0.12897820806503296
+  }
+}

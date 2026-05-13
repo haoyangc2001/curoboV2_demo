@@ -1,0 +1,359 @@
+{
+  "contract_name": "curobo_v2_stage1_dahuafuhe_mujoco_playback_contract",
+  "contract_version": "1.0.0",
+  "generated_at_utc": "2026-05-13T05:14:12.934282+00:00",
+  "stage": "S1-009",
+  "workspace_root": "/home/jetson/tashan/curobo2_demo_ws",
+  "source": {
+    "planner_class": "MotionPlanner",
+    "result_class": "TrajOptSolverResult",
+    "robot_config_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/rokae_cr7_dahuafuhe.yml",
+    "tool_frames": [
+      "tool0"
+    ],
+    "goal_delta_xyz": [
+      0.15,
+      0.0,
+      0.06
+    ],
+    "start_tool_position": [
+      -0.3704531490802765,
+      -0.8538283705711365,
+      0.19385068118572235
+    ],
+    "start_tool_quaternion_wxyz": [
+      0.29864490032196045,
+      0.6407867074012756,
+      -0.6409868597984314,
+      -0.2988970875740051
+    ],
+    "goal_position": [
+      -0.220453143119812,
+      -0.8538283705711365,
+      0.25385066866874695
+    ],
+    "goal_quaternion_wxyz": [
+      0.29864490032196045,
+      0.6407867074012756,
+      -0.6409868597984314,
+      -0.2988970875740051
+    ],
+    "final_tool_position": [
+      -0.22045326232910156,
+      -0.8538283109664917,
+      0.25385063886642456
+    ],
+    "final_tool_quaternion_wxyz": [
+      0.2986448407173157,
+      0.6407867074012756,
+      -0.6409868597984314,
+      -0.2988971173763275
+    ],
+    "goal_position_error_norm": 1.365714012990793e-07,
+    "warmup_enable_graph": true,
+    "warmup_iterations": 5
+  },
+  "robot_source": {
+    "robot_config_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/rokae_cr7_dahuafuhe.yml",
+    "urdf_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/dahuafuhe/robot/curobo/rokae_cr7_dahuafuhe.urdf",
+    "ee_body_name": "tool0"
+  },
+  "joint_contract": {
+    "planner_active_joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "interpolated_joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "urdf_movable_joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "mujoco_expected_joint_names": [
+      "joint_1",
+      "joint_2",
+      "joint_3",
+      "joint_4",
+      "joint_5",
+      "joint_6"
+    ],
+    "mapping_policy": "Resolve MuJoCo joints strictly by joint name. Build the target qpos vector in MuJoCo joint order, and fail fast on any missing or duplicate names.",
+    "interpolated_to_mujoco_mapping": {
+      "source_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "target_joint_names": [
+        "joint_1",
+        "joint_2",
+        "joint_3",
+        "joint_4",
+        "joint_5",
+        "joint_6"
+      ],
+      "source_to_target": [
+        {
+          "joint_name": "joint_1",
+          "source_index": 0,
+          "target_index": 0
+        },
+        {
+          "joint_name": "joint_2",
+          "source_index": 1,
+          "target_index": 1
+        },
+        {
+          "joint_name": "joint_3",
+          "source_index": 2,
+          "target_index": 2
+        },
+        {
+          "joint_name": "joint_4",
+          "source_index": 3,
+          "target_index": 3
+        },
+        {
+          "joint_name": "joint_5",
+          "source_index": 4,
+          "target_index": 4
+        },
+        {
+          "joint_name": "joint_6",
+          "source_index": 5,
+          "target_index": 5
+        }
+      ],
+      "is_identity": true
+    }
+  },
+  "timing_contract": {
+    "sample_period_s": 0.025,
+    "sample_count": 21,
+    "trajectory_span_s": 0.5,
+    "final_hold_s": 0.025,
+    "playback_policy": "Replay the exported waypoint sequence in order. Apply one waypoint every sample_period_s seconds without ROS topics or additional interpolation."
+  },
+  "trajectory_contract": {
+    "format": "joint_position_sequence",
+    "storage_layout": "[waypoint_index][joint_index]",
+    "waypoint_joint_count": 6,
+    "waypoints": [
+      [
+        -1.5709999799728394,
+        1.5709999799728394,
+        0.0,
+        1.5709999799728394,
+        1.5709999799728394,
+        0.0
+      ],
+      [
+        -1.5709999799728394,
+        1.5709999799728394,
+        0.0,
+        1.5709999799728394,
+        1.5709999799728394,
+        0.0
+      ],
+      [
+        -1.570377230644226,
+        1.5708352327346802,
+        0.00021571344404947013,
+        1.570928931236267,
+        1.5716197490692139,
+        -0.00037471562973223627
+      ],
+      [
+        -1.566774845123291,
+        1.5698957443237305,
+        0.0014505956787616014,
+        1.5705267190933228,
+        1.575204610824585,
+        -0.002531828125938773
+      ],
+      [
+        -1.5601714849472046,
+        1.568224310874939,
+        0.0036656311713159084,
+        1.56982421875,
+        1.581774353981018,
+        -0.006447555962949991
+      ],
+      [
+        -1.5510401725769043,
+        1.5659362077713013,
+        0.006707516964524984,
+        1.5688694715499878,
+        1.5908586978912354,
+        -0.011850737035274506
+      ],
+      [
+        -1.5398149490356445,
+        1.5631364583969116,
+        0.010434722527861595,
+        1.5677053928375244,
+        1.6020253896713257,
+        -0.018486404791474342
+      ],
+      [
+        -1.5269235372543335,
+        1.5599302053451538,
+        0.014707131311297417,
+        1.5663747787475586,
+        1.614849328994751,
+        -0.026101836934685707
+      ],
+      [
+        -1.5127876996994019,
+        1.5564202070236206,
+        0.01938728615641594,
+        1.5649199485778809,
+        1.6289111375808716,
+        -0.03444904088973999
+      ],
+      [
+        -1.4978257417678833,
+        1.5527080297470093,
+        0.024339117109775543,
+        1.5633825063705444,
+        1.6437946557998657,
+        -0.04328294098377228
+      ],
+      [
+        -1.4824519157409668,
+        1.5488941669464111,
+        0.02942747436463833,
+        1.5618035793304443,
+        1.6590882539749146,
+        -0.05236048623919487
+      ],
+      [
+        -1.4670788049697876,
+        1.5450783967971802,
+        0.03451760113239288,
+        1.560224175453186,
+        1.6743814945220947,
+        -0.06143947318196297
+      ],
+      [
+        -1.4521187543869019,
+        1.5413612127304077,
+        0.03947464004158974,
+        1.5586851835250854,
+        1.6892637014389038,
+        -0.07027784734964371
+      ],
+      [
+        -1.4379862546920776,
+        1.5378434658050537,
+        0.04416301101446152,
+        1.5572278499603271,
+        1.7033220529556274,
+        -0.07863220572471619
+      ],
+      [
+        -1.425099492073059,
+        1.5346275568008423,
+        0.048445988446474075,
+        1.555893898010254,
+        1.7161407470703125,
+        -0.08625702559947968
+      ],
+      [
+        -1.41387939453125,
+        1.5318175554275513,
+        0.05218510702252388,
+        1.5547261238098145,
+        1.7273004055023193,
+        -0.09290347248315811
+      ],
+      [
+        -1.4047528505325317,
+        1.5295195579528809,
+        0.055238887667655945,
+        1.5537675619125366,
+        1.736377239227295,
+        -0.09831780940294266
+      ],
+      [
+        -1.3981540203094482,
+        1.5278403759002686,
+        0.057463981211185455,
+        1.5530619621276855,
+        1.7429401874542236,
+        -0.10224340856075287
+      ],
+      [
+        -1.394554615020752,
+        1.5268961191177368,
+        0.05870501697063446,
+        1.5526577234268188,
+        1.746520757675171,
+        -0.10440708696842194
+      ],
+      [
+        -1.3939324617385864,
+        1.5267305374145508,
+        0.05892183631658554,
+        1.552586317062378,
+        1.7471396923065186,
+        -0.10478302836418152
+      ],
+      [
+        -1.3939324617385864,
+        1.5267305374145508,
+        0.05892183631658554,
+        1.552586317062378,
+        1.7471396923065186,
+        -0.10478302836418152
+      ]
+    ],
+    "first_waypoint": [
+      -1.5709999799728394,
+      1.5709999799728394,
+      0.0,
+      1.5709999799728394,
+      1.5709999799728394,
+      0.0
+    ],
+    "last_waypoint": [
+      -1.3939324617385864,
+      1.5267305374145508,
+      0.05892183631658554,
+      1.552586317062378,
+      1.7471396923065186,
+      -0.10478302836418152
+    ]
+  },
+  "review_assertions": [
+    "The playback input is the interpolated CuRobo joint sequence extracted from the minimal dahuafuhe pose demo.",
+    "MuJoCo joint mapping must be resolved by joint name instead of relying on positional identity.",
+    "The direct MuJoCo playback script must stay independent from ROS topics and main-project launch files.",
+    "The direct playback must preserve the dahuafuhe URDF mesh scale values when generating MJCF."
+  ],
+  "notes": [
+    "The stage-1 dahuafuhe contract is derived from the workspace-local adapted robot bundle created in S1-007.",
+    "The first validation target is a small relative translation from the start tool0 pose, chosen for stability."
+  ],
+  "runtime": {
+    "result_total_time_s": 0.16630880665779113,
+    "solve_time_s": 0.11368774724006653
+  }
+}

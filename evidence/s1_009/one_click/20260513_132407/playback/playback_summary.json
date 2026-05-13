@@ -1,0 +1,197 @@
+{
+  "success": true,
+  "contract_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/contract/playback_contract.json",
+  "urdf_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/ROKAE/robot/curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf",
+  "model_xml_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/playback/dahuafuhe_stage1_playback.xml",
+  "mujoco_version": "3.4.0",
+  "joint_names": [
+    "XMS5-R800-W4G3B4C_joint_1",
+    "XMS5-R800-W4G3B4C_joint_2",
+    "XMS5-R800-W4G3B4C_joint_3",
+    "XMS5-R800-W4G3B4C_joint_4",
+    "XMS5-R800-W4G3B4C_joint_5",
+    "XMS5-R800-W4G3B4C_joint_6"
+  ],
+  "qpos_mapping": [
+    {
+      "joint_name": "XMS5-R800-W4G3B4C_joint_1",
+      "joint_id": 0,
+      "qpos_adr": 0,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "XMS5-R800-W4G3B4C_joint_2",
+      "joint_id": 1,
+      "qpos_adr": 1,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "XMS5-R800-W4G3B4C_joint_3",
+      "joint_id": 2,
+      "qpos_adr": 2,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "XMS5-R800-W4G3B4C_joint_4",
+      "joint_id": 3,
+      "qpos_adr": 3,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "XMS5-R800-W4G3B4C_joint_5",
+      "joint_id": 4,
+      "qpos_adr": 4,
+      "joint_type": 3
+    },
+    {
+      "joint_name": "XMS5-R800-W4G3B4C_joint_6",
+      "joint_id": 5,
+      "qpos_adr": 5,
+      "joint_type": 3
+    }
+  ],
+  "waypoint_count": 21,
+  "sample_period_s": 0.025,
+  "trajectory_span_s": 0.5,
+  "render_summary": {
+    "frame_count": 21,
+    "render_every": 1,
+    "ee_positions": [
+      [
+        -0.10369061427740045,
+        -0.799985497512202,
+        0.4638159980079498
+      ],
+      [
+        -0.10369061427740045,
+        -0.799985497512202,
+        0.4638159980079498
+      ],
+      [
+        -0.10315128571795859,
+        -0.8000747609994565,
+        0.46403184570503697
+      ],
+      [
+        -0.10005557467541729,
+        -0.8005783123259904,
+        0.4652658100270331
+      ],
+      [
+        -0.09447008210106453,
+        -0.8014456014677497,
+        0.4674744801447048
+      ],
+      [
+        -0.08676943388923389,
+        -0.8025257647156878,
+        0.4705176180663751
+      ],
+      [
+        -0.07730224616233013,
+        -0.8036673011079128,
+        0.47426119781005804
+      ],
+      [
+        -0.06641837231802229,
+        -0.8047267475579183,
+        0.4785704719213438
+      ],
+      [
+        -0.05446817616942621,
+        -0.8055807906337911,
+        0.4833092521165753
+      ],
+      [
+        -0.04180309710719095,
+        -0.8061346101093673,
+        0.48834118901007545
+      ],
+      [
+        -0.028777153425089727,
+        -0.806328403609901,
+        0.49352948277205355
+      ],
+      [
+        -0.015746170144845126,
+        -0.8061417668269557,
+        0.4987348492968718
+      ],
+      [
+        -0.003066049516628394,
+        -0.8055945846326078,
+        0.5038167329896402
+      ],
+      [
+        0.008907595838628005,
+        -0.8047458050816991,
+        0.5086325891080942
+      ],
+      [
+        0.019820482710714793,
+        -0.8036898292060463,
+        0.5130377314877176
+      ],
+      [
+        0.02931915812538982,
+        -0.8025503908112478,
+        0.5168845447191788
+      ],
+      [
+        0.03704954459756195,
+        -0.8014704071592175,
+        0.5200252767422952
+      ],
+      [
+        0.04265882404609728,
+        -0.8005991391077065,
+        0.5223121548975641
+      ],
+      [
+        0.045767806944474854,
+        -0.8000788881743314,
+        0.5235919289228609
+      ],
+      [
+        0.046309423823546206,
+        -0.7999854464113522,
+        0.5238159617863728
+      ],
+      [
+        0.046309423823546206,
+        -0.7999854464113522,
+        0.5238159617863728
+      ]
+    ],
+    "ee_start": [
+      -0.10369061427740045,
+      -0.799985497512202,
+      0.4638159980079498
+    ],
+    "ee_end": [
+      0.046309423823546206,
+      -0.7999854464113522,
+      0.5238159617863728
+    ],
+    "ee_displacement": 0.16155496613753514,
+    "ee_delta_xyz": [
+      0.15000003810094664,
+      5.1100849884910815e-08,
+      0.05999996377842298
+    ],
+    "ee_direction_alignment": 0.999999999999906,
+    "expected_start_ee_error_norm": 9.208109250792057e-08,
+    "expected_end_ee_error_norm": 3.88217992655437e-08,
+    "gif_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/playback/playback.gif",
+    "start_png": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/playback/playback_start.png",
+    "end_png": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/playback/playback_end.png"
+  },
+  "checks": {
+    "all_contract_joints_resolved": true,
+    "waypoint_width_matches_joint_count": true,
+    "ee_displacement_gt_0_02m": true,
+    "ee_direction_alignment_gt_0_95": true,
+    "start_ee_matches_contract_lt_1e_4m": true,
+    "end_ee_matches_contract_lt_1e_4m": true
+  }
+}

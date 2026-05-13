@@ -37,8 +37,12 @@ def _realtime_replay(
     joint_names = list(contract["joint_contract"]["mujoco_expected_joint_names"])
     waypoints = list(contract["trajectory_contract"]["waypoints"])
     dt = float(contract["timing_contract"]["sample_period_s"])
+    urdf_path = Path(contract["robot_source"]["urdf_path"])
 
-    model_xml_path = generate_dahuafuhe_stage1_mjcf(output_dir / "dahuafuhe_stage1_realtime.xml")
+    model_xml_path = generate_dahuafuhe_stage1_mjcf(
+        output_dir / "dahuafuhe_stage1_realtime.xml",
+        urdf_path=urdf_path,
+    )
     model = mujoco.MjModel.from_xml_path(str(model_xml_path))
     data = mujoco.MjData(model)
     qpos_mapping = _resolve_qpos_addresses(model, joint_names)
@@ -84,6 +88,7 @@ def _realtime_replay(
     summary = {
         "success": completed_all_waypoints,
         "contract_path": str(contract_path),
+        "urdf_path": str(urdf_path),
         "model_xml_path": str(model_xml_path),
         "playback_speed": playback_speed,
         "requested_waypoints": len(waypoints),

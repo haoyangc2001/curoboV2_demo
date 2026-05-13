@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "contract_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/contract/playback_contract.json",
+  "urdf_path": "/home/jetson/tashan/curobo2_demo_ws/robot_assets/ROKAE/robot/curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf",
+  "model_xml_path": "/home/jetson/tashan/curobo2_demo_ws/evidence/s1_009/one_click/20260513_132407/realtime/dahuafuhe_stage1_realtime.xml",
+  "playback_speed": 1.0,
+  "requested_waypoints": 21,
+  "rendered_waypoints": 21,
+  "sample_period_s": 0.025,
+  "final_hold_s": 1.0,
+  "elapsed_wall_time_s": 1.6596509049995802,
+  "viewer_shutdown_wait_s": 5.0,
+  "viewer_shutdown_completed": true,
+  "stopped_early": false
+}
