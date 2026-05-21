@@ -20,8 +20,8 @@ DEMO_SCRIPTS_ROOT = WORKSPACE_ROOT / "demo_scripts"
 if str(DEMO_SCRIPTS_ROOT) not in sys.path:
     sys.path.insert(0, str(DEMO_SCRIPTS_ROOT))
 
-from demo_plan_pose_dahuafuhe import run_demo
-from dahuafuhe_asset_utils import workspace_robot_config_path, workspace_urdf_path
+from demo_plan_pose_rokae import run_demo
+from rokae_asset_utils import workspace_robot_config_path, workspace_urdf_path
 
 
 def _parse_movable_urdf_joint_names(urdf_path: Path) -> list[str]:
@@ -96,14 +96,14 @@ def export_contract(
 
     plan_summary = run_demo(output_dir=plan_output_dir, goal_delta_xyz=goal_delta_xyz)
     if not plan_summary["success"]:
-        raise RuntimeError("failed to obtain a successful dahuafuhe planning result for S1-009 review")
+        raise RuntimeError("failed to obtain a successful ROKAE planning result for S1-009 review")
 
     urdf_path = workspace_urdf_path()
     urdf_movable_joint_names = _parse_movable_urdf_joint_names(urdf_path)
     interpolated_joint_names = list(plan_summary["trajectory_contract"]["joint_names"])
     if interpolated_joint_names != urdf_movable_joint_names:
         raise ValueError(
-            "dahuafuhe interpolated joint order does not match movable URDF joint order"
+            "ROKAE interpolated joint order does not match movable URDF joint order"
         )
 
     waypoints = list(plan_summary["trajectory_contract"]["waypoints"])
@@ -111,7 +111,7 @@ def export_contract(
     source_mapping = _build_joint_mapping(interpolated_joint_names, urdf_movable_joint_names)
 
     contract = {
-        "contract_name": "curobo_v2_stage1_dahuafuhe_mujoco_playback_contract",
+        "contract_name": "curobo_v2_stage1_rokae_mujoco_playback_contract",
         "contract_version": "1.0.0",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "stage": "S1-009",
@@ -167,13 +167,13 @@ def export_contract(
             "last_waypoint": waypoints[-1],
         },
         "review_assertions": [
-            "The playback input is the interpolated CuRobo joint sequence extracted from the minimal dahuafuhe pose demo.",
+            "The playback input is the interpolated CuRobo joint sequence extracted from the minimal ROKAE pose demo.",
             "MuJoCo joint mapping must be resolved by joint name instead of relying on positional identity.",
             "The direct MuJoCo playback script must stay independent from ROS topics and main-project launch files.",
-            "The direct playback must preserve the dahuafuhe URDF mesh scale values when generating MJCF.",
+            "The direct playback must preserve the ROKAE URDF mesh scale values when generating MJCF.",
         ],
         "notes": [
-            "The stage-1 dahuafuhe contract is derived from the workspace-local adapted robot bundle created in S1-007.",
+            "The stage-1 ROKAE contract is derived from the workspace-local adapted robot bundle created in S1-007.",
             "The first validation target is a small relative translation from the start tool0 pose, chosen for stability.",
         ],
         "runtime": {
@@ -214,7 +214,7 @@ def main() -> None:
         无返回值；成功时输出合同路径与轨迹采样信息。
     """
     parser = argparse.ArgumentParser(
-        description="Export a dahuafuhe MuJoCo playback contract from a real pose plan"
+        description="Export a ROKAE MuJoCo playback contract from a real pose plan"
     )
     parser.add_argument("--output-dir", type=Path, required=True, help="Directory for contract artifacts")
     parser.add_argument(

@@ -16,7 +16,7 @@ from xml.etree import ElementTree as ET
 
 import yaml
 
-from dahuafuhe_asset_utils import (
+from rokae_asset_utils import (
     HAND_MESH_NAME,
     SOURCE_CUROBO_ROBOT_ASSET_ROOT,
     WORKSPACE_DAHUAFUHE_CUROBO_ROOT,
@@ -172,7 +172,7 @@ def materialize_bundle() -> dict:
     adapted_robot_cfg = _write_adapted_robot_config()
 
     manifest = {
-        "bundle_name": "dahuafuhe_stage1_asset_bundle",
+        "bundle_name": "rokae_stage1_asset_bundle",
         "generated_at": datetime.now().astimezone().isoformat(),
         "workspace_root": str(WORKSPACE_DAHUAFUHE_ROOT),
         "copied_files": {
@@ -202,10 +202,10 @@ def materialize_bundle() -> dict:
             },
             "note": (
                 "The copied URDF no longer points to tashan_robot/src/robot_description. "
-                "All mesh paths now resolve within curobo2_demo_ws/robot_assets/dahuafuhe."
+                "All mesh paths now resolve within curobo2_demo_ws/robot_assets/ROKAE."
             ),
         },
-        "scope_note": "Stage-1 bundle only supports dahuafuhe as the first project robot target.",
+        "scope_note": "Stage-1 bundle only supports the current ROKAE robot target.",
     }
     workspace_manifest_path().write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
     return manifest
@@ -217,7 +217,7 @@ def main() -> None:
     Returns:
         无返回值；标准输出打印生成的资产包清单。
     """
-    parser = argparse.ArgumentParser(description="Materialize the stage-1 dahuafuhe asset bundle")
+    parser = argparse.ArgumentParser(description="Materialize the stage-1 ROKAE asset bundle")
     parser.parse_args()
 
     manifest = materialize_bundle()

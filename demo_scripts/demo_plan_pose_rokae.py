@@ -25,7 +25,7 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from curobo.motion_planner import MotionPlanner, MotionPlannerCfg
 from curobo.types import GoalToolPose, JointState
 
-from dahuafuhe_asset_utils import resolve_robot_config_for_workspace, workspace_robot_config_path
+from rokae_asset_utils import resolve_robot_config_for_workspace, workspace_robot_config_path
 
 
 DEFAULT_GOAL_DELTA_XYZ = (0.12, 0.0, 0.05)
@@ -160,7 +160,7 @@ def run_demo(
         "result_class": type(result).__name__ if result is not None else None,
         "interpolation_dt": float(planner.trajopt_solver.config.interpolation_dt),
         "notes": [
-            "Stage-1 dahuafuhe target pose is selected by applying a small relative translation to the current tool0 pose.",
+            "Stage-1 ROKAE target pose is selected by applying a small relative translation to the current tool0 pose.",
             "This step stays inside the standalone demo workspace and does not use ROS services or the main project install tree.",
         ],
     }
@@ -226,7 +226,7 @@ def main() -> None:
     Returns:
         无返回值；根据规划结果设置退出码。
     """
-    parser = argparse.ArgumentParser(description="Minimal standalone CuRobo2 dahuafuhe pose demo")
+    parser = argparse.ArgumentParser(description="Minimal standalone CuRobo2 ROKAE pose demo")
     parser.add_argument(
         "--output-dir",
         type=Path,

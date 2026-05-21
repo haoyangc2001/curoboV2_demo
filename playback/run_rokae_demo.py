@@ -17,11 +17,11 @@ from typing import Any
 import mujoco
 import mujoco.viewer
 
-from export_dahuafuhe_playback_contract import export_contract
-from replay_dahuafuhe_mujoco import (
+from export_rokae_playback_contract import export_contract
+from replay_rokae_mujoco import (
     _load_contract,
     _resolve_qpos_addresses,
-    generate_dahuafuhe_stage1_mjcf,
+    generate_rokae_stage1_mjcf,
     replay_contract,
 )
 
@@ -55,8 +55,8 @@ def _realtime_replay(
     dt = float(contract["timing_contract"]["sample_period_s"])
     urdf_path = Path(contract["robot_source"]["urdf_path"])
 
-    model_xml_path = generate_dahuafuhe_stage1_mjcf(
-        output_dir / "dahuafuhe_stage1_realtime.xml",
+    model_xml_path = generate_rokae_stage1_mjcf(
+        output_dir / "rokae_stage1_realtime.xml",
         urdf_path=urdf_path,
     )
     model = mujoco.MjModel.from_xml_path(str(model_xml_path))
@@ -178,7 +178,7 @@ def main() -> None:
         无返回值；成功时打印一键流程的核心产物路径。
     """
     parser = argparse.ArgumentParser(
-        description="One-click dahuafuhe planning plus MuJoCo playback"
+        description="One-click ROKAE planning plus MuJoCo playback"
     )
     parser.add_argument(
         "--output-root",
@@ -249,7 +249,7 @@ def main() -> None:
         json.dumps(summary, indent=2, ensure_ascii=False) + "\n"
     )
 
-    print("One-click dahuafuhe demo completed")
+    print("One-click ROKAE demo completed")
     print(f"Output root: {output_root}")
     print(f"Contract: {output_root / 'contract' / 'playback_contract.json'}")
     print(f"Playback GIF: {output_root / 'playback' / 'playback.gif'}")

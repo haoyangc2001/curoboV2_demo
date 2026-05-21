@@ -30,8 +30,8 @@ WORKSPACE_DAHUAFUHE_MESH_ROOT = WORKSPACE_DAHUAFUHE_CUROBO_ROOT / "meshes"
 
 START_LAUNCH_NAME = "start.launch.yaml"
 ROBOT_CONFIG_NAME = "xms5_r800_w4g3b4c_dahuafuhe.yml"
-URDF_NAME = "xms5_r800_w4g3b4c_dahuafuhe.urdf"
-SPHERES_NAME = "xms5_r800_w4g3b4c_spherized.yml"
+URDF_NAME = "ROKAE_SR5_0.9C.urdf"
+SPHERES_NAME = "ROKAE_SR5_0.9C_spherized.yml"
 HAND_MESH_NAME = "dahuafuhe_v2.stl"
 
 

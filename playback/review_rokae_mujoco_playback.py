@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from run_dahuafuhe_demo import run_all
+from run_rokae_demo import run_all
 
 
 def main() -> None:
@@ -20,7 +20,7 @@ def main() -> None:
     Returns:
         无返回值；根据批量回放复核是否通过设置退出码。
     """
-    parser = argparse.ArgumentParser(description="Repeat the dahuafuhe MuJoCo playback loop")
+    parser = argparse.ArgumentParser(description="Repeat the ROKAE MuJoCo playback loop")
     parser.add_argument(
         "--repeat-count",
         type=int,

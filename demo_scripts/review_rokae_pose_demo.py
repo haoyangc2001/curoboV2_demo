@@ -12,8 +12,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from dahuafuhe_asset_utils import workspace_robot_config_path
-from demo_plan_pose_dahuafuhe import DEFAULT_GOAL_DELTA_XYZ, run_demo
+from rokae_asset_utils import workspace_robot_config_path
+from demo_plan_pose_rokae import DEFAULT_GOAL_DELTA_XYZ, run_demo
 
 
 def main() -> None:
@@ -22,7 +22,7 @@ def main() -> None:
     Returns:
         无返回值；根据全部重复运行是否通过设置退出码。
     """
-    parser = argparse.ArgumentParser(description="Repeat the dahuafuhe pose demo for review")
+    parser = argparse.ArgumentParser(description="Repeat the ROKAE pose demo for review")
     parser.add_argument(
         "--repeat-count",
         type=int,

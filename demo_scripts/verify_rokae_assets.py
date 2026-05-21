@@ -21,7 +21,7 @@ if str(LOCAL_CUROBO_ROOT) not in sys.path:
 
 from curobo._src.types.robot import RobotCfg
 
-from dahuafuhe_asset_utils import (
+from rokae_asset_utils import (
     WORKSPACE_ROOT as DEMO_WORKSPACE_ROOT,
     is_within_workspace,
     load_yaml,
@@ -99,7 +99,7 @@ def verify_once() -> dict:
     manifest_path = workspace_manifest_path()
     if not manifest_path.exists():
         raise FileNotFoundError(
-            "dahuafuhe asset bundle is missing. Run materialize_dahuafuhe_assets.py first."
+            "ROKAE asset bundle is missing. Run materialize_rokae_assets.py first."
         )
 
     start_launch = load_yaml(workspace_start_launch_path())
@@ -197,7 +197,7 @@ def main() -> None:
     Returns:
         无返回值；根据重复校验是否全部通过设置退出码。
     """
-    parser = argparse.ArgumentParser(description="Verify the stage-1 dahuafuhe asset bundle")
+    parser = argparse.ArgumentParser(description="Verify the stage-1 ROKAE asset bundle")
     parser.add_argument(
         "--repeat-count",
         type=int,

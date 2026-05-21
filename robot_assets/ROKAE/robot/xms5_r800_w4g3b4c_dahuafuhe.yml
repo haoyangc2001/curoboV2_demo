@@ -4,7 +4,7 @@ robot_cfg:
     base_link: XMS5-R800-W4G3B4C_base
     tool_frames:
     - tool0
-    urdf_path: curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf
+    urdf_path: curobo/ROKAE_SR5_0.9C.urdf
     asset_root_path: curobo
     collision_link_names:
     - XMS5-R800-W4G3B4C_link1
