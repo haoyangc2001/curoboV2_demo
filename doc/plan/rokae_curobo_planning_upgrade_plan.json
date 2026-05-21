@@ -1,0 +1,210 @@
+{
+  "project_name": "curoboV2_demo",
+  "document_type": "planning_upgrade_plan",
+  "source_markdown": "doc/plan/rokae_curobo_planning_upgrade_plan.md",
+  "background": [
+    "当前 curoboV2_demo 已具备一条最小可运行的 ROKAE CuRobo 规划与 MuJoCo 回放链路，能够使用工作区本地机器人资产完成一次末端位姿规划并输出回放结果。",
+    "当前 demo 的定位仍然是最小验证样例，规划入口以脚本为主，输入方式较硬编码，规划场景中没有外部障碍物，输出结果也偏向 demo 摘要而非工程化规划结果。",
+    "tashan_robot 中的 dahuafuhe 项目已经具备较完整的 CuRobo 规划层，能够通过统一入口接收当前关节状态、目标位姿或目标关节、障碍物场景及若干规划参数，并输出可直接执行的轨迹结果。",
+    "本次任务不是把 curoboV2_demo 改造成 ROS 服务工程，而是要把它升级为一个离线脚本版的 ROKAE CuRobo 规划工具，在底层能力、输入模型、场景建模和输出结果上向 dahuafuhe 对齐，同时继续保持脚本执行和文件输入输出的工作方式。"
+  ],
+  "overall_goal": [
+    "将 curoboV2_demo 从最小位姿规划 demo 升级为离线脚本版的 ROKAE CuRobo 规划工具。",
+    "保持非 ROS 的运行方式，仍然采用参数传入或配置文件传入，脚本执行，文件输出结果。",
+    "在规划能力上对齐 dahuafuhe 的核心 CuRobo 规划层，优先覆盖 point-to-point pose、joint target 和障碍物 world 建模能力。",
+    "复用与 dahuafuhe 相同格式的障碍物配置文件，在 CuRobo 中构造外部障碍物场景。",
+    "形成稳定的规划输入 schema、统一的规划结果输出格式和可复用的 MuJoCo 回放接口。"
+  ],
+  "implementation_principles": [
+    "保持离线化和轻量化，不引入 ROS 服务通信作为本阶段前提。",
+    "优先对齐底层规划能力，不追求照搬 dahuafuhe 的工程启动方式。",
+    "先稳定输入输出接口，再逐步扩展规划模式和高级能力。",
+    "先完成 pose/joint + world 主链路，再补 approach、grasp、level carry 等高级能力。",
+    "优先复用当前仓库已有的 ROKAE 资产、collision spheres、MuJoCo 回放链路和 CuRobo 本地加载方式。",
+    "障碍物场景第一阶段统一使用 cuboid world，不同时引入更复杂的 mesh world。"
+  ],
+  "mandatory_requirements": [
+    "每个阶段都必须记录工作目标、是否完成以及实际完成工作。",
+    "如果某阶段标记为已完成，则 completed_work 不能留空，必须写明本次实际做了什么。",
+    "如果某阶段尚未实施或尚未闭环验证，则 is_completed 必须保持为 false。",
+    "后续每推进一个阶段，都应同步更新本 JSON，而不是只更新 Markdown 文档。"
+  ],
+  "current_scope": {
+    "included": [
+      "离线 CuRobo 规划输入 schema 设计。",
+      "ROKAE 机器人配置的绝对路径解析与加载。",
+      "绝对障碍物与相对障碍物 JSON 的读取、变换与 world 构建。",
+      "离线版 MotionGen 核心封装。",
+      "point-to-point pose 与 joint target 两类规划入口。",
+      "统一规划结果输出。",
+      "与现有 MuJoCo 回放链路对接。"
+    ],
+    "excluded": [
+      "ROS 节点通信与服务封装。",
+      "实时 joint state 订阅。",
+      "真机联动与状态机联调。",
+      "第一阶段完整实现 grasp、level carry、auto prealign 全能力。",
+      "将整个 curoboV2_demo 重构为与 tashan_robot 同构的工程。"
+    ],
+    "handling_rules": [
+      "旧的 demo 脚本可以保留，但不再承担工程化入口职责。",
+      "新增能力优先通过新模块和新入口承接，避免继续把最小 demo 叠成大脚本。",
+      "只要输入输出模型未稳定，就不继续扩大功能范围。",
+      "MuJoCo 回放层应尽量消费统一规划结果，而不是继续依赖 demo 专用摘要。"
+    ]
+  },
+  "stages": [
+    {
+      "stage_id": 1,
+      "title": "明确离线规划输入接口",
+      "goal": "定义 curoboV2_demo 的统一规划输入格式，使规划不再依赖脚本中的硬编码参数。",
+      "work_items": [
+        "定义 mode 字段，支持 point_to_point、joint_target、approach、grasp、level_carry。",
+        "定义 robot_config 输入。",
+        "定义 start.joint_position 输入。",
+        "定义 goal.pose 与 goal.joint_position 输入。",
+        "定义 world.obstacle_json 与 world.obstacle_rel_json 输入。",
+        "定义 speed_scale、hold_vec_weight、approach_offset、retract_offset、linear_axis、segment_length 等可选参数。"
+      ],
+      "expected_results": [
+        "形成稳定的规划输入 schema。",
+        "后续规划脚本不需要再通过改 Python 常量来切换输入。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 2,
+      "title": "新增障碍物 world 工具模块",
+      "goal": "将 dahuafuhe 中障碍物 JSON 到 CuRobo world 的构建逻辑迁移到本仓库，形成独立可复用模块。",
+      "work_items": [
+        "新增 rokae_world_utils.py。",
+        "支持读取 abs.autosave.json。",
+        "支持读取 rel.autosave.json。",
+        "支持根据 base_pose 将相对障碍物转换到绝对坐标。",
+        "支持生成 cuboid world_dict。",
+        "输出 boxes、world_dict、world_summary。"
+      ],
+      "expected_results": [
+        "给定障碍物配置文件即可构造 CuRobo world。",
+        "规划层和回放层都可复用这份 world 构建工具。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 3,
+      "title": "新增离线版 CuRobo 核心封装",
+      "goal": "新增一个与 dahuafuhe 中 CuroboMotionGen 角色对应的离线封装，作为本项目的规划内核。",
+      "work_items": [
+        "新增 rokae_motion_gen.py。",
+        "基于 MotionGen 实现 plan_single。",
+        "基于 MotionGen 实现 plan_single_js。",
+        "实现 fk_single。",
+        "实现 update_world_from_dict。",
+        "解析 robot_config 中的 urdf_path、asset_root_path、collision_spheres。",
+        "输出 trajectory_points、interpolation_dt、solve_time、status、profile。"
+      ],
+      "expected_results": [
+        "不依赖 ROS 即可完成与 dahuafuhe 接近的单次 pose/joint 规划。",
+        "规划层具备 world 更新能力和统一结果抽取能力。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 4,
+      "title": "建立通用离线规划入口",
+      "goal": "新增统一脚本入口承接工程化规划能力，而不是继续在 demo_plan_pose_rokae.py 上叠加功能。",
+      "work_items": [
+        "新增 plan_rokae_motion.py。",
+        "支持 --config 加载输入文件。",
+        "支持命令行覆盖关键输入参数。",
+        "根据 mode 分发到不同规划逻辑。",
+        "自动加载 world 和 robot_config。",
+        "保留 demo_plan_pose_rokae.py 作为最小样例，不再承担主入口职责。"
+      ],
+      "expected_results": [
+        "单一入口即可完成 point-to-point pose 或 joint target 规划。",
+        "后续高级模式可以继续在该入口上扩展。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 5,
+      "title": "统一规划输出结构",
+      "goal": "把当前偏 demo 的输出整理为稳定、可复用、适合后续消费的规划结果文件。",
+      "work_items": [
+        "定义 summary.json 输出内容。",
+        "定义 trajectory.json 输出内容。",
+        "定义 world_summary.json 输出内容。",
+        "明确 playback_contract.json 与新规划输出之间的关系。",
+        "保证后续 MuJoCo 回放和批量 review 可直接消费统一结果。"
+      ],
+      "expected_results": [
+        "形成稳定的规划输出格式。",
+        "规划结果不再依赖 demo 专用摘要结构。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 6,
+      "title": "接入 MuJoCo 回放链路",
+      "goal": "让新的离线规划输出能直接对接现有 MuJoCo 回放、合同导出和评审链路。",
+      "work_items": [
+        "调整 export_rokae_playback_contract.py 的输入来源。",
+        "让合同导出从新规划输出读取 joint_names、waypoints、sample_period_s。",
+        "保持现有 replay_rokae_mujoco.py 与 run_rokae_demo.py 的能力。",
+        "验证离屏回放和 viewer 回放都可继续工作。"
+      ],
+      "expected_results": [
+        "新规划入口输出可直接被回放层消费。",
+        "规划与回放链路使用同一份稳定数据结构。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 7,
+      "title": "补齐高级规划能力",
+      "goal": "在主链路稳定后，逐步补齐更接近 dahuafuhe 的高级规划能力。",
+      "work_items": [
+        "支持 hold_vec_weight。",
+        "支持 speed_scale。",
+        "支持 approach_offset 与 linear_axis。",
+        "补充 grasp 规划能力。",
+        "补充 level_carry 规划能力。",
+        "视情况补充 auto prealign。"
+      ],
+      "expected_results": [
+        "本项目可覆盖大部分 dahuafuhe CuRobo 规划模式。",
+        "高级能力建立在稳定的离线规划内核之上，而不是临时拼接。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    }
+  ],
+  "current_progress": [
+    "已完成对 tashan_robot/dahuafuhe CuRobo 规划层的静态分析，明确其核心封装、输入输出形式、障碍物 world 建模方式以及与当前 curoboV2_demo 的差异。",
+    "已完成规划升级方案的 Markdown 文档整理，形成 rokae_curobo_planning_upgrade_plan.md。",
+    "当前尚未开始具体代码实施，因此 stages 中各开发阶段暂时都标记为未完成。",
+    "后续一旦进入实际开发，应先从 stage 1 的输入 schema 与 stage 2 的 world 工具模块开始推进。"
+  ],
+  "risk_points": [
+    "如果继续在 demo_plan_pose_rokae.py 上叠功能，后续可维护性会快速下降。",
+    "如果在输入输出结构尚未稳定前就扩展高级规划模式，后续重构成本会增大。",
+    "障碍物 world 如果不先统一为 cuboid，第一阶段很容易把范围扩大到 mesh world 和更复杂的场景建模。",
+    "如果规划输出仍然耦合当前 demo 摘要结构，MuJoCo 回放链路后续会越来越难维护。",
+    "如果过早追求与 dahuafuhe 完全同构，可能会把本项目从离线轻量工具推成另一个 ROS 工程。"
+  ],
+  "recommended_route": [
+    "先完成规划输入 schema。",
+    "再完成障碍物 world 工具模块。",
+    "再建立离线版 MotionGen 核心封装。",
+    "然后建立通用规划入口和统一输出结构。",
+    "接着将新规划输出接回 MuJoCo 回放。",
+    "最后按优先级补充高级规划模式。"
+  ]
+}
