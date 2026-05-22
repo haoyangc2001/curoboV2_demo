@@ -65,8 +65,16 @@ def _pose_xyzw_to_curobo(pose_xyzw: list[float]) -> list[float]:
     return [x, y, z, qw, qx, qy, qz]
 
 
-def run(cfg: PlanningConfig) -> dict:
-    """执行规划并返回结果。"""
+def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
+    """执行规划并返回结果。
+
+    Args:
+        cfg: 规划配置。
+        config_path: 输入配置文件路径（用于记录来源）。
+
+    Returns:
+        规划结果字典。
+    """
     print(f"模式: {cfg.mode}")
     print(f"起始关节: {cfg.start.joint_position}")
 
@@ -77,6 +85,7 @@ def run(cfg: PlanningConfig) -> dict:
     print(f"工具帧: {gen.tool_frames}")
 
     # 加载障碍物
+    world_result = None
     if cfg.world.obstacle_json or cfg.world.obstacle_rel_json:
         abs_p = Path(cfg.world.obstacle_json) if cfg.world.obstacle_json else None
         rel_p = Path(cfg.world.obstacle_rel_json) if cfg.world.obstacle_rel_json else None
@@ -123,12 +132,18 @@ def run(cfg: PlanningConfig) -> dict:
             "mode": cfg.mode,
             "success": result["success"],
             "status": result["status"],
+            "robot_config": cfg.robot_config,
+            "tool_frames": gen.tool_frames,
+            "joint_names": gen.joint_names,
             "start_joint": cfg.start.joint_position,
             "goal_pose": cfg.goal.pose,
             "goal_joint": cfg.goal.joint_position,
             "solve_time": result.get("solve_time"),
+            "total_time": result.get("total_time"),
+            "wall_time": wall_time,
             "interpolation_dt": result.get("interpolation_dt"),
             "waypoint_count": result.get("waypoint_count"),
+            "input_config": str(config_path) if config_path else None,
         }
         (out / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
 
@@ -141,6 +156,16 @@ def run(cfg: PlanningConfig) -> dict:
             }
             (out / "trajectory.json").write_text(json.dumps(traj, indent=2, ensure_ascii=False))
 
+        # world_summary.json
+        if world_result is not None:
+            ws = {
+                "abs_json": cfg.world.obstacle_json,
+                "rel_json": cfg.world.obstacle_rel_json,
+                "summary": world_result["world_summary"],
+                "obstacle_names": list(world_result["world_dict"].get("cuboid", {}).keys()),
+            }
+            (out / "world_summary.json").write_text(json.dumps(ws, indent=2, ensure_ascii=False))
+
         print(f"输出目录: {out}")
 
     return result
@@ -148,9 +173,10 @@ def run(cfg: PlanningConfig) -> dict:
 
 def main() -> None:
     args = _parse_args()
-    cfg = load_config(Path(args.config))
+    config_path = Path(args.config)
+    cfg = load_config(config_path)
     cfg = _apply_overrides(cfg, args)
-    run(cfg)
+    run(cfg, config_path=config_path)
 
 
 if __name__ == "__main__":

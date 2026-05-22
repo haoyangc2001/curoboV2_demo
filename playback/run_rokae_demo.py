@@ -17,7 +17,7 @@ from typing import Any
 import mujoco
 import mujoco.viewer
 
-from export_rokae_playback_contract import export_contract
+from export_rokae_playback_contract import build_contract_from_plan_output, export_contract
 from replay_rokae_mujoco import (
     _load_contract,
     _resolve_qpos_addresses,
@@ -127,7 +127,7 @@ def run_all(
     render_every: int,
     goal_delta_xyz: tuple[float, float, float] = (0.12, 0.0, 0.05),
 ) -> dict[str, Any]:
-    """执行完整的大花复合末端离屏演示流程。
+    """执行完整的大花复合末端离屏演示流程（legacy 模式）。
 
     Args:
         output_root: 本次运行的根输出目录。
@@ -171,8 +171,53 @@ def run_all(
     return summary
 
 
+def run_from_plan_output(
+    plan_output_dir: Path,
+    output_root: Path,
+    render_every: int,
+) -> dict[str, Any]:
+    """从已有规划输出执行 MuJoCo 回放流程。
+
+    Args:
+        plan_output_dir: plan_rokae_motion.py 的输出目录（含 summary.json 和 trajectory.json）。
+        output_root: 本次运行的根输出目录。
+        render_every: 离屏回放渲染步长。
+
+    Returns:
+        汇总合同与回放关键结果的运行摘要字典。
+    """
+    contract_dir = output_root / "contract"
+    playback_dir = output_root / "playback"
+    contract_dir.mkdir(parents=True, exist_ok=True)
+    playback_dir.mkdir(parents=True, exist_ok=True)
+
+    contract = build_contract_from_plan_output(plan_output_dir, contract_dir)
+    contract_path = contract_dir / "playback_contract.json"
+    playback_summary = replay_contract(contract_path, playback_dir, render_every)
+
+    summary = {
+        "success": bool(playback_summary["success"]),
+        "contract_path": str(contract_path),
+        "plan_output_dir": str(plan_output_dir),
+        "playback_summary_path": str(playback_dir / "playback_summary.json"),
+        "contract_waypoint_count": contract["timing_contract"]["sample_count"],
+        "contract_sample_period_s": contract["timing_contract"]["sample_period_s"],
+        "offscreen_rendered_frames": playback_summary["render_summary"]["frame_count"],
+        "ee_displacement": playback_summary["render_summary"]["ee_displacement"],
+        "checks": playback_summary["checks"],
+    }
+    (output_root / "run_summary.json").write_text(
+        json.dumps(summary, indent=2, ensure_ascii=False) + "\n"
+    )
+    return summary
+
+
 def main() -> None:
     """命令行入口。
+
+    支持两种模式：
+    --plan-output-dir 从已有规划输出构建合同并回放（推荐）
+    --legacy 执行在线规划后构建合同并回放（兼容）
 
     Returns:
         无返回值；成功时打印一键流程的核心产物路径。
@@ -184,7 +229,13 @@ def main() -> None:
         "--output-root",
         type=Path,
         default=None,
-        help="Optional root directory for this run; defaults to evidence/s1_009/one_click/<timestamp>",
+        help="Optional root directory for this run; defaults to evidence/s6_playback/<timestamp>",
+    )
+    parser.add_argument(
+        "--plan-output-dir",
+        type=Path,
+        default=None,
+        help="Directory containing summary.json and trajectory.json from plan_rokae_motion.py",
     )
     parser.add_argument(
         "--render-every",
@@ -192,9 +243,9 @@ def main() -> None:
         default=1,
         help="Offscreen replay renders every Nth waypoint while always keeping the final frame",
     )
-    parser.add_argument("--goal-dx", type=float, default=0.12, help="Goal offset in x (m)")
-    parser.add_argument("--goal-dy", type=float, default=0.0, help="Goal offset in y (m)")
-    parser.add_argument("--goal-dz", type=float, default=0.05, help="Goal offset in z (m)")
+    parser.add_argument("--goal-dx", type=float, default=0.12, help="Goal offset in x (m, legacy mode only)")
+    parser.add_argument("--goal-dy", type=float, default=0.0, help="Goal offset in y (m, legacy mode only)")
+    parser.add_argument("--goal-dz", type=float, default=0.05, help="Goal offset in z (m, legacy mode only)")
     parser.add_argument(
         "--playback-speed",
         type=float,
@@ -212,6 +263,11 @@ def main() -> None:
         action="store_true",
         help="Skip the realtime MuJoCo viewer and only generate offscreen evidence",
     )
+    parser.add_argument(
+        "--legacy",
+        action="store_true",
+        help="Use legacy mode: run demo_plan_pose_rokae.run_demo() for online planning",
+    )
     args = parser.parse_args()
 
     if args.render_every <= 0:
@@ -221,12 +277,17 @@ def main() -> None:
 
     if args.output_root is None:
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_root = WORKSPACE_ROOT / "evidence" / "s1_009" / "one_click" / stamp
+        output_root = WORKSPACE_ROOT / "evidence" / "s6_playback" / stamp
     else:
         output_root = args.output_root
 
-    goal_delta_xyz = (args.goal_dx, args.goal_dy, args.goal_dz)
-    summary = run_all(output_root, args.render_every, goal_delta_xyz=goal_delta_xyz)
+    if args.legacy:
+        goal_delta_xyz = (args.goal_dx, args.goal_dy, args.goal_dz)
+        summary = run_all(output_root, args.render_every, goal_delta_xyz=goal_delta_xyz)
+    else:
+        if args.plan_output_dir is None:
+            parser.error("--plan-output-dir is required (or use --legacy)")
+        summary = run_from_plan_output(args.plan_output_dir, output_root, args.render_every)
 
     realtime_summary = None
     if not args.no_viewer:
@@ -253,8 +314,10 @@ def main() -> None:
     print(f"Output root: {output_root}")
     print(f"Contract: {output_root / 'contract' / 'playback_contract.json'}")
     print(f"Playback GIF: {output_root / 'playback' / 'playback.gif'}")
-    print(f"Goal delta xyz: {summary['goal_delta_xyz']}")
-    print(f"Direction alignment: {summary['ee_direction_alignment']:.6f}")
+    if "goal_delta_xyz" in summary:
+        print(f"Goal delta xyz: {summary['goal_delta_xyz']}")
+    if "ee_direction_alignment" in summary:
+        print(f"Direction alignment: {summary['ee_direction_alignment']:.6f}")
     if realtime_summary is not None:
         print(f"Realtime summary: {output_root / 'realtime' / 'realtime_summary.json'}")
 
