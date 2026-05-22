@@ -1,0 +1,53 @@
+# curoboV2_demo dependencies
+# Tested: Python 3.11, CUDA 12.8, NVIDIA driver 580.x
+#
+# Install (三步):
+#   1. 安装 PyTorch（必须用 --index-url 指定 PyTorch 源，避免清华源找不到 +cu128 版本）:
+#      pip install torch==2.11.0+cu128 torchaudio==2.11.0+cu128 torchvision==0.26.0+cu128 \
+#        --index-url https://download.pytorch.org/whl/cu128
+#   2. pip install -r requirements.txt
+#   3. pip install -e third_party/curobo
+
+# ---------- PyTorch (CUDA 12.8) ----------
+# 必须单独安装（使用 --index-url 绕过清华源）：
+#   pip install torch==2.11.0+cu128 torchaudio==2.11.0+cu128 torchvision==0.26.0+cu128 \
+#     --index-url https://download.pytorch.org/whl/cu128
+
+# ---------- CUDA Python bindings ----------
+cuda-bindings==12.9.4
+cuda-core==1.0.1
+cuda-pathfinder==1.5.4
+cuda-toolkit==12.8.1
+
+# ---------- CuRobo V2 runtime dependencies ----------
+numpy==2.2.6
+scipy==1.15.3
+trimesh==4.12.2
+numpy-quaternion==2024.0.13
+transforms3d==0.4.2
+yourdfpy==0.0.60
+pycollada==0.9.3
+embreex==4.4.0
+warp-lang==1.13.0
+shapely==2.1.2
+lxml==6.1.1
+networkx==3.4.2
+rich==14.3.4
+colorlog==6.10.1
+tqdm==4.67.3
+requests==2.34.2
+triton==3.6.0
+msgspec==0.21.1
+xxhash==3.7.0
+sympy==1.14.0
+
+# ---------- MuJoCo playback ----------
+mujoco==3.8.1
+imageio==2.37.3
+pillow==12.2.0
+glfw==2.10.0
+PyOpenGL==3.1.10
+
+# ---------- Config & utilities ----------
+PyYAML==6.0.3
+typing_extensions==4.15.0
