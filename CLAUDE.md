@@ -145,19 +145,19 @@ curoboV2_demo/
 - **验收标准：** 可以不改 Python 源码，仅通过配置切换输入
 
 #### Step 2: 新增障碍物 world 工具模块
-- 新增 `demo_scripts/rokae_world_utils.py`
+- 新增 `scripts/rokae_world_utils.py`
 - 复用 `dahuafuhe` 的障碍物文件格式（`abs.autosave.json`、`rel.autosave.json`）
 - 实现绝对/相对障碍物读取和 CuRobo world dict 生成
 - **验收标准：** 给定 `abs/rel` JSON 后，能独立产出 CuRobo 可用的 world dict
 
 #### Step 3: 新增离线版 CuRobo 核心封装
-- 新增 `demo_scripts/rokae_motion_gen.py`
+- 新增 `scripts/rokae_motion_gen.py`
 - 用 `MotionGen` 作为底层规划器
 - 提供接口：`plan_single`、`plan_single_js`、`fk_single`、`update_world_from_dict`
 - **验收标准：** 在不依赖 ROS 的情况下，可完成与 `dahuafuhe` 类似的单次 pose/joint 规划
 
 #### Step 4: 重构脚本入口为通用规划入口
-- 新增 `demo_scripts/plan_rokae_motion.py`
+- 新增 `scripts/plan_rokae_motion.py`
 - 支持 `--config path/to/input.yaml` 和命令行覆盖
 - 根据 `mode` 分发到不同规划逻辑
 - **验收标准：** 单入口即可完成点到点 pose / joint 规划
@@ -176,13 +176,21 @@ curoboV2_demo/
 - 逐步实现：`hold_vec_weight`、`speed_scale`、`approach_offset`、`grasp`、`level_carry`
 - **验收标准：** 本项目可覆盖大部分 `dahuafuhe` CuRobo 规划模式
 
+#### 项目独立性约束
+
+`curoboV2_demo` 与 `tashan_robot` 是两个完全独立的项目，升级过程中必须遵守：
+- **禁止修改 `tashan_robot` 的任何文件**
+- **禁止跨项目直接调用**（不得通过 `sys.path`、相对路径引用、符号链接等方式导入 `tashan_robot` 的模块）
+- **需要复用时必须复制**到 `curoboV2_demo` 内部，并标注来源出处
+- **conda 环境互不兼容**（`curoboV2` vs `zhongji`），绝不能混用
+
 ### 推荐实施顺序
 
 1. 明确输入配置 schema
-2. 新增 `rokae_world_utils.py`
-3. 新增 `rokae_motion_gen.py`
+2. 新增 `scripts/rokae_world_utils.py`
+3. 新增 `scripts/rokae_motion_gen.py`
 4. 完成 `plan_single` 与 `plan_single_js`
-5. 新增 `plan_rokae_motion.py`
+5. 新增 `scripts/plan_rokae_motion.py`
 6. 输出统一结果文件
 7. 接回 MuJoCo 回放
 8. 再补 approach / grasp / level carry
@@ -191,14 +199,19 @@ curoboV2_demo/
 
 ```text
 demo_scripts/
-├── rokae_asset_utils.py       # 机器人资产路径和配置解析
+├── rokae_asset_utils.py       # 机器人资产路径和配置解析（保留）
+├── demo_plan_pose_rokae.py    # 最小演示样例（保留）
+└── verify_rokae_assets.py     # 资产验证工具（保留）
+
+scripts/
+├── rokae_asset_utils.py       # 从 demo_scripts 复制或软链，供新脚本就近引用
 ├── rokae_world_utils.py       # 障碍物读取和 world 构建（新增）
 ├── rokae_motion_gen.py        # CuRobo 核心封装（新增）
 ├── plan_rokae_motion.py       # 通用规划入口（新增）
-├── review_rokae_motion.py     # 批量复跑和稳定性验证（新增）
-├── demo_plan_pose_rokae.py    # 最小演示样例（保留）
-└── verify_rokae_assets.py     # 资产验证工具
+└── review_rokae_motion.py     # 批量复跑和稳定性验证（新增）
 ```
+
+新增的工程化脚本统一放在 `scripts/` 目录下，与原有的 `demo_scripts/` 分离。
 
 ### 风险与注意事项
 

@@ -103,6 +103,17 @@
 - 不实现状态机或主流程编排
 - 不要求第一阶段就完整覆盖 grasp / level carry 全能力
 
+### 3.3 项目独立性约束
+
+`curoboV2_demo` 与 `tashan_robot` 是两个完全独立的项目，升级过程中必须遵守以下规则：
+
+- **禁止修改 `tashan_robot` 的任何文件**。升级 `curoboV2_demo` 时，不得以任何理由直接编辑 `tashan_robot` 仓库中的源码、配置或资产文件。
+- **禁止跨项目直接调用**。不得通过 `sys.path`、相对路径引用、符号链接等方式直接导入或依赖 `tashan_robot` 中的模块。
+- **需要复用时必须复制**。如果升级过程中需要参考或使用 `tashan_robot` 中的代码逻辑、配置格式、障碍物数据等，必须将相关内容完整复制到 `curoboV2_demo` 仓库内部（如 `scripts/`、`robot_assets/`、`resource/` 等目录），并在复制后的文件中标注来源出处。
+- **两个项目的 conda 环境互不兼容**。`tashan_robot` 使用 `zhongji` 环境（CuRobo V1），`curoboV2_demo` 使用 `curoboV2` 环境（CuRobo V2），两者绝不能混用。
+
+此约束的目的是保证两个项目可以各自独立演进、独立部署，互不影响。
+
 ## 4. 差异分析
 
 ### 4.1 当前 demo 与 `dahuafuhe` 的主要差异
@@ -213,7 +224,7 @@
 
 ### 建议新增文件
 
-- `demo_scripts/rokae_world_utils.py`
+- `scripts/rokae_world_utils.py`
 
 ### 计划内容
 
@@ -242,7 +253,7 @@
 
 ### 建议新增文件
 
-- `demo_scripts/rokae_motion_gen.py`
+- `scripts/rokae_motion_gen.py`
 
 ### 第一阶段建议提供的接口
 
@@ -279,7 +290,7 @@
 
 ### 建议新增文件
 
-- `demo_scripts/plan_rokae_motion.py`
+- `scripts/plan_rokae_motion.py`
 
 ### 建议保留旧文件的方式
 
@@ -378,29 +389,34 @@
 
 ```text
 demo_scripts/
-|-- rokae_asset_utils.py
-|-- rokae_world_utils.py
-|-- rokae_motion_gen.py
-|-- plan_rokae_motion.py
-|-- review_rokae_motion.py
-|-- demo_plan_pose_rokae.py
-`-- verify_rokae_assets.py
+|-- rokae_asset_utils.py        # 机器人资产路径和配置解析（保留）
+|-- demo_plan_pose_rokae.py     # 最小演示样例（保留）
+`-- verify_rokae_assets.py      # 资产验证工具（保留）
+
+scripts/
+|-- rokae_asset_utils.py        # 从 demo_scripts 复制或软链，供新脚本就近引用
+|-- rokae_world_utils.py        # 障碍物读取和 world 构建（新增）
+|-- rokae_motion_gen.py         # CuRobo 核心封装（新增）
+|-- plan_rokae_motion.py        # 通用规划入口（新增）
+`-- review_rokae_motion.py      # 批量复跑和稳定性验证（新增）
 ```
+
+新增的工程化脚本统一放在 `scripts/` 目录下，与原有的 `demo_scripts/` 分离。`demo_scripts/` 保持为最小验证样例，`scripts/` 承担工程化离线规划职责。
 
 其中职责建议如下：
 
-- `rokae_asset_utils.py`
-  - 机器人资产路径和配置解析
-- `rokae_world_utils.py`
+- `demo_scripts/rokae_asset_utils.py`
+  - 机器人资产路径和配置解析（保持不变）
+- `scripts/rokae_world_utils.py`
   - 障碍物读取和 world 构建
-- `rokae_motion_gen.py`
+- `scripts/rokae_motion_gen.py`
   - CuRobo 核心封装
-- `plan_rokae_motion.py`
+- `scripts/plan_rokae_motion.py`
   - 通用规划入口
-- `review_rokae_motion.py`
+- `scripts/review_rokae_motion.py`
   - 批量复跑和稳定性验证
-- `demo_plan_pose_rokae.py`
-  - 最小演示样例
+- `demo_scripts/demo_plan_pose_rokae.py`
+  - 最小演示样例（保持不变）
 
 ## 8. 第一阶段建议验收标准
 
@@ -449,15 +465,26 @@ demo_scripts/
 
 只有在输入配置格式和输出结果格式稳定后，后续 grasp、level carry、回放、批量评审才容易扩展。
 
+### 9.5 严格保持与 `tashan_robot` 的项目独立性
+
+升级过程中需要参考 `tashan_robot` 的代码或数据时，务必遵守以下原则：
+
+1. **只读不改**：可以阅读和分析 `tashan_robot` 的源码作为参考，但绝不能修改其中任何文件。
+2. **复制而非引用**：需要使用的代码、配置、障碍物数据等，必须复制到 `curoboV2_demo` 内部。复制时在文件头部或注释中标注来源（如 `# adapted from tashan_robot/src/...`）。
+3. **不建立跨项目依赖**：禁止通过 `sys.path` 注入、符号链接、相对路径等方式引用 `tashan_robot` 的代码。运行时 `curoboV2_demo` 必须能在一个不包含 `tashan_robot` 的环境中独立运行。
+4. **环境隔离**：`curoboV2`（CuRobo V2）和 `zhongji`（CuRobo V1）两个 conda 环境互不兼容，不得在同一进程中混合使用。
+
+如果违反此约束，会导致两个项目耦合、部署困难、环境冲突等问题。
+
 ## 10. 推荐实施顺序
 
 建议按照以下顺序推进：
 
 1. 明确输入配置 schema
-2. 新增 `rokae_world_utils.py`
-3. 新增 `rokae_motion_gen.py`
+2. 新增 `scripts/rokae_world_utils.py`
+3. 新增 `scripts/rokae_motion_gen.py`
 4. 完成 `plan_single` 与 `plan_single_js`
-5. 新增 `plan_rokae_motion.py`
+5. 新增 `scripts/plan_rokae_motion.py`
 6. 输出统一结果文件
 7. 接回 MuJoCo 回放
 8. 再补 approach / grasp / level carry
