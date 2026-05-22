@@ -1,0 +1,18 @@
+# 关节目标规划 — 示例配置
+#
+# 使用方式（后续 Stage 4 中 plan_rokae_motion.py 将读取此配置）：
+#   python scripts/plan_rokae_motion.py --config resource/config/examples/joint_plan_example.yaml
+
+# 规划模式
+mode: joint_target
+
+# 起始关节状态（弧度，6 轴）
+start:
+  joint_position: [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0]
+
+# 目标关节状态（弧度，6 轴）
+goal:
+  joint_position: [-1.0, 1.2, 0.3, 1.0, 1.5, 0.5]
+
+# 输出目录
+output_dir: /tmp/curoboV2_demo/joint_plan

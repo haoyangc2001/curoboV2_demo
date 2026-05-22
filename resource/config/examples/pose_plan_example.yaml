@@ -1,0 +1,32 @@
+# 点到点位姿规划 — 示例配置
+#
+# 使用方式（后续 Stage 4 中 plan_rokae_motion.py 将读取此配置）：
+#   python scripts/plan_rokae_motion.py --config resource/config/examples/pose_plan_example.yaml
+#
+# 所有路径相对于本文件所在目录。
+
+# 规划模式：point_to_point | joint_target | approach | grasp | level_carry
+mode: point_to_point
+
+# 机器人 CuRobo 配置路径（留空则使用默认 ROKAE SR5 配置）
+# robot_config: ../../robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+
+# 起始关节状态（弧度，6 轴）
+start:
+  joint_position: [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0]
+
+# 目标：末端 tool0 位姿 [x, y, z, qx, qy, qz, qw]
+goal:
+  pose: [0.45, 0.0, 0.55, 0.0, 0.707, 0.0, 0.707]
+
+# 障碍物场景（留空则无外部障碍物）
+# world:
+#   obstacle_json: ../../robot_assets/ROKAE/obstacles/abs.autosave.json
+#   obstacle_rel_json: ../../robot_assets/ROKAE/obstacles/rel.autosave.json
+
+# 输出目录
+output_dir: /tmp/curoboV2_demo/pose_plan
+
+# 可选规划参数
+# speed_scale: 0.5           # 速度缩放 (0, 1]
+# hold_vec_weight: [0, 0, 1] # 保持方向约束权重 [x, y, z]

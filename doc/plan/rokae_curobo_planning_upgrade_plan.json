@@ -27,7 +27,11 @@
     "每个阶段都必须记录工作目标、是否完成以及实际完成工作。",
     "如果某阶段标记为已完成，则 completed_work 不能留空，必须写明本次实际做了什么。",
     "如果某阶段尚未实施或尚未闭环验证，则 is_completed 必须保持为 false。",
-    "后续每推进一个阶段，都应同步更新本 JSON，而不是只更新 Markdown 文档。"
+    "后续每推进一个阶段，都应同步更新本 JSON，而不是只更新 Markdown 文档。",
+    "URDF 统一使用 curoboV2_demo/robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf，不得引入其他副本。",
+    "CuRobo V2 与 V1 变动较大，接口和功能可能不一致。本文档中的接口仅作参考，实施时必须先检索 third_party/curobo/ 源码和 curoboV2_demo/third_party/curobo/ 目录下的实际代码，确认 API 签名、类名、参数格式后再撰写和测试。不得仅凭 V1 经验或本文档推测接口。",
+    "每完成一个阶段，必须输出工作汇报，内容包括：本次完成了哪些工作、遇到了什么问题、问题如何解决。",
+    "每阶段完成后必须做回归测试：从头执行完整程序链路，覆盖新功能、已有测试用例和边界情况，确保无回归问题。发现回归必须立即修复。"
   ],
   "current_scope": {
     "included": [
@@ -70,8 +74,14 @@
         "形成稳定的规划输入 schema。",
         "后续规划脚本不需要再通过改 Python 常量来切换输入。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "新建 scripts/ 目录，与 demo_scripts/ 分离。",
+        "复制并清理 rokae_asset_utils.py 到 scripts/，移除所有对 tashan_robot 的引用（PROJECT_ROOT、SOURCE_*、source_* 函数），保证项目独立性。resolve_robot_config_for_workspace 改为接受可选的 robot_config_path 参数。",
+        "新建 scripts/config_utils.py，定义 PlanningConfig 数据类和 load_config 函数。支持 5 种规划模式（point_to_point、joint_target、approach、grasp、level_carry），包含字段校验（模式合法性、必填字段、joint 维度一致性、pose 长度、speed_scale 范围），自动将配置中的相对路径解析为绝对路径。",
+        "新建 resource/config/examples/pose_plan_example.yaml 和 joint_plan_example.yaml，分别作为点到点位姿规划和关节目标规划的配置模板。",
+        "所有新文件通过 python3 测试验证：配置加载、路径解析、校验拦截均正常工作。"
+      ]
     },
     {
       "stage_id": 2,
@@ -89,8 +99,14 @@
         "给定障碍物配置文件即可构造 CuRobo world。",
         "规划层和回放层都可复用这份 world 构建工具。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "新建 scripts/rokae_world_utils.py，实现四元数工具（Hamilton 乘积、向量旋转）、abs/rel 障碍物 JSON 加载、rel→abs 坐标变换、CuRobo cuboid world dict 构建。",
+        "四元数顺序统一为 [w, x, y, z]，与 dahuafuhe 保持一致。相对障碍物变换采用刚体组合：abs_pos = base_pos + rotate(base_quat, rel_pos)，abs_quat = base_quat * rel_quat。",
+        "build_world() 接口接受可选的 abs_json_path 和 rel_json_path，返回 boxes 列表、world_dict 和 world_summary（含 abs_count、rel_count、total_count）。",
+        "新建 resource/config/examples/obstacles/ 目录，包含 abs.autosave.json 和 rel.autosave.json 示例数据。",
+        "通过 python3 测试验证：绝对障碍物直接加载、相对障碍物坐标变换、空输入边界情况均正确。"
+      ]
     },
     {
       "stage_id": 3,
@@ -109,8 +125,30 @@
         "不依赖 ROS 即可完成与 dahuafuhe 接近的单次 pose/joint 规划。",
         "规划层具备 world 更新能力和统一结果抽取能力。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "新建 scripts/rokae_motion_gen.py，封装 RokaeMotionGen 类。底层使用 CuRobo V2 的 MotionPlanner（V2 中无 MotionGen 类）。",
+        "实现 plan_single(start_joint, target_pose) — 点到点位姿规划，内部构造 GoalToolPose（5D tensor [B,H,L,G,3/4]）并调用 planner.plan_pose()。",
+        "实现 plan_single_js(start_joint, goal_joint) — 关节目标规划，调用 planner.plan_cspace()。",
+        "实现 fk_single(joint_position) — 正运动学求解，调用 planner.compute_kinematics() 后提取 tool0 位姿。",
+        "实现 update_world_from_dict(world_dict) — 使用 SceneCfg.create(dict) 构建场景并调用 planner.update_world()。world_dict 格式与 rokae_world_utils 输出兼容。",
+        "统一输出格式：success、trajectory_points、joint_names、interpolation_dt、solve_time、status。",
+        "在容器 curoboV2 环境中完成全部 GPU 功能测试，8 项测试全部通过。"
+      ],
+      "problems_and_solutions": [
+        {
+          "problem": "CuRobo V2 没有 MotionGen 类，V1 的 MotionGen 对应 V2 的 MotionPlanner。",
+          "solution": "检索 third_party/curobo/ 源码确认 API 映射，改用 MotionPlanner + MotionPlannerCfg。plan_single 对应 planner.plan_pose()，plan_single_js 对应 planner.plan_cspace()。"
+        },
+        {
+          "problem": "plan_single_js 调用时报错 'CUDA graph reset is not available'。原因：CuRobo V2 的 CUDA graph 不支持在 plan_pose 和 plan_cspace 之间动态切换目标类型。",
+          "solution": "将 use_cuda_graph 默认值改为 False。离线工具对实时性要求不高，禁用 CUDA graph 可避免此问题。"
+        },
+        {
+          "problem": "update_world_from_dict 调用时报错 'NoneType object has no attribute load_collision_model'。原因：MotionPlannerCfg.create(scene_model=None) 且未传 collision_cache 时，scene_collision_checker 为 None。",
+          "solution": "检索 tashan_robot 的 curobo_motion_gen.py，发现它传入 collision_cache={'obb': 64}。在 RokaeMotionGen.__init__ 中默认传入此参数，确保 scene_collision_checker 被正确创建。"
+        }
+      ]
     },
     {
       "stage_id": 4,
@@ -128,8 +166,23 @@
         "单一入口即可完成 point-to-point pose 或 joint target 规划。",
         "后续高级模式可以继续在该入口上扩展。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "新建 scripts/plan_rokae_motion.py，实现通用离线规划入口。",
+        "支持 --config 加载 YAML 输入配置文件，自动解析 mode、start、goal、world 等字段。",
+        "支持命令行覆盖：--mode、--start-jp、--goal-pose、--goal-jp、--output-dir。",
+        "根据 mode 分发到不同规划逻辑：point_to_point 调用 plan_single，joint_target 调用 plan_single_js。",
+        "自动加载障碍物 world（通过 rokae_world_utils.build_world）并注入规划器。",
+        "自动加载 robot_config（支持自定义路径或使用默认）。",
+        "统一输出 summary.json 和 trajectory.json 到 output_dir。",
+        "在容器 curoboV2 环境中完成 3 项测试：pose_plan（81 路径点）、joint_plan（41 路径点）、CLI 覆盖，全部通过。"
+      ],
+      "problems_and_solutions": [
+        {
+          "problem": "配置文件中 goal.pose 格式为 [x,y,z,qx,qy,qz,qw]（xyzw），而 CuRobo 的 GoalToolPose 期望 [x,y,z,qw,qx,qy,qz]（wxyz）。",
+          "solution": "在 plan_rokae_motion.py 中添加 _pose_xyzw_to_curobo() 转换函数，规划前自动完成四元数顺序转换。"
+        }
+      ]
     },
     {
       "stage_id": 5,
@@ -189,8 +242,10 @@
   "current_progress": [
     "已完成对 tashan_robot/dahuafuhe CuRobo 规划层的静态分析，明确其核心封装、输入输出形式、障碍物 world 建模方式以及与当前 curoboV2_demo 的差异。",
     "已完成规划升级方案的 Markdown 文档整理，形成 rokae_curobo_planning_upgrade_plan.md。",
-    "当前尚未开始具体代码实施，因此 stages 中各开发阶段暂时都标记为未完成。",
-    "后续一旦进入实际开发，应先从 stage 1 的输入 schema 与 stage 2 的 world 工具模块开始推进。"
+    "已完成 Stage 1：新建 scripts/ 目录，创建 config_utils.py 配置加载与校验模块，定义统一规划输入 schema（支持 5 种规划模式），创建示例配置文件。URDF 统一使用 curoboV2_demo/robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf。",
+    "已完成 Stage 2：新建 scripts/rokae_world_utils.py，实现障碍物 JSON 加载（abs/rel）、rel→abs 坐标变换（四元数刚体组合）、CuRobo cuboid world dict 构建。创建 resource/config/examples/obstacles/ 示例数据。",
+    "已完成 Stage 3：新建 scripts/rokae_motion_gen.py，封装 RokaeMotionGen 类，基于 CuRobo V2 MotionPlanner 实现 plan_single、plan_single_js、fk_single、update_world_from_dict。在容器 curoboV2 环境中完成全部 GPU 功能测试（8/8 通过）。解决了 3 个问题：V2 无 MotionGen 改用 MotionPlanner、CUDA graph 不支持动态切换默认关闭、collision_cache 缺失导致 scene_collision_checker 为 None。",
+    "已完成 Stage 4：新建 scripts/plan_rokae_motion.py，实现通用离线规划入口。支持 --config YAML 加载、命令行参数覆盖、point_to_point/joint_target 模式分发、自动加载障碍物 world、统一输出 summary.json/trajectory.json。容器测试 3/3 通过。解决了配置 pose xyzw 与 CuRobo wxyz 四元数顺序不一致的问题。"
   ],
   "risk_points": [
     "如果继续在 demo_plan_pose_rokae.py 上叠功能，后续可维护性会快速下降。",
