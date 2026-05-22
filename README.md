@@ -69,32 +69,93 @@ curoboV2_demo/
 2. 位姿规划：从当前默认关节位姿出发，生成一次小幅相对位移的末端目标并调用 CuRobo 求解。
 3. MuJoCo 回放：将轨迹写成合同，生成最小 MJCF，完成离屏渲染和一致性检查。
 
-## 常用入口
+## 环境启动（完整流程）
 
-在仓库根目录执行：
+本项目运行在 LXD 容器 `zhongji-dev-2204` 中，与主项目 `zhongji` 共享 GPU 和 CUDA，但 Python 环境完全隔离。
+
+### 1. 从宿主机进入容器
 
 ```bash
-python demo_scripts/verify_rokae_assets.py
-python demo_scripts/demo_plan_pose_rokae.py --output-dir evidence/tmp_plan
-python playback/export_rokae_playback_contract.py --output-dir evidence/tmp_contract
-python playback/run_rokae_demo.py --output-root evidence/tmp_run --no-viewer
+# 确认容器状态
+sudo lxc list --format csv -c n,s | grep zhongji
+
+# 进入容器（交互式 shell）
+sudo lxc exec zhongji-dev-2204 -- bash
 ```
 
+### 2. 激活 conda 环境
+
+容器内使用 miniforge3 管理 Python 环境，CuroboV2 独立环境名为 `curoboV2`：
+
+```bash
+source ~/miniforge3/etc/profile.d/conda.sh
+conda activate curoboV2
+```
+
+验证环境：
+
+```bash
+python -c "import torch; print('torch:', torch.__version__); print('cuda:', torch.cuda.is_available())"
+# 期望输出: torch: 2.11.0+cu128  cuda: True
+```
+
+### 3. 运行 demo
+
+```bash
+cd ~/rep/curoboV2_demo/demo_scripts
+
+# 资产检查
+python verify_rokae_assets.py
+
+# 位姿规划（输出 summary.json）
+python demo_plan_pose_rokae.py --output-dir /tmp/rokae_demo_output
+
+# MuJoCo 回放（需要图形环境）
+python ../playback/run_rokae_demo.py --output-root /tmp/rokae_demo_run --no-viewer
+```
 如果需要实时查看 MuJoCo 回放，可去掉 `--no-viewer`。
+
+
+### 4. 非交互方式（从宿主机直接执行）
+
+```bash
+sudo lxc exec zhongji-dev-2204 -- bash -c "\
+  source ~/miniforge3/etc/profile.d/conda.sh && \
+  conda activate curoboV2 && \
+  cd ~/rep/curoboV2_demo/demo_scripts && \
+  python demo_plan_pose_rokae.py --output-dir /tmp/rokae_demo_output"
+```
+
+
+
 
 ## 运行依赖
 
-仓库默认假设本机 Python 环境已经具备以下依赖：
+`curoboV2` conda 环境已预装以下依赖：
 
-- `torch`
-- `mujoco`
-- `imageio`
-- `pyyaml`
+| 包 | 版本 | 说明 |
+|---|---|---|
+| `torch` | 2.11.0+cu128 | GPU 加速，CUDA 12.8 |
+| `cuda-core` | 1.0.1 | CuRobo V2 后端必需 |
+| `cuda-bindings` | 12.9.4 | CUDA Python 绑定 |
+| `mujoco` | - | 离屏回放和可视化 |
+| `pyyaml` | - | 配置文件解析 |
+| `imageio` | - | 图像/GIF 导出 |
 
-此外还需要可用的 CUDA / 图形环境，以满足 CuRobo 和 MuJoCo 的运行需求。
+容器共享宿主机的 NVIDIA GPU 驱动和 CUDA 12.8 运行时，无需额外安装。
+
+## 环境隔离说明
+
+| 项目 | conda 环境 | Python | CuRobo 版本 |
+|---|---|---|---|
+| zhongji（主项目） | `zhongji` | 3.10 | V1 |
+| curoboV2_demo | `curoboV2` | 3.10 | V2 |
+
+两个环境共享系统级 CUDA 12.8，互不干扰。
 
 ## 说明
 
 - 根 `README.md` 只描述当前仓库本身，不展开迁移过程
 - `ROKAE_migration_notes.md` 保留为迁移记录，不作为主使用文档
 - `third_party/curobo/` 是 vendored 依赖，项目脚本会优先从这里加载 CuRobo
+- CuRobo V2 默认不编译 pybind CUDA 扩展；如需启用，设置环境变量 `CUROBO_USE_PYBIND=1`
