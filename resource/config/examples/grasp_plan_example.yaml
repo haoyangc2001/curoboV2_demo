@@ -1,0 +1,30 @@
+# 抓取规划 — 示例配置
+#
+# 使用方式：
+#   python scripts/plan_rokae_motion.py --config resource/config/examples/grasp_plan_example.yaml
+#
+# grasp 模式执行三段规划：approach（接近）→ grasp（抓取）→ lift（提升）
+
+mode: grasp
+
+# 起始关节状态（弧度，6 轴）
+start:
+  joint_position: [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0]
+
+# 目标：抓取位姿 [x, y, z, qx, qy, qz, qw]
+goal:
+  pose: [0.45, 0.0, 0.55, 0.0, 0.707, 0.0, 0.707]
+
+# 接近/提升参数
+# 注意：grasp 模式的线性运动约束对某些机器人构型可能难以满足，
+# 如果 grasp 阶段失败但 approach 成功，仍会输出接近段轨迹。
+approach_offset: -0.10    # 接近偏移量（米），负值=沿轴负方向
+retract_offset: -0.10     # 提升偏移量（米）
+approach_axis: z          # 接近轴
+lift_axis: z              # 提升轴
+
+# 速度缩放
+# speed_scale: 0.5
+
+# 输出目录
+output_dir: /tmp/curoboV2_demo/grasp_plan

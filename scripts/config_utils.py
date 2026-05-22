@@ -140,8 +140,16 @@ def _validate(raw: dict[str, Any], config_path: Path) -> None:
         )
 
     speed_scale = raw.get("speed_scale")
-    if speed_scale is not None and not (0.0 < speed_scale <= 1.0):
-        raise ValueError(f"speed_scale 必须在 (0, 1] 范围内，实际 {speed_scale}")
+    if speed_scale is not None and not (0.0 < speed_scale <= 2.0):
+        raise ValueError(f"speed_scale 必须在 (0, 2.0] 范围内，实际 {speed_scale}")
+
+    hold_vec_weight = raw.get("hold_vec_weight")
+    if hold_vec_weight is not None:
+        if not isinstance(hold_vec_weight, list) or len(hold_vec_weight) != 3:
+            raise ValueError("hold_vec_weight 必须是包含 3 个元素的列表 [x, y, z]")
+        for w in hold_vec_weight:
+            if not (0.0 <= w <= 1.0):
+                raise ValueError(f"hold_vec_weight 每个元素必须在 [0, 1] 范围内，实际 {w}")
 
 
 def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:

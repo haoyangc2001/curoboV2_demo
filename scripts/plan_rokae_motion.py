@@ -35,6 +35,10 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--goal-pose", help="覆盖目标位姿（逗号分隔，x,y,z,qx,qy,qz,qw）")
     p.add_argument("--goal-jp", help="覆盖目标关节角（逗号分隔）")
     p.add_argument("--output-dir", help="覆盖输出目录")
+    p.add_argument("--speed-scale", type=float, help="速度缩放 (0, 2.0]")
+    p.add_argument("--hold-vec-weight", help="方向保持权重（逗号分隔，x,y,z）")
+    p.add_argument("--approach-offset", type=float, help="接近偏移量（米）")
+    p.add_argument("--approach-axis", default="z", help="接近轴（x/y/z，默认 z）")
     return p.parse_args()
 
 
@@ -56,6 +60,12 @@ def _apply_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningC
         cfg.goal.pose = None
     if args.output_dir:
         cfg.output_dir = args.output_dir
+    if args.speed_scale is not None:
+        cfg.speed_scale = args.speed_scale
+    if args.hold_vec_weight:
+        cfg.hold_vec_weight = [float(x) for x in args.hold_vec_weight.split(",")]
+    if args.approach_offset is not None:
+        cfg.approach_offset = args.approach_offset
     return cfg
 
 
@@ -80,9 +90,12 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
 
     # 初始化规划器
     robot_path = Path(cfg.robot_config) if cfg.robot_config else None
-    gen = RokaeMotionGen(robot_config_path=robot_path)
+    speed = cfg.speed_scale if cfg.speed_scale is not None else 1.0
+    gen = RokaeMotionGen(robot_config_path=robot_path, speed_scale=speed)
     print(f"关节名: {gen.joint_names}")
     print(f"工具帧: {gen.tool_frames}")
+    if speed != 1.0:
+        print(f"速度缩放: {speed}")
 
     # 加载障碍物
     world_result = None
@@ -102,15 +115,52 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
         if not cfg.goal.pose:
             raise ValueError("point_to_point 模式需要 goal.pose")
         target = _pose_xyzw_to_curobo(cfg.goal.pose)
-        result = gen.plan_single(cfg.start.joint_position, target)
+        result = gen.plan_single(
+            cfg.start.joint_position, target,
+            hold_vec_weight=cfg.hold_vec_weight,
+        )
 
     elif cfg.mode == "joint_target":
         if not cfg.goal.joint_position:
             raise ValueError("joint_target 模式需要 goal.joint_position")
         result = gen.plan_single_js(cfg.start.joint_position, cfg.goal.joint_position)
 
+    elif cfg.mode == "approach":
+        if not cfg.goal.pose:
+            raise ValueError("approach 模式需要 goal.pose")
+        target = _pose_xyzw_to_curobo(cfg.goal.pose)
+        approach_offset = cfg.approach_offset if cfg.approach_offset is not None else -0.1
+        approach_axis = cfg.raw.get("approach_axis", "z")
+        result = gen.plan_grasp_single(
+            cfg.start.joint_position, target,
+            approach_axis=approach_axis,
+            approach_offset=approach_offset,
+            plan_approach=True,
+            plan_lift=False,
+        )
+
+    elif cfg.mode == "grasp":
+        if not cfg.goal.pose:
+            raise ValueError("grasp 模式需要 goal.pose")
+        target = _pose_xyzw_to_curobo(cfg.goal.pose)
+        approach_offset = cfg.approach_offset if cfg.approach_offset is not None else -0.15
+        retract_offset = cfg.retract_offset if cfg.retract_offset is not None else -0.15
+        approach_axis = cfg.raw.get("approach_axis", "z")
+        lift_axis = cfg.raw.get("lift_axis", "z")
+        result = gen.plan_grasp_single(
+            cfg.start.joint_position, target,
+            approach_axis=approach_axis,
+            approach_offset=approach_offset,
+            lift_axis=lift_axis,
+            lift_offset=retract_offset,
+            plan_approach=True,
+            plan_lift=True,
+        )
+
     else:
-        raise NotImplementedError(f"模式 '{cfg.mode}' 暂未实现（当前支持 point_to_point、joint_target）")
+        raise NotImplementedError(
+            f"模式 '{cfg.mode}' 暂未实现（当前支持 point_to_point、joint_target、approach、grasp）"
+        )
 
     wall_time = time.monotonic() - t0
     result["wall_time_total"] = wall_time
@@ -135,9 +185,13 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
             "robot_config": cfg.robot_config,
             "tool_frames": gen.tool_frames,
             "joint_names": gen.joint_names,
+            "speed_scale": gen.speed_scale,
             "start_joint": cfg.start.joint_position,
             "goal_pose": cfg.goal.pose,
             "goal_joint": cfg.goal.joint_position,
+            "hold_vec_weight": cfg.hold_vec_weight,
+            "approach_offset": cfg.approach_offset,
+            "retract_offset": cfg.retract_offset,
             "solve_time": result.get("solve_time"),
             "total_time": result.get("total_time"),
             "wall_time": wall_time,
