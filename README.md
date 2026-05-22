@@ -200,6 +200,44 @@ python scripts/plan_rokae_motion.py \
   --hold-vec-weight '0,0,1'
 ```
 
+## 更新 collision_spheres
+
+当前活动 ROKAE 机器人使用：
+
+- URDF: `robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
+- collision spheres: `robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`
+
+推荐使用 Bubblify 为当前活动 URDF 手工调整 collision spheres。工作流如下：
+
+```bash
+# 1. 安装 Bubblify（在 curoboV2 环境中）
+pip install bubblify
+
+# 2. 打开当前活动 URDF
+bubblify \
+  --urdf_path robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf \
+  --show_collision
+
+# 3. 在浏览器中手工调整 base/link1..link6 的球，导出原始 YAML
+# 4. 将导出结果转换为本项目使用的 cuRobo 格式
+python scripts/convert_bubblify_spheres.py \
+  --input-yaml /path/to/bubblify_export.yml
+```
+
+注意事项：
+
+- 只为 `XMS5-R800-W4G3B4C_base` 与 `XMS5-R800-W4G3B4C_link1..link6` 生成球，不为 `tool0` 生成球。
+- 活动 robot config 已改为通过路径引用外部 spheres 文件，`robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml` 是唯一真源。
+- 转换脚本会校验 link 名、缺失 link、非正 radius，并补齐 metadata。
+
+完成 spheres 更新后，可执行全链路压测：
+
+```bash
+python scripts/stress_test_rokae_pipeline.py \
+  --baseline-spheres robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml \
+  --candidate-spheres /path/to/candidate_spheres.yml
+```
+
 ## 配置文件格式
 
 规划输入通过 YAML 配置文件定义，所有路径相对于配置文件所在目录。

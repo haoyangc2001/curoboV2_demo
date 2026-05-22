@@ -1,0 +1,22 @@
+mode: point_to_point
+robot_config: /home/tanshan/rep/curoboV2_demo/robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+start:
+  joint_position:
+  - -1.571
+  - 1.571
+  - 0.0
+  - 1.571
+  - 1.571
+  - 0.0
+output_dir: /home/tanshan/rep/curoboV2_demo/evidence/rokae_bubblify_stress/20260523_000707/baseline/point_to_point__pose1__no_world__spd1.0/plan
+world: {}
+goal:
+  pose:
+  - 0.45
+  - 0.0
+  - 0.85
+  - 0.0
+  - 0.707
+  - 0.0
+  - 0.707
+speed_scale: 1.0

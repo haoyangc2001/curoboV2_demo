@@ -1,0 +1,49 @@
+{
+  "mode": "point_to_point",
+  "success": true,
+  "status": "success",
+  "robot_config": "/home/tanshan/rep/curoboV2_demo/robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml",
+  "tool_frames": [
+    "tool0"
+  ],
+  "joint_names": [
+    "XMS5-R800-W4G3B4C_joint_1",
+    "XMS5-R800-W4G3B4C_joint_2",
+    "XMS5-R800-W4G3B4C_joint_3",
+    "XMS5-R800-W4G3B4C_joint_4",
+    "XMS5-R800-W4G3B4C_joint_5",
+    "XMS5-R800-W4G3B4C_joint_6"
+  ],
+  "speed_scale": 1.0,
+  "start_joint": [
+    -1.571,
+    1.571,
+    0.0,
+    1.571,
+    1.571,
+    0.0
+  ],
+  "goal_pose": [
+    0.45,
+    0.0,
+    0.85,
+    0.0,
+    0.707,
+    0.0,
+    0.707
+  ],
+  "goal_joint": null,
+  "hold_vec_weight": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "approach_offset": null,
+  "retract_offset": null,
+  "solve_time": 0.4788157138824463,
+  "total_time": 0.49053751564025877,
+  "wall_time": 0.4713561039825436,
+  "interpolation_dt": 0.025,
+  "waypoint_count": 201,
+  "input_config": "/home/tanshan/rep/curoboV2_demo/evidence/rokae_bubblify_stress/20260523_000707/baseline/point_to_point__pose1__no_world__spd1.0__hold0.0_0.0_1.0/case_config.yaml"
+}

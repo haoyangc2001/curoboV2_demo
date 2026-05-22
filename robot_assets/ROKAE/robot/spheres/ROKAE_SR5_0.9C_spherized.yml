@@ -327,6 +327,7 @@ collision_spheres:
     - 0.1985821662830516
     radius: 0.01963446456509923
 metadata:
+  source: workspace_remap_seed
   total_spheres: 64
   links:
   - XMS5-R800-W4G3B4C_base
@@ -336,7 +337,7 @@ metadata:
   - XMS5-R800-W4G3B4C_link4
   - XMS5-R800-W4G3B4C_link5
   - XMS5-R800-W4G3B4C_link6
+  status: pending_bubblify_replacement
   derived_from: robot_assets/dahuafuhe/robot/spheres/rokae_cr7_dahuafuhe_spherized.yml
-  remap_note: Sphere layout was remapped from the previous 6-axis robot by link index
-    because local cuRobo sphere fitting was unavailable in this environment.
+  remap_note: This file is still the workspace remap seed. Replace it with a Bubblify-derived export through scripts/convert_bubblify_spheres.py before candidate stress testing.
   export_timestamp: 1778647765.1779044

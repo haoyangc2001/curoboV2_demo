@@ -206,29 +206,33 @@
 
 ## 6. 当前仍然存在的风险和限制
 
-### 6.1 球碰撞模型不是按新机器人网格重新拟合的
+### 6.1 球碰撞模型已经切换为 Bubblify 工作流
 
-这是本次最需要记住的一点。
+当前项目已经把 `collision_spheres` 的接入方式切换为**外部 YAML 文件引用**：
 
-本次没有在本机重新生成 `XMS5-R800-W4G3B4C` 的 cuRobo collision spheres，原因是：
+- `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml`
+  中的 `robot_cfg.kinematics.collision_spheres`
+- 现在指向：
+  `robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`
 
-- 本机环境中的 PyTorch 动态库初始化失败
-- 因此无法正常使用 cuRobo 的 `RobotBuilder` 自动拟合新机器人的球碰撞
+推荐的更新方式不再是依赖本机的 cuRobo `RobotBuilder` 自动拟合，而是：
 
-当前做法是：
+1. 用 Bubblify 打开当前活动 URDF  
+   `robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
+2. 在浏览器里手工调整 `XMS5-R800-W4G3B4C_base` 和 `link1..link6` 的球
+3. 导出 Bubblify 原始 YAML
+4. 用 `scripts/convert_bubblify_spheres.py` 转换成当前项目使用的 cuRobo `collision_spheres` 格式
 
-- 将旧的 `rokae_cr7_dahuafuhe_spherized.yml` 按 6 轴 link 顺序映射到新机器人的 link 名
+这样做的好处是：
 
-这意味着：
+- spheres 文件成为唯一真源，robot config 不再保留内嵌副本
+- 可以在不编辑主 robot config 的情况下迭代球模型
+- 转换脚本会对 link 名、半径和缺失 link 做静态校验
 
-- 运行链路已经切到了新机器人
-- 但 `collision_spheres` 仍然是兼容迁移版，不是严格为新网格量身拟合的精确模型
+仍需注意：
 
-可能影响：
-
-- 碰撞检测保守性
-- 自碰撞判断准确性
-- 路径规划在障碍物附近的真实性
+- Bubblify 本身是手工交互工具，球布局质量仍取决于人工调整
+- 生成新 spheres 后，必须重新跑规划和 MuJoCo 回放压测
 
 ### 6.2 旧资产还保留在仓库中
 
@@ -247,12 +251,11 @@
 
 后续如果要把这套模型真正用于更可信的规划和实机联调，建议按下面顺序继续：
 
-1. 在一台 PyTorch/curobo `RobotBuilder` 可正常运行的环境里，为 `XMS5-R800-W4G3B4C` 重新拟合 collision spheres。
-2. 用重新生成的 spheres 替换当前的：
-   - `robot_assets/ROKAE/robot/spheres/xms5_r800_w4g3b4c_spherized.yml`
-   - 以及 `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml` 中内嵌的 `collision_spheres`
-3. 根据真实末端工具安装关系，确认 `tool0` 的固定变换是否应继续是 `0 0 0`，还是需要设置真实 TCP 偏移。
-4. 根据实机驱动要求，确认 `start.launch.yaml` 中使用的新 joint 名是否与下游驱动节点/状态话题完全一致。
+1. 完成一版 Bubblify 手工调球，并通过 `scripts/convert_bubblify_spheres.py` 覆盖活动 spheres 文件。
+2. 用 `scripts/stress_test_rokae_pipeline.py` 先跑 `baseline`，再跑 `candidate`，保留 evidence。
+3. 根据压测结果微调 base/link1..link6 的球布局，重点观察障碍物附近规划与 `grasp` 阶段稳定性。
+4. 根据真实末端工具安装关系，确认 `tool0` 的固定变换是否应继续是 `0 0 0`，还是需要设置真实 TCP 偏移。
+5. 根据实机驱动要求，确认 `start.launch.yaml` 中使用的新 joint 名是否与下游驱动节点/状态话题完全一致。
 
 ## 8. 本次没有做的事情
 
@@ -262,11 +265,12 @@
 - 未执行规划验证
 - 未执行 ROS launch 实测
 - 未执行实机联调
-- 未重新拟合新机器人的 collision spheres
+- 未在本仓库中提交新的 Bubblify 手工调球结果
+- 未执行 Bubblify candidate 压测（需要真实导出的 candidate YAML）
 
 本次工作仅完成了：
 
-- 路径修复
-- 配置切换
-- 运行链路指向替换
+- 外部 spheres 文件接入
+- Bubblify 转换脚本
+- 全链路压测脚本
 - 文档记录

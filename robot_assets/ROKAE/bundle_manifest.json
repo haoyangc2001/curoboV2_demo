@@ -11,6 +11,7 @@
   },
   "notes": [
     "The active workspace robot model now points to XMS5-R800-W4G3B4C assets under robot_assets/ROKAE.",
-    "Collision spheres were remapped from the previous stage-1 robot by corresponding link index."
+    "Collision spheres are now sourced from the standalone ROKAE_SR5_0.9C_spherized.yml file.",
+    "The recommended update workflow is Bubblify export -> convert_bubblify_spheres.py -> stress_test_rokae_pipeline.py."
   ]
 }

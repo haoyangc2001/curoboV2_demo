@@ -17,12 +17,11 @@ start:
 
 # 目标：末端 tool0 位姿 [x, y, z, qx, qy, qz, qw]
 goal:
-  pose: [0.45, 0.0, 0.55, 0.0, 0.707, 0.0, 0.707]
+  pose: [0.45, 0.0, 0.85, 0.0, 0.707, 0.0, 0.707]
 
 # 障碍物场景（留空则无外部障碍物）
-# world:
-#   obstacle_json: ../../robot_assets/ROKAE/obstacles/abs.autosave.json
-#   obstacle_rel_json: ../../robot_assets/ROKAE/obstacles/rel.autosave.json
+world:
+  obstacle_json: obstacles/simple_test.json
 
 # 输出目录
 output_dir: /tmp/curoboV2_demo/pose_plan

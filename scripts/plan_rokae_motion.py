@@ -29,12 +29,14 @@ from rokae_world_utils import build_world
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="ROKAE 离线规划工具")
-    p.add_argument("--config", required=True, help="输入配置 YAML 路径")
+    _SCRIPTS_DIR = Path(__file__).resolve().parent
+    _DEFAULT_CONFIG = str(_SCRIPTS_DIR.parent / "resource" / "config" / "examples" / "pose_plan_example.yaml")
+    p.add_argument("--config", default=_DEFAULT_CONFIG, help="输入配置 YAML 路径")
     p.add_argument("--mode", help="覆盖规划模式")
     p.add_argument("--start-jp", help="覆盖起始关节角（逗号分隔）")
     p.add_argument("--goal-pose", help="覆盖目标位姿（逗号分隔，x,y,z,qx,qy,qz,qw）")
     p.add_argument("--goal-jp", help="覆盖目标关节角（逗号分隔）")
-    p.add_argument("--output-dir", help="覆盖输出目录")
+    p.add_argument("--output-dir", default="/tmp/rokae_debug", help="覆盖输出目录")
     p.add_argument("--speed-scale", type=float, help="速度缩放 (0, 2.0]")
     p.add_argument("--hold-vec-weight", help="方向保持权重（逗号分隔，x,y,z）")
     p.add_argument("--approach-offset", type=float, help="接近偏移量（米）")

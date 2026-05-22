@@ -16,3 +16,5 @@ Notes:
 - this bundle is now separated from the historical `robot_assets/dahuafuhe` assets
 - `robot_assets/dahuafuhe` should be treated as the previous Yongda/dahuafuhe asset location
 - current active ROKAE model is `XMS5-R800-W4G3B4C`
+- collision spheres now live in the standalone `robot/spheres/ROKAE_SR5_0.9C_spherized.yml` file and are intended to be updated from Bubblify exports
+- the active robot config references the external spheres file instead of embedding a second copy
