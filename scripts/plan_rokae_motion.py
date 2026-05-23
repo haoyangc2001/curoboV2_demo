@@ -183,7 +183,6 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
         out = Path(cfg.output_dir)
         out.mkdir(parents=True, exist_ok=True)
 
-        # summary.json
         summary = {
             "mode": cfg.mode,
             "success": result["success"],
@@ -204,8 +203,20 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
             "interpolation_dt": result.get("interpolation_dt"),
             "waypoint_count": result.get("waypoint_count"),
             "input_config": str(config_path) if config_path else None,
+            "world": {
+                "abs_json": cfg.world.obstacle_json,
+                "rel_json": cfg.world.obstacle_rel_json,
+                "summary": world_result["world_summary"] if world_result is not None else {
+                    "abs_count": 0,
+                    "rel_count": 0,
+                    "total_count": 0,
+                },
+                "obstacle_names": (
+                    list(world_result["world_dict"].get("cuboid", {}).keys())
+                    if world_result is not None else []
+                ),
+            },
         }
-        (out / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
 
         # trajectory.json
         if result["success"]:
@@ -213,18 +224,9 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
                 "joint_names": result["joint_names"],
                 "waypoints": result["trajectory_points"],
                 "sample_period_s": result["interpolation_dt"],
+                "metadata": summary,
             }
             (out / "trajectory.json").write_text(json.dumps(traj, indent=2, ensure_ascii=False))
-
-        # world_summary.json
-        if world_result is not None:
-            ws = {
-                "abs_json": cfg.world.obstacle_json,
-                "rel_json": cfg.world.obstacle_rel_json,
-                "summary": world_result["world_summary"],
-                "obstacle_names": list(world_result["world_dict"].get("cuboid", {}).keys()),
-            }
-            (out / "world_summary.json").write_text(json.dumps(ws, indent=2, ensure_ascii=False))
 
         print(f"输出目录: {out}")
 
@@ -233,12 +235,11 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
 
 def collect_plan_artifact_paths(output_dir: Path) -> dict[str, str]:
     """返回规划阶段关键产物路径。"""
-    return {
+    artifacts = {
         "plan_output_dir": str(output_dir),
-        "summary_json": str(output_dir / "summary.json"),
         "trajectory_json": str(output_dir / "trajectory.json"),
-        "world_summary_json": str(output_dir / "world_summary.json"),
     }
+    return artifacts
 
 
 def run_to_output_dir(cfg: PlanningConfig, config_path: Path | None = None) -> dict[str, Any]:

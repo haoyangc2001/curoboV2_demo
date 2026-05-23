@@ -30,7 +30,7 @@ output_dir: /tmp/curoboV2_demo/pose_plan
 pipeline:
   run_plan: true
   export_contract: true
-  replay_gif: true
+  replay_gif: false
   realtime_viewer: true
   render_every: 4
   playback_speed: 1.0

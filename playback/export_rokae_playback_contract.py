@@ -83,8 +83,18 @@ def _build_joint_mapping(source_joint_names: list[str], target_joint_names: list
 
 def _load_obstacle_contract(plan_output_dir: Path) -> dict[str, Any]:
     """从规划输出目录恢复障碍物场景信息。"""
+    trajectory_path = plan_output_dir / "trajectory.json"
     world_summary_path = plan_output_dir / "world_summary.json"
-    if not world_summary_path.exists():
+    if trajectory_path.exists():
+        traj_data = json.loads(trajectory_path.read_text())
+        plan_summary = traj_data.get("metadata", {})
+        world_summary = plan_summary.get("world")
+    elif world_summary_path.exists():
+        world_summary = json.loads(world_summary_path.read_text())
+    else:
+        world_summary = None
+
+    if not world_summary:
         return {
             "abs_json": None,
             "rel_json": None,
@@ -92,7 +102,6 @@ def _load_obstacle_contract(plan_output_dir: Path) -> dict[str, Any]:
             "cuboids": [],
         }
 
-    world_summary = json.loads(world_summary_path.read_text())
     abs_json = world_summary.get("abs_json")
     rel_json = world_summary.get("rel_json")
     world_result = build_world(
@@ -264,15 +273,12 @@ def build_contract_from_plan_output(
     Returns:
         包含轨迹、关节映射、时序约束和来源信息的合同字典。
     """
-    summary_path = plan_output_dir / "summary.json"
     trajectory_path = plan_output_dir / "trajectory.json"
-    if not summary_path.exists():
-        raise FileNotFoundError(f"summary.json not found in {plan_output_dir}")
     if not trajectory_path.exists():
         raise FileNotFoundError(f"trajectory.json not found in {plan_output_dir}")
 
-    plan_summary = json.loads(summary_path.read_text())
     traj_data = json.loads(trajectory_path.read_text())
+    plan_summary = traj_data.get("metadata", {})
 
     if not plan_summary.get("success"):
         raise RuntimeError(
@@ -293,6 +299,7 @@ def build_contract_from_plan_output(
     source_mapping = _build_joint_mapping(interpolated_joint_names, urdf_movable_joint_names)
     obstacle_contract = _load_obstacle_contract(plan_output_dir)
     world_summary_path = plan_output_dir / "world_summary.json"
+    summary_world = plan_summary.get("world")
 
     contract = {
         "contract_name": "curobo_v2_rokae_mujoco_playback_contract",
@@ -375,16 +382,16 @@ def build_contract_from_plan_output(
         "passed": True,
         "checks": {
             "trajectory_json_read_successfully": True,
-            "summary_json_read_successfully": True,
+            "trajectory_metadata_read_successfully": True,
             "interpolated_joint_order_matches_urdf_movable_joints": True,
             "mujoco_mapping_defined_without_ros_topics": True,
             "fixed_dt_policy_defined": True,
             "obstacle_contract_built": True,
         },
         "artifacts": {
-            "plan_summary_path": str(plan_output_dir / "summary.json"),
             "plan_trajectory_path": str(plan_output_dir / "trajectory.json"),
             "plan_world_summary_path": str(world_summary_path) if world_summary_path.exists() else None,
+            "plan_world_embedded_in_summary": summary_world is not None,
             "contract_path": str(output_dir / "playback_contract.json"),
         },
     }

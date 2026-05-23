@@ -54,10 +54,13 @@ def _realtime_replay(
     waypoints = list(contract["trajectory_contract"]["waypoints"])
     dt = float(contract["timing_contract"]["sample_period_s"])
     urdf_path = Path(contract["robot_source"]["urdf_path"])
+    obstacle_contract = contract.get("obstacle_contract", {})
+    obstacle_cuboids = list(obstacle_contract.get("cuboids", []))
 
     model_xml_path = generate_rokae_stage1_mjcf(
         output_dir / "rokae_stage1_realtime.xml",
         urdf_path=urdf_path,
+        obstacle_cuboids=obstacle_cuboids,
     )
     model = mujoco.MjModel.from_xml_path(str(model_xml_path))
     data = mujoco.MjData(model)
@@ -109,6 +112,7 @@ def _realtime_replay(
         "playback_speed": playback_speed,
         "requested_waypoints": len(waypoints),
         "rendered_waypoints": rendered_waypoints,
+        "obstacle_count": len(obstacle_cuboids),
         "sample_period_s": dt,
         "final_hold_s": final_hold_s,
         "elapsed_wall_time_s": elapsed,

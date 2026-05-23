@@ -1,0 +1,26 @@
+# 复杂障碍物 + 长路径 + 默认 realtime viewer 示例
+
+mode: point_to_point
+
+start:
+  joint_position: [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0]
+
+goal:
+  pose: [0.52, -0.18, 0.78, 0.0, 0.707, 0.0, 0.707]
+
+world:
+  obstacle_json: obstacles/complex_viewer_test.json
+  obstacle_rel_json: null
+
+output_dir: /tmp/curoboV2_demo/complex_viewer
+
+pipeline:
+  run_plan: true
+  export_contract: true
+  replay_gif: false
+  realtime_viewer: true
+  render_every: 4
+  playback_speed: 0.75
+  final_hold_s: 2.0
+
+speed_scale: 0.5

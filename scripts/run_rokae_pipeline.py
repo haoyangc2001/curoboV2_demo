@@ -28,6 +28,39 @@ from replay_rokae_mujoco import replay_contract
 from run_rokae_demo import _realtime_replay
 
 
+def _prune_outputs(summary: dict[str, Any]) -> None:
+    """成功后只保留轨迹和最终视频图片。"""
+    if not summary.get("success"):
+        return
+
+    keep = set()
+    plan_artifacts = summary.get("stages", {}).get("plan", {}).get("artifacts", {})
+    playback_artifacts = summary.get("stages", {}).get("playback", {}).get("artifacts", {})
+    trajectory_json = plan_artifacts.get("trajectory_json")
+    if trajectory_json:
+        keep.add(str(Path(trajectory_json).resolve()))
+
+    for key in ("playback_gif", "playback_start_png", "playback_end_png"):
+        value = playback_artifacts.get(key)
+        if value:
+            keep.add(str(Path(value).resolve()))
+
+    output_root = Path(summary["output_root"]).resolve()
+    for path in output_root.rglob("*"):
+        if not path.is_file():
+            continue
+        if str(path.resolve()) in keep:
+            continue
+        path.unlink()
+
+    for path in sorted(output_root.rglob("*"), reverse=True):
+        if path.is_dir():
+            try:
+                path.rmdir()
+            except OSError:
+                pass
+
+
 def _parse_args() -> argparse.Namespace:
     default_config = str(_WORKSPACE_ROOT / "resource" / "config" / "examples" / "pose_plan_example.yaml")
     parser = argparse.ArgumentParser(description="Unified ROKAE planning, contract export, and playback pipeline")
@@ -56,7 +89,7 @@ def _parse_args() -> argparse.Namespace:
 
 def _default_output_root() -> Path:
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return _WORKSPACE_ROOT / "evidence" / "rokae_pipeline" / stamp
+    return Path("/tmp/curoboV2_demo/rokae_pipeline") / stamp
 
 
 def _apply_pipeline_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningConfig:
@@ -199,7 +232,8 @@ def main() -> None:
                 raise RuntimeError(f"planning failed (status={plan_result['result'].get('status')})")
         else:
             stage = resolved["stages"]["plan"]
-            summary["stages"]["plan"] = _stage_record(False, stage["status"], reason=stage["reason"])
+            status = "skipped" if stage["status"] == "pending" else stage["status"]
+            summary["stages"]["plan"] = _stage_record(False, status, reason=stage["reason"] or "disabled by pipeline configuration")
 
         if resolved["stages"]["contract"]["enabled"]:
             t0 = time.monotonic()
@@ -220,10 +254,11 @@ def main() -> None:
             )
         else:
             stage = resolved["stages"]["contract"]
+            status = "skipped" if stage["status"] == "pending" else stage["status"]
             summary["stages"]["contract"] = _stage_record(
                 False,
-                stage["status"],
-                reason=stage["reason"],
+                status,
+                reason=stage["reason"] or "disabled by pipeline configuration",
                 artifacts={"contract_json": str(contract_json_path)} if contract_json_path.exists() else {},
             )
 
@@ -239,6 +274,8 @@ def main() -> None:
                     "contract_json": str(contract_json_path),
                     "playback_summary_json": str(resolved["playback_dir"] / "playback_summary.json"),
                     "playback_gif": str(resolved["playback_dir"] / "playback.gif"),
+                    "playback_start_png": str(resolved["playback_dir"] / "playback_start.png"),
+                    "playback_end_png": str(resolved["playback_dir"] / "playback_end.png"),
                     "model_xml": str(resolved["playback_dir"] / "rokae_stage1_playback.xml"),
                 },
                 elapsed_s=elapsed,
@@ -306,6 +343,7 @@ def main() -> None:
     finally:
         summary["total_elapsed_s"] = time.monotonic() - total_t0
         _write_json(output_root / "run_summary.json", summary)
+        _prune_outputs(summary)
 
     print("ROKAE unified pipeline completed")
     print(f"Output root: {output_root}")

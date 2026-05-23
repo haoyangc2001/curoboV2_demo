@@ -52,7 +52,7 @@ class WorldConfig:
 class PipelineConfig:
     run_plan: bool = True
     export_contract: bool = True
-    replay_gif: bool = True
+    replay_gif: bool = False
     realtime_viewer: bool = True
     render_every: int = 4
     playback_speed: float = 1.0
@@ -248,7 +248,7 @@ def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:
         pipeline=PipelineConfig(
             run_plan=bool(pipeline_raw.get("run_plan", True)),
             export_contract=bool(pipeline_raw.get("export_contract", True)),
-            replay_gif=bool(pipeline_raw.get("replay_gif", True)),
+            replay_gif=bool(pipeline_raw.get("replay_gif", False)),
             realtime_viewer=bool(pipeline_raw.get("realtime_viewer", True)),
             render_every=int(pipeline_raw.get("render_every", 4)),
             playback_speed=float(pipeline_raw.get("playback_speed", 1.0)),

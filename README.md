@@ -18,9 +18,9 @@
 | 障碍物场景 | 支持绝对/相对障碍物 JSON，构建 CuRobo cuboid world |
 | 速度缩放 | `speed_scale` 参数控制轨迹速度 (0, 2.0] |
 | 方向约束 | `hold_vec_weight` 控制末端方向保持 [x, y, z] |
-| 统一输出 | `summary.json` + `trajectory.json` + `world_summary.json` |
-| 统一流水线入口 | `run_rokae_pipeline.py` 一次执行 plan → contract → GIF，并可选 realtime viewer |
-| MuJoCo 回放 | 离屏渲染 GIF + 可选实时 viewer，带障碍物时自动渲染 planning cuboid |
+| 轻量结果输出 | 默认只保留 `trajectory.json` |
+| 统一流水线入口 | `run_rokae_pipeline.py` 统一编排 plan / contract / GIF / viewer，各阶段按参数开启 |
+| MuJoCo 回放 | 按需导出 GIF + 首尾 PNG，可选 realtime viewer，带障碍物时自动渲染 planning cuboid |
 
 ## 目录结构
 
@@ -58,7 +58,6 @@ curoboV2_demo/
 │   └── robot/curobo/meshes/
 │
 ├── doc/plan/                         # 升级计划文档
-├── evidence/                         # 运行产物存储
 └── third_party/curobo/               # Vendored CuRobo V2
 ```
 
@@ -102,32 +101,30 @@ python scripts/run_rokae_pipeline.py \
 
 默认行为：
 
-- 执行 `plan -> export_contract -> replay_gif`
-- 默认尝试启动 realtime viewer
-- 如果当前环境没有可用显示、viewer 初始化失败或运行中断，会自动降级为“viewer skipped”
-- 最终产物统一输出到：
-  `evidence/rokae_pipeline/<timestamp>/`
+- 只执行规划阶段
+- 默认只保留 `trajectory.json`
+- 默认输出到 `/tmp/curoboV2_demo/...`
+- 不会默认生成合同、GIF、PNG 或 realtime viewer 结果
 
-固定目录布局：
+如果显式开启 `export_contract` 和 `replay_gif`，成功运行后会额外保留：
 
-```text
-<output_root>/
-├── plan/
-├── contract/
-├── playback/
-├── realtime/
-└── run_summary.json
-```
+- `playback.gif`
+- `playback_start.png`
+- `playback_end.png`
+
+中间产物（合同、摘要、MJCF、review 文件等）在成功后会自动清理；如果运行失败，会保留现场用于排障。
 
 ### 常见参数
 
 ```bash
-# 只跑离屏结果，不开 realtime viewer
+# 规划 + GIF，不开 realtime viewer
 python scripts/run_rokae_pipeline.py \
   --config resource/config/examples/pose_plan_example.yaml \
+  --export-contract \
+  --replay-gif \
   --no-viewer
 
-# 只规划，不继续导合同和回放
+# 只规划，最终只保留 trajectory.json
 python scripts/run_rokae_pipeline.py \
   --config resource/config/examples/pose_plan_example.yaml \
   --no-export-contract \
@@ -158,8 +155,7 @@ python scripts/plan_rokae_motion.py \
   --output-dir /tmp/rokae_demo/pose_plan
 
 # 输出：
-#   /tmp/rokae_demo/pose_plan/summary.json    — 规划摘要
-#   /tmp/rokae_demo/pose_plan/trajectory.json  — 轨迹数据
+#   /tmp/rokae_demo/pose_plan/trajectory.json  — 轨迹数据（内含 metadata）
 ```
 
 ### 流程二：关节目标规划
@@ -212,8 +208,8 @@ python playback/replay_rokae_mujoco.py \
 
 说明：
 
-- 如果规划输出目录中存在 `world_summary.json`，回放合同会自动恢复障碍物 cuboid。
-- `replay_rokae_mujoco.py` 现在会把这些 cuboid 渲染为 MuJoCo 场景中的半透明 box geom。
+- `trajectory.json` 内嵌了规划 metadata 和障碍物摘要，回放合同会从这里恢复障碍物 cuboid。
+- `replay_rokae_mujoco.py` 会把这些 cuboid 渲染为 MuJoCo 场景中的半透明 box geom。
 - 因此带障碍物的规划回放，GIF 中也会显示对应障碍物。
 
 ### 流程四补充：基于已有规划结果重放并渲染障碍物
@@ -239,9 +235,9 @@ python playback/replay_rokae_mujoco.py \
 
 产物示例：
 
-- `/tmp/rokae_full/contract_with_obstacles/playback_contract.json`
 - `/tmp/rokae_full/playback_with_obstacles/playback.gif`
-- `/tmp/rokae_full/playback_with_obstacles/rokae_stage1_playback.xml`
+- `/tmp/rokae_full/playback_with_obstacles/playback_start.png`
+- `/tmp/rokae_full/playback_with_obstacles/playback_end.png`
 
 ### 流程五：一键规划 + 回放（历史辅助入口）
 
@@ -365,9 +361,9 @@ output_dir: /tmp/curoboV2_demo/output
 # 统一流水线配置
 pipeline:
   run_plan: true
-  export_contract: true
-  replay_gif: true
-  realtime_viewer: true
+  export_contract: false
+  replay_gif: false
+  realtime_viewer: false
   render_every: 4
   playback_speed: 1.0
   final_hold_s: 1.0
@@ -392,81 +388,47 @@ pipeline:
 
 ## 输出文件说明
 
-### summary.json
-
-规划摘要，包含输入参数、规划状态和性能指标。
-
-```json
-{
-  "mode": "point_to_point",
-  "success": true,
-  "status": "success",
-  "speed_scale": 1.0,
-  "start_joint": [-1.571, 1.571, 0.0, 1.571, 1.571, 0.0],
-  "goal_pose": [0.45, 0.0, 0.55, 0.0, 0.707, 0.0, 0.707],
-  "solve_time": 0.46,
-  "waypoint_count": 81,
-  "interpolation_dt": 0.025
-}
-```
-
 ### trajectory.json
 
-轨迹数据，可直接被 MuJoCo 回放链路消费。
+轨迹数据，可直接被 MuJoCo 回放链路消费。默认成功后只保留这个文件。
 
 ```json
 {
   "joint_names": ["XMS5-R800-W4G3B4C_joint_1", "..."],
   "waypoints": [[0.1, 0.2, ...], ...],
-  "sample_period_s": 0.025
-}
-```
-
-### world_summary.json（有障碍物时）
-
-障碍物场景摘要。
-
-```json
-{
-  "abs_json": "path/to/abs.autosave.json",
-  "rel_json": "path/to/rel.autosave.json",
-  "summary": {"abs_count": 2, "rel_count": 1, "total_count": 3},
-  "obstacle_names": ["obstacle_0", "obstacle_1", "obstacle_rel_2"]
-}
-```
-
-### run_summary.json（统一入口）
-
-统一入口会额外生成 `run_summary.json`，记录每个阶段的执行状态和关键产物路径。
-
-```json
-{
-  "success": true,
-  "output_root": ".../evidence/rokae_pipeline/20260523_123456",
-  "stages": {
-    "plan": {"status": "success"},
-    "contract": {"status": "success"},
-    "playback": {"status": "success"},
-    "realtime": {"status": "skipped"}
+  "sample_period_s": 0.025,
+  "metadata": {
+    "mode": "point_to_point",
+    "success": true,
+    "status": "success",
+    "world": {
+      "abs_json": null,
+      "rel_json": null,
+      "summary": {"abs_count": 0, "rel_count": 0, "total_count": 0},
+      "obstacle_names": []
+    }
   }
 }
 ```
 
-### playback_contract.json（有障碍物时）
+### playback.gif / playback_start.png / playback_end.png
 
-回放合同现在会额外包含 `obstacle_contract`，用于在 MuJoCo 回放阶段恢复障碍物渲染。
+只有显式开启 `export_contract` 和 `replay_gif` 时才会保留这 3 个文件：
 
-```json
-{
-  "obstacle_contract": {
-    "abs_json": "path/to/simple_test.json",
-    "rel_json": null,
-    "summary": {"abs_count": 2, "rel_count": 0, "total_count": 2},
-    "cuboids": [
-      {"name": "obstacle_0", "dims": [0.2, 0.2, 0.2], "pose": [0.6, 0.3, 0.7, 1.0, 0.0, 0.0, 0.0]}
-    ]
-  }
-}
+```text
+playback.gif         # 动图回放
+playback_start.png   # 起始帧
+playback_end.png     # 结束帧
+```
+
+统一入口在成功时会自动清理中间文件，因此默认不会长期保留：
+
+- `playback_contract.json`
+- `review_summary.json`
+- `run_summary.json`
+- `playback_summary.json`
+- `rokae_stage1_playback.xml`
+- realtime viewer 摘要文件
 ```
 
 ## 高级功能
@@ -573,6 +535,6 @@ python scripts/plan_rokae_motion.py \
 - `plan_rokae_motion.py`、`export_rokae_playback_contract.py`、`replay_rokae_mujoco.py` 保留为分阶段调试入口
 - CuRobo V2 默认不编译 pybind CUDA 扩展；如需启用，设置 `CUROBO_USE_PYBIND=1`
 - 四元数顺序：配置文件使用 `[qx, qy, qz, qw]`（xyzw），CuRobo 内部使用 `[qw, qx, qy, qz]`（wxyz），脚本自动转换
-- MuJoCo 回放只会渲染规划输出里记录过的 cuboid 障碍物；如果没有 `world_summary.json`，回放场景中只会显示机器人和地面
+- MuJoCo 回放只会渲染轨迹 metadata 里记录过的 cuboid 障碍物；如果没有障碍物信息，回放场景中只会显示机器人和地面
 - `demo_scripts/` 保留为最小验证样例，工程化任务请使用 `scripts/`
 - `ROKAE_migration_notes.md` 保留为迁移记录，不作为主使用文档
