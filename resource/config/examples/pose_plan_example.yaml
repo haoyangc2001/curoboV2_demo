@@ -26,6 +26,16 @@ world:
 # 输出目录
 output_dir: /tmp/curoboV2_demo/pose_plan
 
+# 流水线配置（统一入口 scripts/run_rokae_pipeline.py 使用）
+pipeline:
+  run_plan: true
+  export_contract: true
+  replay_gif: true
+  realtime_viewer: true
+  render_every: 4
+  playback_speed: 1.0
+  final_hold_s: 1.0
+
 # 可选规划参数
 # speed_scale: 0.5           # 速度缩放 (0, 1]
 # hold_vec_weight: [0, 0, 1] # 保持方向约束权重 [x, y, z]

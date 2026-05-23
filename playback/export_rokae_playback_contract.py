@@ -28,6 +28,7 @@ if str(SCRIPTS_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_ROOT))
 
 from rokae_asset_utils import workspace_robot_config_path, workspace_urdf_path
+from rokae_world_utils import build_world
 
 
 def _parse_movable_urdf_joint_names(urdf_path: Path) -> list[str]:
@@ -77,6 +78,40 @@ def _build_joint_mapping(source_joint_names: list[str], target_joint_names: list
         "target_joint_names": target_joint_names,
         "source_to_target": source_to_target,
         "is_identity": source_joint_names == target_joint_names,
+    }
+
+
+def _load_obstacle_contract(plan_output_dir: Path) -> dict[str, Any]:
+    """从规划输出目录恢复障碍物场景信息。"""
+    world_summary_path = plan_output_dir / "world_summary.json"
+    if not world_summary_path.exists():
+        return {
+            "abs_json": None,
+            "rel_json": None,
+            "summary": {"abs_count": 0, "rel_count": 0, "total_count": 0},
+            "cuboids": [],
+        }
+
+    world_summary = json.loads(world_summary_path.read_text())
+    abs_json = world_summary.get("abs_json")
+    rel_json = world_summary.get("rel_json")
+    world_result = build_world(
+        abs_json_path=Path(abs_json) if abs_json else None,
+        rel_json_path=Path(rel_json) if rel_json else None,
+    )
+    cuboids = [
+        {
+            "name": box["name"],
+            "dims": list(box["dims"]),
+            "pose": list(box["pose"]),
+        }
+        for box in world_result["boxes"]
+    ]
+    return {
+        "abs_json": abs_json,
+        "rel_json": rel_json,
+        "summary": world_result["world_summary"],
+        "cuboids": cuboids,
     }
 
 
@@ -256,6 +291,8 @@ def build_contract_from_plan_output(
     waypoints = list(traj_data["waypoints"])
     sample_period_s = float(traj_data["sample_period_s"])
     source_mapping = _build_joint_mapping(interpolated_joint_names, urdf_movable_joint_names)
+    obstacle_contract = _load_obstacle_contract(plan_output_dir)
+    world_summary_path = plan_output_dir / "world_summary.json"
 
     contract = {
         "contract_name": "curobo_v2_rokae_mujoco_playback_contract",
@@ -309,11 +346,13 @@ def build_contract_from_plan_output(
             "first_waypoint": waypoints[0],
             "last_waypoint": waypoints[-1],
         },
+        "obstacle_contract": obstacle_contract,
         "review_assertions": [
             "The playback input is the interpolated CuRobo joint sequence from plan_rokae_motion.py.",
             "MuJoCo joint mapping must be resolved by joint name instead of relying on positional identity.",
             "The direct MuJoCo playback script must stay independent from ROS topics and main-project launch files.",
             "The direct playback must preserve the ROKAE URDF mesh scale values when generating MJCF.",
+            "Obstacle cuboids from planning should be carried into MuJoCo playback when available.",
         ],
         "notes": [
             "Contract v2.0 is built from plan_rokae_motion.py output (trajectory.json + summary.json).",
@@ -340,10 +379,12 @@ def build_contract_from_plan_output(
             "interpolated_joint_order_matches_urdf_movable_joints": True,
             "mujoco_mapping_defined_without_ros_topics": True,
             "fixed_dt_policy_defined": True,
+            "obstacle_contract_built": True,
         },
         "artifacts": {
             "plan_summary_path": str(plan_output_dir / "summary.json"),
             "plan_trajectory_path": str(plan_output_dir / "trajectory.json"),
+            "plan_world_summary_path": str(world_summary_path) if world_summary_path.exists() else None,
             "contract_path": str(output_dir / "playback_contract.json"),
         },
     }

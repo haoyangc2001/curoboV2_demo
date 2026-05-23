@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+evidence/
+
+*.log
+
+playback.gif
+playback_start.png
+playback_end.png
+

@@ -49,6 +49,19 @@ class WorldConfig:
 
 
 @dataclass
+class PipelineConfig:
+    run_plan: bool = True
+    export_contract: bool = True
+    replay_gif: bool = True
+    realtime_viewer: bool = True
+    render_every: int = 4
+    playback_speed: float = 1.0
+    final_hold_s: float = 1.0
+    resume_from_plan_output_dir: str | None = None
+    resume_from_contract_json: str | None = None
+
+
+@dataclass
 class PlanningConfig:
     """规划输入配置。"""
     mode: str = "point_to_point"
@@ -56,6 +69,7 @@ class PlanningConfig:
     start: StartConfig = field(default_factory=StartConfig)
     goal: GoalConfig = field(default_factory=GoalConfig)
     world: WorldConfig = field(default_factory=WorldConfig)
+    pipeline: PipelineConfig = field(default_factory=PipelineConfig)
     output_dir: str | None = None
 
     # 可选规划参数
@@ -151,6 +165,20 @@ def _validate(raw: dict[str, Any], config_path: Path) -> None:
             if not (0.0 <= w <= 1.0):
                 raise ValueError(f"hold_vec_weight 每个元素必须在 [0, 1] 范围内，实际 {w}")
 
+    pipeline = raw.get("pipeline", {})
+    if pipeline is not None and not isinstance(pipeline, dict):
+        raise ValueError(f"pipeline 必须是字典，实际为 {type(pipeline).__name__}")
+    if isinstance(pipeline, dict):
+        render_every = pipeline.get("render_every")
+        if render_every is not None and int(render_every) <= 0:
+            raise ValueError(f"pipeline.render_every 必须大于 0，实际 {render_every}")
+        playback_speed = pipeline.get("playback_speed")
+        if playback_speed is not None and float(playback_speed) <= 0.0:
+            raise ValueError(f"pipeline.playback_speed 必须大于 0，实际 {playback_speed}")
+        final_hold_s = pipeline.get("final_hold_s")
+        if final_hold_s is not None and float(final_hold_s) < 0.0:
+            raise ValueError(f"pipeline.final_hold_s 不能小于 0，实际 {final_hold_s}")
+
 
 def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:
     """从校验后的字典构建 PlanningConfig，解析相对路径为绝对路径。"""
@@ -159,6 +187,7 @@ def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:
     start_raw = raw.get("start", {})
     goal_raw = raw.get("goal", {})
     world_raw = raw.get("world", {})
+    pipeline_raw = raw.get("pipeline", {})
 
     robot_config = raw.get("robot_config")
     if robot_config is not None:
@@ -188,6 +217,20 @@ def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:
             p = (config_dir / p).resolve()
         output_dir = str(p)
 
+    resume_from_plan_output_dir = pipeline_raw.get("resume_from_plan_output_dir")
+    if resume_from_plan_output_dir is not None:
+        p = Path(resume_from_plan_output_dir)
+        if not p.is_absolute():
+            p = (config_dir / p).resolve()
+        resume_from_plan_output_dir = str(p)
+
+    resume_from_contract_json = pipeline_raw.get("resume_from_contract_json")
+    if resume_from_contract_json is not None:
+        p = Path(resume_from_contract_json)
+        if not p.is_absolute():
+            p = (config_dir / p).resolve()
+        resume_from_contract_json = str(p)
+
     return PlanningConfig(
         mode=raw.get("mode", "point_to_point"),
         robot_config=robot_config,
@@ -201,6 +244,17 @@ def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:
         world=WorldConfig(
             obstacle_json=obstacle_json,
             obstacle_rel_json=obstacle_rel_json,
+        ),
+        pipeline=PipelineConfig(
+            run_plan=bool(pipeline_raw.get("run_plan", True)),
+            export_contract=bool(pipeline_raw.get("export_contract", True)),
+            replay_gif=bool(pipeline_raw.get("replay_gif", True)),
+            realtime_viewer=bool(pipeline_raw.get("realtime_viewer", True)),
+            render_every=int(pipeline_raw.get("render_every", 4)),
+            playback_speed=float(pipeline_raw.get("playback_speed", 1.0)),
+            final_hold_s=float(pipeline_raw.get("final_hold_s", 1.0)),
+            resume_from_plan_output_dir=resume_from_plan_output_dir,
+            resume_from_contract_json=resume_from_contract_json,
         ),
         output_dir=output_dir,
         speed_scale=raw.get("speed_scale"),

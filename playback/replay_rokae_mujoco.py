@@ -101,6 +101,28 @@ def _mesh_asset_name(mesh_path: Path) -> str:
     return f"{mesh_path.stem}_mesh"
 
 
+def _append_obstacle_geoms(worldbody: ET.Element, cuboids: list[dict[str, Any]]) -> None:
+    """把障碍物 cuboid 写进 MJCF worldbody。"""
+    for cuboid in cuboids:
+        dims = cuboid.get("dims", [])
+        pose = cuboid.get("pose", [])
+        if len(dims) != 3 or len(pose) != 7:
+            raise ValueError(f"invalid obstacle cuboid payload: {cuboid}")
+        ET.SubElement(
+            worldbody,
+            "geom",
+            name=str(cuboid["name"]),
+            type="box",
+            pos=_format_triplet(tuple(float(v) for v in pose[:3])),
+            quat=" ".join(f"{float(v):.9g}" for v in pose[3:]),
+            size=_format_triplet(tuple(float(v) * 0.5 for v in dims)),
+            rgba="0.94 0.45 0.18 0.45",
+            contype="0",
+            conaffinity="0",
+            group="2",
+        )
+
+
 def _load_urdf_model(
     urdf_path: Path,
 ) -> tuple[dict[str, LinkInfo], dict[str, JointInfo], dict[str, list[str]], str]:
@@ -268,7 +290,11 @@ def _build_link_body(
         _build_link_body(child_body, joint.child, links, joints, children_by_parent)
 
 
-def generate_rokae_stage1_mjcf(output_xml_path: Path, urdf_path: Path | None = None) -> Path:
+def generate_rokae_stage1_mjcf(
+    output_xml_path: Path,
+    urdf_path: Path | None = None,
+    obstacle_cuboids: list[dict[str, Any]] | None = None,
+) -> Path:
     """根据 URDF 生成可直接加载的 MJCF 文件。
 
     Args:
@@ -306,6 +332,7 @@ def generate_rokae_stage1_mjcf(output_xml_path: Path, urdf_path: Path | None = N
     worldbody = ET.SubElement(model, "worldbody")
     ET.SubElement(worldbody, "light", pos="1.5 -0.5 2.5", dir="-1 0 -1")
     ET.SubElement(worldbody, "geom", name="ground", type="plane", size="2 2 0.1", rgba="0.94 0.94 0.96 1")
+    _append_obstacle_geoms(worldbody, obstacle_cuboids or [])
 
     if root_link == "world":
         _build_link_body(worldbody, root_link, links, joints, children_by_parent)
@@ -507,10 +534,13 @@ def replay_contract(contract_path: Path, output_dir: Path, render_every: int) ->
     dt = float(contract["timing_contract"]["sample_period_s"])
     ee_body_name = str(contract["robot_source"]["ee_body_name"])
     urdf_path = Path(contract["robot_source"]["urdf_path"])
+    obstacle_contract = contract.get("obstacle_contract", {})
+    obstacle_cuboids = list(obstacle_contract.get("cuboids", []))
 
     model_xml_path = generate_rokae_stage1_mjcf(
         output_dir / "rokae_stage1_playback.xml",
         urdf_path=urdf_path,
+        obstacle_cuboids=obstacle_cuboids,
     )
     model = mujoco.MjModel.from_xml_path(str(model_xml_path))
     data = mujoco.MjData(model)
@@ -558,6 +588,7 @@ def replay_contract(contract_path: Path, output_dir: Path, render_every: int) ->
         "qpos_mapping": qpos_mapping,
         "waypoint_count": len(waypoints),
         "sample_period_s": dt,
+        "obstacle_count": len(obstacle_cuboids),
         "trajectory_span_s": float(contract["timing_contract"]["trajectory_span_s"]),
         "render_summary": render_summary,
         "checks": checks,

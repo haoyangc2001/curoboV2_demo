@@ -44,31 +44,35 @@ def _parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def _apply_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningConfig:
+def apply_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningConfig:
     """用命令行参数覆盖配置。"""
-    if args.mode:
+    if getattr(args, "mode", None):
         cfg.mode = args.mode
-    if args.start_jp:
+    if getattr(args, "start_jp", None):
         cfg.start.joint_position = [float(x) for x in args.start_jp.split(",")]
-    if args.goal_pose:
+    if getattr(args, "goal_pose", None):
         vals = [float(x) for x in args.goal_pose.split(",")]
         if len(vals) != 7:
             raise ValueError("--goal-pose 需要 7 个值: x,y,z,qx,qy,qz,qw")
         cfg.goal.pose = vals
         cfg.goal.joint_position = None
-    if args.goal_jp:
+    if getattr(args, "goal_jp", None):
         vals = [float(x) for x in args.goal_jp.split(",")]
         cfg.goal.joint_position = vals
         cfg.goal.pose = None
-    if args.output_dir:
+    if getattr(args, "output_dir", None):
         cfg.output_dir = args.output_dir
-    if args.speed_scale is not None:
+    if getattr(args, "speed_scale", None) is not None:
         cfg.speed_scale = args.speed_scale
-    if args.hold_vec_weight:
+    if getattr(args, "hold_vec_weight", None):
         cfg.hold_vec_weight = [float(x) for x in args.hold_vec_weight.split(",")]
-    if args.approach_offset is not None:
+    if getattr(args, "approach_offset", None) is not None:
         cfg.approach_offset = args.approach_offset
     return cfg
+
+
+def _apply_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningConfig:
+    return apply_overrides(cfg, args)
 
 
 def _pose_xyzw_to_curobo(pose_xyzw: list[float]) -> list[float]:
@@ -227,11 +231,33 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
     return result
 
 
+def collect_plan_artifact_paths(output_dir: Path) -> dict[str, str]:
+    """返回规划阶段关键产物路径。"""
+    return {
+        "plan_output_dir": str(output_dir),
+        "summary_json": str(output_dir / "summary.json"),
+        "trajectory_json": str(output_dir / "trajectory.json"),
+        "world_summary_json": str(output_dir / "world_summary.json"),
+    }
+
+
+def run_to_output_dir(cfg: PlanningConfig, config_path: Path | None = None) -> dict[str, Any]:
+    """执行规划并返回结果与关键产物路径。"""
+    result = run(cfg, config_path=config_path)
+    output_dir = Path(cfg.output_dir) if cfg.output_dir else None
+    artifact_paths = collect_plan_artifact_paths(output_dir) if output_dir is not None else {}
+    return {
+        "result": result,
+        "plan_output_dir": str(output_dir) if output_dir is not None else None,
+        "artifacts": artifact_paths,
+    }
+
+
 def main() -> None:
     args = _parse_args()
     config_path = Path(args.config)
     cfg = load_config(config_path)
-    cfg = _apply_overrides(cfg, args)
+    cfg = apply_overrides(cfg, args)
     run(cfg, config_path=config_path)
 
 

@@ -19,7 +19,8 @@
 | 速度缩放 | `speed_scale` 参数控制轨迹速度 (0, 2.0] |
 | 方向约束 | `hold_vec_weight` 控制末端方向保持 [x, y, z] |
 | 统一输出 | `summary.json` + `trajectory.json` + `world_summary.json` |
-| MuJoCo 回放 | 离屏渲染 GIF + 可选实时 viewer |
+| 统一流水线入口 | `run_rokae_pipeline.py` 一次执行 plan → contract → GIF，并可选 realtime viewer |
+| MuJoCo 回放 | 离屏渲染 GIF + 可选实时 viewer，带障碍物时自动渲染 planning cuboid |
 
 ## 目录结构
 
@@ -30,7 +31,8 @@ curoboV2_demo/
 │   ├── rokae_asset_utils.py          # 机器人资产路径解析
 │   ├── rokae_world_utils.py          # 障碍物 JSON → CuRobo world
 │   ├── rokae_motion_gen.py           # CuRobo V2 规划核心封装
-│   └── plan_rokae_motion.py          # 通用离线规划入口
+│   ├── plan_rokae_motion.py          # 规划子阶段入口（兼容保留）
+│   └── run_rokae_pipeline.py         # 统一流水线主入口（推荐）
 │
 ├── demo_scripts/                     # 最小演示样例（保留）
 │   ├── rokae_asset_utils.py
@@ -69,7 +71,7 @@ curoboV2_demo/
 sudo lxc exec zhongji-dev-2204 -- bash
 
 # 激活环境
-source ~/miniforge3/etc/profile.d/conda.sh
+source ~/miniconda3/etc/profile.d/conda.sh
 conda activate curoboV2
 
 # 验证
@@ -81,20 +83,76 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 
 ```bash
 sudo lxc exec zhongji-dev-2204 -- bash -c "\
-  source /home/tanshan/miniforge3/etc/profile.d/conda.sh && \
+  source /home/tanshan/miniconda3/etc/profile.d/conda.sh && \
   conda activate curoboV2 && \
   cd /home/tanshan/rep/curoboV2_demo && \
   <your command>"
 ```
 
-## 完整执行流程
+## 推荐用法
+
+### 一条命令跑完整流程
+
+```bash
+cd ~/rep/curoboV2_demo
+
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml
+```
+
+默认行为：
+
+- 执行 `plan -> export_contract -> replay_gif`
+- 默认尝试启动 realtime viewer
+- 如果当前环境没有可用显示、viewer 初始化失败或运行中断，会自动降级为“viewer skipped”
+- 最终产物统一输出到：
+  `evidence/rokae_pipeline/<timestamp>/`
+
+固定目录布局：
+
+```text
+<output_root>/
+├── plan/
+├── contract/
+├── playback/
+├── realtime/
+└── run_summary.json
+```
+
+### 常见参数
+
+```bash
+# 只跑离屏结果，不开 realtime viewer
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --no-viewer
+
+# 只规划，不继续导合同和回放
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --no-export-contract \
+  --no-replay-gif \
+  --no-viewer
+
+# 从已有规划输出继续跑合同 + GIF + viewer
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --plan-output-dir /tmp/rokae_full/plan
+
+# 从已有合同直接继续跑 GIF + viewer
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --contract-json /tmp/rokae_full/contract/playback_contract.json
+```
+
+## 分阶段用法（高级/调试）
 
 ### 流程一：点到点位姿规划
 
 ```bash
 cd ~/rep/curoboV2_demo
 
-# 1. 位姿规划
+# 仅执行规划子阶段
 python scripts/plan_rokae_motion.py \
   --config resource/config/examples/pose_plan_example.yaml \
   --output-dir /tmp/rokae_demo/pose_plan
@@ -152,7 +210,40 @@ python playback/replay_rokae_mujoco.py \
 #   /tmp/rokae_full/playback/playback_end.png
 ```
 
-### 流程五：一键规划 + 回放
+说明：
+
+- 如果规划输出目录中存在 `world_summary.json`，回放合同会自动恢复障碍物 cuboid。
+- `replay_rokae_mujoco.py` 现在会把这些 cuboid 渲染为 MuJoCo 场景中的半透明 box geom。
+- 因此带障碍物的规划回放，GIF 中也会显示对应障碍物。
+
+### 流程四补充：基于已有规划结果重放并渲染障碍物
+
+```bash
+cd ~/rep/curoboV2_demo
+
+# 已有带障碍物的规划输出目录
+PLAN_DIR=evidence/rokae_bubblify_stress/20260523_000707/baseline/point_to_point__pose1__simple_world__spd0.5/plan
+
+# 1. 从规划输出重新导出合同（会自动带上 obstacle_contract）
+python playback/export_rokae_playback_contract.py \
+  --plan-output-dir "$PLAN_DIR" \
+  --output-dir /tmp/rokae_full/contract_with_obstacles
+
+# 2. 重放并渲染障碍物
+export MUJOCO_GL=egl
+python playback/replay_rokae_mujoco.py \
+  --contract-json /tmp/rokae_full/contract_with_obstacles/playback_contract.json \
+  --output-dir /tmp/rokae_full/playback_with_obstacles \
+  --render-every 4
+```
+
+产物示例：
+
+- `/tmp/rokae_full/contract_with_obstacles/playback_contract.json`
+- `/tmp/rokae_full/playback_with_obstacles/playback.gif`
+- `/tmp/rokae_full/playback_with_obstacles/rokae_stage1_playback.xml`
+
+### 流程五：一键规划 + 回放（历史辅助入口）
 
 ```bash
 cd ~/rep/curoboV2_demo/playback
@@ -172,7 +263,7 @@ python run_rokae_demo.py \
   --playback-speed 1.0
 ```
 
-### 流程六：命令行覆盖参数
+### 流程六：规划子阶段命令行覆盖参数
 
 ```bash
 # 覆盖目标关节角
@@ -238,6 +329,10 @@ python scripts/stress_test_rokae_pipeline.py \
   --candidate-spheres /path/to/candidate_spheres.yml
 ```
 
+更完整的手工调球步骤见：
+
+- `doc/bubblify_workflow.md`
+
 ## 配置文件格式
 
 规划输入通过 YAML 配置文件定义，所有路径相对于配置文件所在目录。
@@ -266,6 +361,18 @@ goal:
 
 # 输出目录
 output_dir: /tmp/curoboV2_demo/output
+
+# 统一流水线配置
+pipeline:
+  run_plan: true
+  export_contract: true
+  replay_gif: true
+  realtime_viewer: true
+  render_every: 4
+  playback_speed: 1.0
+  final_hold_s: 1.0
+  # resume_from_plan_output_dir: /path/to/existing/plan
+  # resume_from_contract_json: /path/to/existing/playback_contract.json
 
 # 可选规划参数
 # speed_scale: 0.5              # 速度缩放 (0, 2.0]
@@ -328,6 +435,40 @@ output_dir: /tmp/curoboV2_demo/output
 }
 ```
 
+### run_summary.json（统一入口）
+
+统一入口会额外生成 `run_summary.json`，记录每个阶段的执行状态和关键产物路径。
+
+```json
+{
+  "success": true,
+  "output_root": ".../evidence/rokae_pipeline/20260523_123456",
+  "stages": {
+    "plan": {"status": "success"},
+    "contract": {"status": "success"},
+    "playback": {"status": "success"},
+    "realtime": {"status": "skipped"}
+  }
+}
+```
+
+### playback_contract.json（有障碍物时）
+
+回放合同现在会额外包含 `obstacle_contract`，用于在 MuJoCo 回放阶段恢复障碍物渲染。
+
+```json
+{
+  "obstacle_contract": {
+    "abs_json": "path/to/simple_test.json",
+    "rel_json": null,
+    "summary": {"abs_count": 2, "rel_count": 0, "total_count": 2},
+    "cuboids": [
+      {"name": "obstacle_0", "dims": [0.2, 0.2, 0.2], "pose": [0.6, 0.3, 0.7, 1.0, 0.0, 0.0, 0.0]}
+    ]
+  }
+}
+```
+
 ## 高级功能
 
 ### 速度缩放
@@ -370,11 +511,27 @@ python scripts/plan_rokae_motion.py \
 
 > 注意：grasp 模式的线性运动约束对某些机器人构型可能难以满足。如果 grasp 步骤失败但 approach 成功，仍会输出接近段轨迹。
 
-### 命令行参数一览
+### 统一入口命令行参数一览
 
 | 参数 | 说明 |
 |------|------|
-| `--config` | 输入配置 YAML 路径（必需） |
+| `--config` | 输入配置 YAML 路径 |
+| `--output-root` | 覆盖统一输出根目录 |
+| `--plan/--no-plan` | 是否执行规划阶段 |
+| `--export-contract/--no-export-contract` | 是否导出回放合同 |
+| `--replay-gif/--no-replay-gif` | 是否执行离屏回放并导出 GIF |
+| `--viewer/--no-viewer` | 是否尝试启动 realtime viewer |
+| `--plan-output-dir` | 从已有规划输出继续后续阶段 |
+| `--contract-json` | 从已有回放合同继续回放/viewer |
+| `--render-every` | 离屏回放渲染步长 |
+| `--playback-speed` | realtime viewer 播放速度倍率 |
+| `--final-hold-s` | realtime viewer 最后一帧停留秒数 |
+
+### 规划子阶段命令行参数一览
+
+| 参数 | 说明 |
+|------|------|
+| `--config` | 输入配置 YAML 路径 |
 | `--mode` | 覆盖规划模式 |
 | `--start-jp` | 覆盖起始关节角（逗号分隔） |
 | `--goal-pose` | 覆盖目标位姿（逗号分隔，x,y,z,qx,qy,qz,qw） |
@@ -412,7 +569,10 @@ python scripts/plan_rokae_motion.py \
 ## 注意事项
 
 - 统一 URDF：`robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
+- 主推荐入口：`scripts/run_rokae_pipeline.py`
+- `plan_rokae_motion.py`、`export_rokae_playback_contract.py`、`replay_rokae_mujoco.py` 保留为分阶段调试入口
 - CuRobo V2 默认不编译 pybind CUDA 扩展；如需启用，设置 `CUROBO_USE_PYBIND=1`
 - 四元数顺序：配置文件使用 `[qx, qy, qz, qw]`（xyzw），CuRobo 内部使用 `[qw, qx, qy, qz]`（wxyz），脚本自动转换
+- MuJoCo 回放只会渲染规划输出里记录过的 cuboid 障碍物；如果没有 `world_summary.json`，回放场景中只会显示机器人和地面
 - `demo_scripts/` 保留为最小验证样例，工程化任务请使用 `scripts/`
 - `ROKAE_migration_notes.md` 保留为迁移记录，不作为主使用文档

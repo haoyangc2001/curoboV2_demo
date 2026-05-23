@@ -16,3 +16,12 @@ goal:
 
 # 输出目录
 output_dir: /tmp/curoboV2_demo/joint_plan
+
+pipeline:
+  run_plan: true
+  export_contract: true
+  replay_gif: true
+  realtime_viewer: true
+  render_every: 4
+  playback_speed: 1.0
+  final_hold_s: 1.0
