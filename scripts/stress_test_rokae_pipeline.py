@@ -20,7 +20,7 @@ import yaml
 WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = WORKSPACE_ROOT / "scripts"
 PLAYBACK_DIR = WORKSPACE_ROOT / "playback"
-ROBOT_CONFIG_PATH = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "xms5_r800_w4g3b4c_dahuafuhe.yml"
+ROBOT_CONFIG_PATH = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "xms5_r800_w4g3b4c_robot.yml"
 ACTIVE_SPHERES_PATH = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "spheres" / "ROKAE_SR5_0.9C_spherized.yml"
 DEFAULT_OUTPUT_ROOT = WORKSPACE_ROOT / "evidence" / "rokae_bubblify_stress"
 SIMPLE_WORLD_PATH = WORKSPACE_ROOT / "resource" / "config" / "examples" / "obstacles" / "simple_test.json"

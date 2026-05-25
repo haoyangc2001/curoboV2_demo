@@ -8,6 +8,8 @@
 
 **核心特性：**
 - 使用 vendored 的 `third_party/curobo` (NVIDIA CuRobo V2)
+- **默认启用 CuRobo V2 自动生成碰撞球**（MorphIt 优化器，`sphere_density=0.3`，约 200 球）
+- 自动检测 URDF 中的毫米单位并转换为米
 - 支持多种规划模式：`point_to_point` / `joint_target` / `approach` / `grasp`
 - 障碍物场景建模（绝对/相对障碍物 JSON → CuRobo cuboid world）
 - 速度缩放（`speed_scale`）和方向约束（`hold_vec_weight`）
@@ -61,6 +63,8 @@ python scripts/run_rokae_pipeline.py \
 
 默认行为：
 
+- **默认启用 CuRobo V2 自动生成碰撞球**（`auto_generate_spheres: true`，`sphere_density: 0.3`）
+- 自动检测 URDF 中的毫米单位并转换为米
 - 执行 `plan -> contract -> realtime viewer`
 - 默认输出目录在 `/tmp/curoboV2_demo/...`
 - 成功后只保留 `trajectory.json`
@@ -198,7 +202,7 @@ curoboV2_demo/
 | `scripts/rokae_motion_gen.py` | CuRobo V2 MotionPlanner 封装（plan_single/plan_single_js/plan_grasp_single） |
 | `scripts/plan_rokae_motion.py` | 通用离线规划入口（CLI + YAML 配置） |
 | `scripts/run_rokae_pipeline.py` | 推荐主入口（plan / contract / viewer / GIF 编排） |
-| `scripts/generate_rokae_spheres.py` | CuRobo V2 自动生成碰撞球（替代 Bubblify） |
+| `scripts/generate_rokae_spheres.py` | CuRobo V2 自动生成碰撞球（默认启用，替代 Bubblify） |
 | `playback/export_rokae_playback_contract.py` | 规划输出 → MuJoCo 回放合同 |
 | `playback/replay_rokae_mujoco.py` | 合同 → MJCF → 离屏渲染 |
 | `playback/run_rokae_demo.py` | 一键编排（规划 → 合同 → 回放） |
@@ -222,6 +226,6 @@ curoboV2_demo/
 - **viewer 默认开启**：统一入口默认尝试启动 MuJoCo realtime viewer；如果只想保留轨迹，显式传 `--no-export-contract --no-replay-gif --no-viewer`
 - **输出策略**：成功运行后默认只保留 `trajectory.json`；如果开启 `replay_gif`，额外保留 GIF 和首尾 PNG；中间 JSON/XML 会自动清理
 - **障碍物回放来源**：MuJoCo 回放和 realtime viewer 从 `trajectory.json` 内嵌的 metadata 读取障碍物摘要
-- **碰撞球生成**：推荐使用 `scripts/generate_rokae_spheres.py` 自动生成（基于 CuRobo V2 MorphIt 优化器），也可通过 `--auto-generate-spheres` 在规划时实时生成
+- **碰撞球生成**：默认启用 CuRobo V2 自动生成（`auto_generate_spheres: true`），`sphere_density` 默认 0.3（约 200 球）；脚本自动检测 URDF 中的毫米单位并转换为米；禁用自动生成使用 `--no-auto-generate-spheres`
 - 容器共享宿主机的 NVIDIA GPU 驱动和 CUDA 12.8 运行时
 - `ROKAE_migration_notes.md` 记录历史迁移决策，非当前使用文档

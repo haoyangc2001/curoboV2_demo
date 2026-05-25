@@ -5,7 +5,7 @@ This directory contains the active `ROKAE` robot asset bundle used by `curobo2_d
 Contents:
 
 - `start.launch.yaml`: active launch config for the ROKAE bundle
-- `robot/xms5_r800_w4g3b4c_dahuafuhe.yml`: active CuRobo2 robot config for stage 1
+- `robot/xms5_r800_w4g3b4c_robot.yml`: active CuRobo2 robot config for stage 1
 - `robot/curobo/ROKAE_SR5_0.9C.urdf`: active URDF with workspace-local mesh paths
 - `robot/curobo/meshes/`: copied robot and tool meshes
 - `robot/spheres/ROKAE_SR5_0.9C_spherized.yml`: active collision-sphere config

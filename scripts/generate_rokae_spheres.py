@@ -47,7 +47,7 @@ from curobo.robot_builder import RobotBuilder
 DEFAULT_URDF = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "curobo" / "ROKAE_SR5_0.9C.urdf"
 DEFAULT_ASSET_PATH = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "curobo"
 DEFAULT_OUTPUT = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "spheres" / "ROKAE_SR5_0.9C_spherized.yml"
-DEFAULT_ROBOT_CONFIG = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "xms5_r800_w4g3b4c_dahuafuhe.yml"
+DEFAULT_ROBOT_CONFIG = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "xms5_r800_w4g3b4c_robot.yml"
 
 
 def parse_args() -> argparse.Namespace:
@@ -129,6 +129,45 @@ def export_spheres_yaml(
     print(f"  Total spheres: {total_spheres}")
 
 
+def normalize_spheres_to_meters(collision_spheres: dict) -> dict:
+    """Normalize fitted spheres to meters when mesh scale was effectively ignored.
+
+    The active ROKAE URDF references STL meshes with ``scale=0.001``.  In the
+    current cuRobo RobotBuilder path used here, the link-geometry fitting path
+    can surface sphere centers/radii in the STL's raw millimeter scale.  Detect
+    that case conservatively and convert to meters in-place.
+    """
+    if not collision_spheres:
+        return collision_spheres
+
+    sample_sphere = None
+    for spheres in collision_spheres.values():
+        if spheres:
+            sample_sphere = spheres[0]
+            break
+    if sample_sphere is None:
+        return collision_spheres
+
+    center = sample_sphere.get("center", [])
+    radius = float(sample_sphere.get("radius", 0.0))
+    max_coord = max((abs(float(c)) for c in center), default=0.0)
+
+    # Robot link-local collision spheres should be on the order of centimeters.
+    # If values are in the tens/hundreds, they almost certainly came from raw mm STL units.
+    if max_coord <= 10.0 and radius <= 10.0:
+        return collision_spheres
+
+    print(
+        f"\nDetected oversized sphere units (max_coord={max_coord:.3f}, radius={radius:.3f}); "
+        "converting fitted spheres from millimeters to meters..."
+    )
+    for spheres in collision_spheres.values():
+        for sphere in spheres:
+            sphere["center"] = [float(c) / 1000.0 for c in sphere["center"]]
+            sphere["radius"] = float(sphere["radius"]) / 1000.0
+    return collision_spheres
+
+
 def build_new_robot(args: argparse.Namespace) -> None:
     """从 URDF 创建新的机器人配置。"""
     print(f"Building robot model from URDF: {args.urdf}")
@@ -152,6 +191,8 @@ def build_new_robot(args: argparse.Namespace) -> None:
         iterations=args.iterations,
         compute_metrics=args.compute_metrics,
     )
+
+    normalize_spheres_to_meters(builder.collision_spheres)
 
     print(f"Fitted {builder.num_spheres} spheres across {len(builder.collision_link_names)} links")
 
@@ -197,7 +238,7 @@ def build_new_robot(args: argparse.Namespace) -> None:
     if args.visualize:
         print(f"\nStarting visualization server at http://localhost:{args.viz_port}")
         print("Press Ctrl+C to stop")
-        builder.visualize(config, port=args.viz_port)
+        builder.visualize(config, port=args.viz_port, show_meshes=True)
 
 
 def edit_existing_robot(args: argparse.Namespace) -> None:
@@ -219,6 +260,8 @@ def edit_existing_robot(args: argparse.Namespace) -> None:
             compute_metrics=args.compute_metrics,
         )
         print(f"Refitted {len(builder.collision_spheres[args.refit_link])} spheres for {args.refit_link}")
+
+    normalize_spheres_to_meters(builder.collision_spheres)
 
     if args.no_prune:
         builder.compute_collision_matrix(prune_collisions=False)
@@ -245,7 +288,7 @@ def edit_existing_robot(args: argparse.Namespace) -> None:
     if args.visualize:
         print(f"\nStarting visualization server at http://localhost:{args.viz_port}")
         print("Press Ctrl+C to stop")
-        builder.visualize(config, port=args.viz_port)
+        builder.visualize(config, port=args.viz_port, show_meshes=True)
 
 
 def run_stress_test(args: argparse.Namespace) -> None:

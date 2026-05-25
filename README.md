@@ -53,7 +53,7 @@ curoboV2_demo/
 │       └── rel.autosave.json
 │
 ├── robot_assets/ROKAE/               # 机器人资产包
-│   ├── robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+│   ├── robot/xms5_r800_w4g3b4c_robot.yml
 │   ├── robot/curobo/ROKAE_SR5_0.9C.urdf
 │   └── robot/curobo/meshes/
 │
@@ -101,6 +101,8 @@ python scripts/run_rokae_pipeline.py \
 
 默认行为：
 
+- **默认启用 CuRobo V2 自动生成碰撞球**（`auto_generate_spheres: true`，`sphere_density: 0.3`，约 200 球）
+- 自动检测 URDF 中的毫米单位并转换为米
 - 执行 `plan -> contract -> realtime viewer`
 - 默认只保留 `trajectory.json`
 - 默认输出到 `/tmp/curoboV2_demo/...`
@@ -334,16 +336,36 @@ python scripts/plan_rokae_motion.py \
 - URDF: `robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
 - collision spheres: `robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`
 
-### 方式一：CuRobo V2 自动生成（推荐）
+### 方式一：CuRobo V2 自动生成（默认启用）
 
 CuRobo V2 内置了 MorphIt 优化器，可以自动为机器人 URDF 生成高质量的碰撞球。
+
+**直接执行时默认启用自动生成**，无需额外参数：
+
+```bash
+# 直接执行（默认自动生成碰撞球，density=0.3，约 200 球）
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml
+
+# 调整球密度（更多球 = 更精确但更慢）
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --sphere-density 0.5
+
+# 禁用自动生成（使用文件中的碰撞球）
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --no-auto-generate-spheres
+```
+
+独立生成碰撞球并保存到文件：
 
 ```bash
 # 基本用法：自动生成碰撞球并保存
 python scripts/generate_rokae_spheres.py
 
-# 调整球密度（更多球 = 更精确但更慢）
-python scripts/generate_rokae_spheres.py --sphere-density 2.0
+# 调整球密度
+python scripts/generate_rokae_spheres.py --sphere-density 0.5
 
 # 生成并可视化检查拟合效果
 python scripts/generate_rokae_spheres.py --visualize
@@ -358,34 +380,24 @@ python scripts/generate_rokae_spheres.py --refit-link XMS5-R800-W4G3B4C_link6
 python scripts/generate_rokae_spheres.py --stress-test
 ```
 
-在规划时使用自动生成的碰撞球（不保存到文件）：
-
-```bash
-# 统一流水线中使用自动生成
-python scripts/run_rokae_pipeline.py \
-  --config resource/config/examples/pose_plan_example.yaml \
-  --auto-generate-spheres --sphere-density 1.5
-
-# 规划子阶段使用自动生成
-python scripts/plan_rokae_motion.py \
-  --config resource/config/examples/pose_plan_example.yaml \
-  --auto-generate-spheres
-```
-
-在 YAML 配置中启用自动生成：
+在 YAML 配置中控制自动生成：
 
 ```yaml
-# 启用自动生成碰撞球
+# 启用自动生成碰撞球（默认值）
 auto_generate_spheres: true
-sphere_density: 1.5  # 可选，默认 1.0
+sphere_density: 0.3  # 可选，默认 0.3（约 200 球）
+
+# 或者禁用自动生成
+auto_generate_spheres: false
 ```
 
 CuRobo V2 自动生成的优点：
-- **自动化**：无需手工在浏览器中拖拽球
+- **自动化**：无需手工在浏览器中拖拽球，默认启用
 - **高质量**：MorphIt 优化器平衡 coverage（覆盖率）和 protrusion（突出度）
 - **可量化**：`--compute-metrics` 输出每个 link 的拟合质量指标
 - **可复现**：`--seed` 参数保证结果可复现
 - **自动碰撞矩阵**：同时生成优化的 self_collision_ignore 矩阵
+- **自动单位转换**：检测 URDF 中的毫米单位并自动转换为米
 
 ### 方式二：Bubblify 手工调整
 
@@ -422,7 +434,7 @@ python scripts/stress_test_rokae_pipeline.py \
 
 更完整的手工调球步骤见：
 
-- `doc/bubblify_workflow.md`
+- `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/bubblify_workflow.md`
 
 ## 配置文件格式
 
@@ -435,7 +447,7 @@ python scripts/stress_test_rokae_pipeline.py \
 mode: point_to_point    # point_to_point | joint_target | approach | grasp
 
 # 机器人配置（留空使用默认）
-# robot_config: ../../robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+# robot_config: ../../robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml
 
 # 起始关节状态（弧度）
 start:

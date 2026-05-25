@@ -18,7 +18,7 @@ import yaml
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_ROBOT_CONFIG = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "xms5_r800_w4g3b4c_dahuafuhe.yml"
+DEFAULT_ROBOT_CONFIG = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "xms5_r800_w4g3b4c_robot.yml"
 DEFAULT_OUTPUT = WORKSPACE_ROOT / "robot_assets" / "ROKAE" / "robot" / "spheres" / "ROKAE_SR5_0.9C_spherized.yml"
 
 

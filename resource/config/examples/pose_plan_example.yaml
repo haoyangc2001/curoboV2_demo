@@ -9,7 +9,7 @@
 mode: point_to_point
 
 # 机器人 CuRobo 配置路径（留空则使用默认 ROKAE SR5 配置）
-# robot_config: ../../robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+# robot_config: ../../robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml
 
 # 起始关节状态（弧度，6 轴）
 start:

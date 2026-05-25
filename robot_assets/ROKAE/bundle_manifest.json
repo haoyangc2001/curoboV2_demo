@@ -4,7 +4,7 @@
   "workspace_root": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE",
   "active_robot_model": "XMS5-R800-W4G3B4C",
   "active_files": {
-    "robot_config": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\xms5_r800_w4g3b4c_dahuafuhe.yml",
+    "robot_config": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\xms5_r800_w4g3b4c_robot.yml",
     "urdf": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\curobo\\ROKAE_SR5_0.9C.urdf",
     "collision_spheres": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\spheres\\ROKAE_SR5_0.9C_spherized.yml",
     "mesh_root": "D:\\repository\\curoboV2_demo\\robot_assets\\ROKAE\\robot\\curobo\\meshes\\xms5_r800_w4g3b4c_meshes"

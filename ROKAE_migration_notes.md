@@ -127,7 +127,7 @@
 新增活动文件：
 
 - `robot_assets/ROKAE/robot/curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf`
-- `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml`
+- `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml`
 - `robot_assets/ROKAE/robot/spheres/xms5_r800_w4g3b4c_spherized.yml`
 
 说明：
@@ -167,7 +167,7 @@
 
 现在默认指向：
 
-- `xms5_r800_w4g3b4c_dahuafuhe.yml`
+- `xms5_r800_w4g3b4c_robot.yml`
 - `xms5_r800_w4g3b4c_dahuafuhe.urdf`
 - `xms5_r800_w4g3b4c_spherized.yml`
 
@@ -196,7 +196,7 @@
   `robot_assets/ROKAE/robot/curobo/xms5_r800_w4g3b4c_dahuafuhe.urdf`
 
 - 项目实际使用的活动 robot config  
-  `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml`
+  `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml`
 
 - 项目实际使用的活动球碰撞配置  
   `robot_assets/ROKAE/robot/spheres/xms5_r800_w4g3b4c_spherized.yml`
@@ -210,7 +210,7 @@
 
 当前项目已经把 `collision_spheres` 的接入方式切换为**外部 YAML 文件引用**：
 
-- `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml`
+- `robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml`
   中的 `robot_cfg.kinematics.collision_spheres`
 - 现在指向：
   `robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`

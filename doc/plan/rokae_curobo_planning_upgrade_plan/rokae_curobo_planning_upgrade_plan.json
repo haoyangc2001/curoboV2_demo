@@ -1,7 +1,7 @@
 {
   "project_name": "curoboV2_demo",
   "document_type": "planning_upgrade_plan",
-  "source_markdown": "doc/plan/rokae_curobo_planning_upgrade_plan.md",
+  "source_markdown": "doc/plan/rokae_curobo_planning_upgrade_plan/rokae_curobo_planning_upgrade_plan.md",
   "background": [
     "当前 curoboV2_demo 已具备一条最小可运行的 ROKAE CuRobo 规划与 MuJoCo 回放链路，能够使用工作区本地机器人资产完成一次末端位姿规划并输出回放结果。",
     "当前 demo 的定位仍然是最小验证样例，规划入口以脚本为主，输入方式较硬编码，规划场景中没有外部障碍物，输出结果也偏向 demo 摘要而非工程化规划结果。",

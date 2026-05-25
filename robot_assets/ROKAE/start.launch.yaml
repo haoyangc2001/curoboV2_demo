@@ -83,7 +83,7 @@ launch:
       default_real_mode:
         launch_arg: use_real_robot
     trajectory_planning:
-      robot_config: robot/xms5_r800_w4g3b4c_dahuafuhe.yml
+      robot_config: robot/xms5_r800_w4g3b4c_robot.yml
       curr_joint_state: real_joint_states
       real_joint_state_topic: real_joint_states
       sim_joint_state_topic: sim_joint_states
