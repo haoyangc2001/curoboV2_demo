@@ -47,6 +47,8 @@ class RokaeMotionGen:
         use_cuda_graph: bool = False,
         num_warmup_iterations: int = 5,
         speed_scale: float = 1.0,
+        auto_generate_spheres: bool = True,
+        sphere_density: float = 0.3,
     ) -> None:
         """初始化规划器。
 
@@ -59,12 +61,18 @@ class RokaeMotionGen:
             num_warmup_iterations: warmup 迭代次数。
             speed_scale: 速度缩放因子 (0, 2.0]。通过修改 robot config 中的
                 cspace.velocity_scale 实现。1.0 = 原速，0.5 = 半速，2.0 = 倍速。
+            auto_generate_spheres: 是否使用 CuRobo V2 自动生成碰撞球。默认 True。
+            sphere_density: 自动生成时的球密度倍数（默认 1.0）。
         """
         if collision_cache is None:
             collision_cache = {"obb": 64}
         if not 0.0 < speed_scale <= 2.0:
             raise ValueError(f"speed_scale must be in (0, 2.0], got {speed_scale}")
-        robot_cfg = resolve_robot_config_for_workspace(robot_config_path)
+        robot_cfg = resolve_robot_config_for_workspace(
+            robot_config_path,
+            auto_generate_spheres=auto_generate_spheres,
+            sphere_density=sphere_density,
+        )
         if speed_scale != 1.0:
             kin = robot_cfg.setdefault("robot_cfg", {}).setdefault("kinematics", {})
             cspace = kin.setdefault("cspace", {})

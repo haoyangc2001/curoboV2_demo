@@ -41,6 +41,9 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--hold-vec-weight", help="方向保持权重（逗号分隔，x,y,z）")
     p.add_argument("--approach-offset", type=float, help="接近偏移量（米）")
     p.add_argument("--approach-axis", default="z", help="接近轴（x/y/z，默认 z）")
+    bool_action = argparse.BooleanOptionalAction
+    p.add_argument("--auto-generate-spheres", action=bool_action, default=True, help="使用 CuRobo V2 自动生成碰撞球（默认启用，--no-auto-generate-spheres 禁用）")
+    p.add_argument("--sphere-density", type=float, default=0.3, help="自动生成碰撞球的密度倍数（默认 0.3，约 200 球）")
     return p.parse_args()
 
 
@@ -68,6 +71,10 @@ def apply_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningCo
         cfg.hold_vec_weight = [float(x) for x in args.hold_vec_weight.split(",")]
     if getattr(args, "approach_offset", None) is not None:
         cfg.approach_offset = args.approach_offset
+    if getattr(args, "auto_generate_spheres", False):
+        cfg.auto_generate_spheres = True
+    if getattr(args, "sphere_density", None) is not None:
+        cfg.sphere_density = args.sphere_density
     return cfg
 
 
@@ -97,11 +104,21 @@ def run(cfg: PlanningConfig, config_path: Path | None = None) -> dict:
     # 初始化规划器
     robot_path = Path(cfg.robot_config) if cfg.robot_config else None
     speed = cfg.speed_scale if cfg.speed_scale is not None else 1.0
-    gen = RokaeMotionGen(robot_config_path=robot_path, speed_scale=speed)
+    auto_generate = getattr(cfg, "auto_generate_spheres", True)
+    sphere_density = getattr(cfg, "sphere_density", 1.0)
+
+    gen = RokaeMotionGen(
+        robot_config_path=robot_path,
+        speed_scale=speed,
+        auto_generate_spheres=auto_generate,
+        sphere_density=sphere_density,
+    )
     print(f"关节名: {gen.joint_names}")
     print(f"工具帧: {gen.tool_frames}")
     if speed != 1.0:
         print(f"速度缩放: {speed}")
+    if auto_generate:
+        print(f"碰撞球: 自动生成 (density={sphere_density})")
 
     # 加载障碍物
     world_result = None

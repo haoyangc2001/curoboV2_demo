@@ -80,6 +80,10 @@ class PlanningConfig:
     linear_axis: int | None = None
     segment_length: float | None = None
 
+    # 碰撞球生成参数
+    auto_generate_spheres: bool = True       # 是否使用 CuRobo V2 自动生成碰撞球（默认启用）
+    sphere_density: float = 0.3              # 自动生成碰撞球的密度倍数（0.3 约 200 球）
+
     # 原始字典（供下游模块读取扩展字段）
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
@@ -263,5 +267,7 @@ def _build_config(raw: dict[str, Any], config_path: Path) -> PlanningConfig:
         retract_offset=raw.get("retract_offset"),
         linear_axis=raw.get("linear_axis"),
         segment_length=raw.get("segment_length"),
+        auto_generate_spheres=bool(raw.get("auto_generate_spheres", True)),
+        sphere_density=float(raw.get("sphere_density", 1.0)),
         raw=raw,
     )

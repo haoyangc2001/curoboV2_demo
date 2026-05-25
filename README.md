@@ -334,7 +334,62 @@ python scripts/plan_rokae_motion.py \
 - URDF: `robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
 - collision spheres: `robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`
 
-推荐使用 Bubblify 为当前活动 URDF 手工调整 collision spheres。工作流如下：
+### 方式一：CuRobo V2 自动生成（推荐）
+
+CuRobo V2 内置了 MorphIt 优化器，可以自动为机器人 URDF 生成高质量的碰撞球。
+
+```bash
+# 基本用法：自动生成碰撞球并保存
+python scripts/generate_rokae_spheres.py
+
+# 调整球密度（更多球 = 更精确但更慢）
+python scripts/generate_rokae_spheres.py --sphere-density 2.0
+
+# 生成并可视化检查拟合效果
+python scripts/generate_rokae_spheres.py --visualize
+
+# 生成并输出拟合质量指标
+python scripts/generate_rokae_spheres.py --compute-metrics
+
+# 只重新拟合某个 link
+python scripts/generate_rokae_spheres.py --refit-link XMS5-R800-W4G3B4C_link6
+
+# 生成并运行压测对比
+python scripts/generate_rokae_spheres.py --stress-test
+```
+
+在规划时使用自动生成的碰撞球（不保存到文件）：
+
+```bash
+# 统一流水线中使用自动生成
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --auto-generate-spheres --sphere-density 1.5
+
+# 规划子阶段使用自动生成
+python scripts/plan_rokae_motion.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --auto-generate-spheres
+```
+
+在 YAML 配置中启用自动生成：
+
+```yaml
+# 启用自动生成碰撞球
+auto_generate_spheres: true
+sphere_density: 1.5  # 可选，默认 1.0
+```
+
+CuRobo V2 自动生成的优点：
+- **自动化**：无需手工在浏览器中拖拽球
+- **高质量**：MorphIt 优化器平衡 coverage（覆盖率）和 protrusion（突出度）
+- **可量化**：`--compute-metrics` 输出每个 link 的拟合质量指标
+- **可复现**：`--seed` 参数保证结果可复现
+- **自动碰撞矩阵**：同时生成优化的 self_collision_ignore 矩阵
+
+### 方式二：Bubblify 手工调整
+
+如果需要更精细的手工控制，仍可使用 Bubblify：
 
 ```bash
 # 1. 安装 Bubblify（在 curoboV2 环境中）

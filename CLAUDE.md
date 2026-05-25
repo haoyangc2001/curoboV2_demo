@@ -166,7 +166,9 @@ curoboV2_demo/
 │   ├── rokae_world_utils.py          # 障碍物 JSON → CuRobo world
 │   ├── rokae_motion_gen.py           # CuRobo V2 规划核心封装
 │   ├── plan_rokae_motion.py          # 通用离线规划入口（兼容保留）
-│   └── run_rokae_pipeline.py         # 统一流水线主入口（推荐）
+│   ├── run_rokae_pipeline.py         # 统一流水线主入口（推荐）
+│   ├── generate_rokae_spheres.py     # CuRobo V2 自动生成碰撞球（推荐）
+│   └── convert_bubblify_spheres.py   # Bubblify 导出转换（手工调整用）
 ├── demo_scripts/                     # 最小演示样例（保留）
 ├── playback/                         # 轨迹导出与 MuJoCo 回放
 │   ├── export_rokae_playback_contract.py
@@ -191,11 +193,12 @@ curoboV2_demo/
 | 模块 | 职责 |
 |------|------|
 | `scripts/config_utils.py` | 配置加载、校验、路径解析 |
-| `scripts/rokae_asset_utils.py` | 机器人资产路径和配置解析 |
+| `scripts/rokae_asset_utils.py` | 机器人资产路径和配置解析，支持自动生成碰撞球 |
 | `scripts/rokae_world_utils.py` | 障碍物 JSON 加载、坐标变换、world dict 构建 |
 | `scripts/rokae_motion_gen.py` | CuRobo V2 MotionPlanner 封装（plan_single/plan_single_js/plan_grasp_single） |
 | `scripts/plan_rokae_motion.py` | 通用离线规划入口（CLI + YAML 配置） |
 | `scripts/run_rokae_pipeline.py` | 推荐主入口（plan / contract / viewer / GIF 编排） |
+| `scripts/generate_rokae_spheres.py` | CuRobo V2 自动生成碰撞球（替代 Bubblify） |
 | `playback/export_rokae_playback_contract.py` | 规划输出 → MuJoCo 回放合同 |
 | `playback/replay_rokae_mujoco.py` | 合同 → MJCF → 离屏渲染 |
 | `playback/run_rokae_demo.py` | 一键编排（规划 → 合同 → 回放） |
@@ -219,5 +222,6 @@ curoboV2_demo/
 - **viewer 默认开启**：统一入口默认尝试启动 MuJoCo realtime viewer；如果只想保留轨迹，显式传 `--no-export-contract --no-replay-gif --no-viewer`
 - **输出策略**：成功运行后默认只保留 `trajectory.json`；如果开启 `replay_gif`，额外保留 GIF 和首尾 PNG；中间 JSON/XML 会自动清理
 - **障碍物回放来源**：MuJoCo 回放和 realtime viewer 从 `trajectory.json` 内嵌的 metadata 读取障碍物摘要
+- **碰撞球生成**：推荐使用 `scripts/generate_rokae_spheres.py` 自动生成（基于 CuRobo V2 MorphIt 优化器），也可通过 `--auto-generate-spheres` 在规划时实时生成
 - 容器共享宿主机的 NVIDIA GPU 驱动和 CUDA 12.8 运行时
 - `ROKAE_migration_notes.md` 记录历史迁移决策，非当前使用文档
