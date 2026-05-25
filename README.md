@@ -101,12 +101,13 @@ python scripts/run_rokae_pipeline.py \
 
 默认行为：
 
-- 只执行规划阶段
+- 执行 `plan -> contract -> realtime viewer`
 - 默认只保留 `trajectory.json`
 - 默认输出到 `/tmp/curoboV2_demo/...`
-- 不会默认生成合同、GIF、PNG 或 realtime viewer 结果
+- 默认会尝试启动 realtime viewer
+- 默认不会保留 GIF/PNG；只有显式开启 `replay_gif` 时才会保留视频图片
 
-如果显式开启 `export_contract` 和 `replay_gif`，成功运行后会额外保留：
+如果显式开启 `replay_gif`，成功运行后会额外保留：
 
 - `playback.gif`
 - `playback_start.png`
@@ -120,7 +121,6 @@ python scripts/run_rokae_pipeline.py \
 # 规划 + GIF，不开 realtime viewer
 python scripts/run_rokae_pipeline.py \
   --config resource/config/examples/pose_plan_example.yaml \
-  --export-contract \
   --replay-gif \
   --no-viewer
 
@@ -140,6 +140,10 @@ python scripts/run_rokae_pipeline.py \
 python scripts/run_rokae_pipeline.py \
   --config resource/config/examples/pose_plan_example.yaml \
   --contract-json /tmp/rokae_full/contract/playback_contract.json
+
+# 复杂障碍物 + 长路径 + 默认 realtime viewer
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/joint_plan_complex_viewer.yaml
 ```
 
 ## 分阶段用法（高级/调试）
@@ -177,6 +181,42 @@ python scripts/plan_rokae_motion.py \
 
 # 障碍物配置在 YAML 中通过 world.obstacle_json 和 world.obstacle_rel_json 指定
 ```
+
+### 流程三补充：复杂障碍物 + 长路径 + 实时窗口
+
+当前仓库提供了一份可直接用于窗口演示的复杂场景配置：
+
+- `resource/config/examples/joint_plan_complex_viewer.yaml`
+- `resource/config/examples/obstacles/complex_viewer_test.json`
+
+运行命令：
+
+```bash
+cd ~/rep/curoboV2_demo
+
+DISPLAY=:1 MUJOCO_GL=glx python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/joint_plan_complex_viewer.yaml
+```
+
+这条示例的特点：
+
+- `joint_target` 模式
+- 3 个 cuboid 障碍物
+- `speed_scale=0.5`
+- 一条较长的关节路径
+- 默认会打开 MuJoCo realtime viewer
+
+最近一次验证结果：
+
+- 规划成功
+- 路径点数：`101`
+- 障碍物统计：`abs_count=3`
+
+窗口效果：
+
+- 显示机械臂、地面和 3 个半透明橙色 box 障碍物
+- 机械臂按轨迹逐点实时播放
+- 最后一帧会停留一小段时间
 
 ### 流程四：规划 → 合同 → MuJoCo 回放（完整链路）
 
@@ -361,9 +401,9 @@ output_dir: /tmp/curoboV2_demo/output
 # 统一流水线配置
 pipeline:
   run_plan: true
-  export_contract: false
+  export_contract: true
   replay_gif: false
-  realtime_viewer: false
+  realtime_viewer: true
   render_every: 4
   playback_speed: 1.0
   final_hold_s: 1.0
@@ -429,6 +469,24 @@ playback_end.png     # 结束帧
 - `playback_summary.json`
 - `rokae_stage1_playback.xml`
 - realtime viewer 摘要文件
+
+### realtime viewer
+
+统一入口默认会尝试启动 MuJoCo realtime viewer。
+
+它不是 Isaac Gym/Isaac Sim 那种训练仿真界面，而是一个轨迹回放窗口：
+
+- 显示机械臂当前姿态
+- 显示地面
+- 如果轨迹 metadata 中带障碍物信息，也会显示半透明 cuboid 障碍物
+- 按 `playback_speed` 控制播放速度
+- 按 `final_hold_s` 控制末尾停留时间
+
+如果环境没有可用显示，或 viewer 初始化失败：
+
+- 主流程不会因为 viewer 失败而直接报废
+- 可以改用 `--no-viewer`
+- 或显式开启 `--replay-gif` 保留离屏视频图片
 ```
 
 ## 高级功能

@@ -11,8 +11,8 @@
 - 支持多种规划模式：`point_to_point` / `joint_target` / `approach` / `grasp`
 - 障碍物场景建模（绝对/相对障碍物 JSON → CuRobo cuboid world）
 - 速度缩放（`speed_scale`）和方向约束（`hold_vec_weight`）
-- 统一输出：`summary.json` + `trajectory.json` + `world_summary.json`
-- MuJoCo 离屏渲染和实时可视化
+- 默认轻量输出：成功后只保留 `trajectory.json`
+- MuJoCo 实时可视化默认开启，GIF/PNG 按需开启
 
 ## 环境启动
 
@@ -28,7 +28,7 @@ sudo lxc exec zhongji-dev-2204 -- bash
 ### 2. 激活 conda 环境
 
 ```bash
-source ~/miniforge3/etc/profile.d/conda.sh
+source ~/miniconda3/etc/profile.d/conda.sh
 conda activate curoboV2
 
 # 验证环境
@@ -36,7 +36,41 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 # 期望输出: 2.11.0+cu128 True
 ```
 
-### 3. 运行规划
+### 3. 推荐入口：统一流水线
+
+```bash
+cd ~/rep/curoboV2_demo
+
+# 默认：plan -> contract -> realtime viewer
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml
+
+# 只规划，最终只保留 trajectory.json
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --no-export-contract \
+  --no-replay-gif \
+  --no-viewer
+
+# 规划 + GIF，不开 realtime viewer
+python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/pose_plan_example.yaml \
+  --replay-gif \
+  --no-viewer
+```
+
+默认行为：
+
+- 执行 `plan -> contract -> realtime viewer`
+- 默认输出目录在 `/tmp/curoboV2_demo/...`
+- 成功后只保留 `trajectory.json`
+- 如果显式开启 `replay_gif`，额外保留：
+  - `playback.gif`
+  - `playback_start.png`
+  - `playback_end.png`
+- 合同、摘要、MJCF、review 文件等中间产物成功后会自动清理
+
+### 4. 运行规划子阶段
 
 ```bash
 cd ~/rep/curoboV2_demo
@@ -52,7 +86,7 @@ python scripts/plan_rokae_motion.py \
   --output-dir /tmp/rokae_demo/joint_plan
 ```
 
-### 4. 完整链路：规划 → 合同 → MuJoCo 回放
+### 5. 完整链路：规划 → 合同 → MuJoCo 回放（高级/调试）
 
 ```bash
 cd ~/rep/curoboV2_demo
@@ -81,16 +115,45 @@ python playback/run_rokae_demo.py \
   --no-viewer --render-every 4
 ```
 
-### 5. 非交互方式（从宿主机直接执行）
+### 6. 复杂障碍物 + 长路径 + 实时窗口
+
+已提供一个经过验证的复杂场景 viewer 配置：
+
+- `resource/config/examples/joint_plan_complex_viewer.yaml`
+- `resource/config/examples/obstacles/complex_viewer_test.json`
+
+运行命令：
+
+```bash
+cd ~/rep/curoboV2_demo
+
+DISPLAY=:1 MUJOCO_GL=glx python scripts/run_rokae_pipeline.py \
+  --config resource/config/examples/joint_plan_complex_viewer.yaml
+```
+
+最近一次验证结果：
+
+- `joint_target` 模式
+- 3 个 cuboid 障碍物
+- `speed_scale=0.5`
+- `101` 个 waypoint
+- realtime viewer 正常完成播放
+
+窗口效果：
+
+- MuJoCo 实时窗口
+- 显示机械臂、地面和半透明橙色 cuboid 障碍物
+- 机械臂按轨迹逐点播放
+
+### 7. 非交互方式（从宿主机直接执行）
 
 ```bash
 sudo lxc exec zhongji-dev-2204 -- bash -c "\
-  source /home/tanshan/miniforge3/etc/profile.d/conda.sh && \
+  source /home/tanshan/miniconda3/etc/profile.d/conda.sh && \
   conda activate curoboV2 && \
   cd /home/tanshan/rep/curoboV2_demo && \
-  python scripts/plan_rokae_motion.py \
-    --config resource/config/examples/pose_plan_example.yaml \
-    --output-dir /tmp/rokae_demo/pose_plan"
+  python scripts/run_rokae_pipeline.py \
+    --config resource/config/examples/pose_plan_example.yaml"
 ```
 
 ## 项目结构
@@ -102,7 +165,8 @@ curoboV2_demo/
 │   ├── rokae_asset_utils.py          # 机器人资产路径解析
 │   ├── rokae_world_utils.py          # 障碍物 JSON → CuRobo world
 │   ├── rokae_motion_gen.py           # CuRobo V2 规划核心封装
-│   └── plan_rokae_motion.py          # 通用离线规划入口
+│   ├── plan_rokae_motion.py          # 通用离线规划入口（兼容保留）
+│   └── run_rokae_pipeline.py         # 统一流水线主入口（推荐）
 ├── demo_scripts/                     # 最小演示样例（保留）
 ├── playback/                         # 轨迹导出与 MuJoCo 回放
 │   ├── export_rokae_playback_contract.py
@@ -112,10 +176,13 @@ curoboV2_demo/
 │   ├── pose_plan_example.yaml
 │   ├── joint_plan_example.yaml
 │   ├── grasp_plan_example.yaml
+│   ├── joint_plan_complex_viewer.yaml
 │   └── obstacles/                    # 示例障碍物数据
+│       ├── complex_viewer_test.json
+│       ├── abs.autosave.json
+│       └── rel.autosave.json
 ├── robot_assets/ROKAE/               # 机器人资产包
 ├── doc/plan/                         # 升级计划文档
-├── evidence/                         # 运行产物存储
 └── third_party/curobo/               # Vendored CuRobo V2
 ```
 
@@ -128,6 +195,7 @@ curoboV2_demo/
 | `scripts/rokae_world_utils.py` | 障碍物 JSON 加载、坐标变换、world dict 构建 |
 | `scripts/rokae_motion_gen.py` | CuRobo V2 MotionPlanner 封装（plan_single/plan_single_js/plan_grasp_single） |
 | `scripts/plan_rokae_motion.py` | 通用离线规划入口（CLI + YAML 配置） |
+| `scripts/run_rokae_pipeline.py` | 推荐主入口（plan / contract / viewer / GIF 编排） |
 | `playback/export_rokae_playback_contract.py` | 规划输出 → MuJoCo 回放合同 |
 | `playback/replay_rokae_mujoco.py` | 合同 → MJCF → 离屏渲染 |
 | `playback/run_rokae_demo.py` | 一键编排（规划 → 合同 → 回放） |
@@ -148,5 +216,8 @@ curoboV2_demo/
 - **CuRobo V2 API 差异**：V2 使用 `MotionPlanner`（非 V1 的 `MotionGen`），`ToolPoseCriteria`（非 V1 的 `hold_vec_weight`），实施前必须检索 `third_party/curobo/` 源码确认
 - **speed_scale**：通过 robot config 的 `cspace.velocity_scale` 实现，必须在规划器构造时设置
 - **grasp 模式**：线性运动约束对某些构型可能难以满足，approach 成功但 grasp 步骤可能失败
+- **viewer 默认开启**：统一入口默认尝试启动 MuJoCo realtime viewer；如果只想保留轨迹，显式传 `--no-export-contract --no-replay-gif --no-viewer`
+- **输出策略**：成功运行后默认只保留 `trajectory.json`；如果开启 `replay_gif`，额外保留 GIF 和首尾 PNG；中间 JSON/XML 会自动清理
+- **障碍物回放来源**：MuJoCo 回放和 realtime viewer 从 `trajectory.json` 内嵌的 metadata 读取障碍物摘要
 - 容器共享宿主机的 NVIDIA GPU 驱动和 CUDA 12.8 运行时
 - `ROKAE_migration_notes.md` 记录历史迁移决策，非当前使用文档
