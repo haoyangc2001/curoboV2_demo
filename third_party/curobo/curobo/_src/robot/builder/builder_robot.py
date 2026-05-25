@@ -259,6 +259,8 @@ class RobotBuilder:
         protrusion_weight: Optional[float] = None,
         compute_metrics: bool = False,
         clip_links: Optional[Dict[str, Tuple[str, float]]] = None,
+        num_spheres: Optional[int] = None,
+        max_spheres: Optional[int] = None,
     ) -> Dict[str, List[Dict]]:
         """Fit collision spheres to all robot links with collision meshes.
 
@@ -291,6 +293,10 @@ class RobotBuilder:
                 ``"x"``, ``"y"``, or ``"z"`` (prefix with ``"-"`` for negative
                 direction) and *offset* is the plane position along that axis.
                 Spheres on the specified link will not extend past the plane.
+            num_spheres: Explicit number of spheres per link.  When ``None``
+                (default), estimated automatically using *sphere_density*.
+            max_spheres: Maximum number of spheres per link during MorphIt
+                density control.  When ``None`` (default), uses *num_spheres*.
 
         Returns:
             Dictionary mapping link names to lists of sphere dicts, each with
@@ -319,6 +325,7 @@ class RobotBuilder:
 
             spheres = self._fit_single_link(
                 link_name,
+                num_spheres=num_spheres,
                 sphere_density=sphere_density,
                 surface_radius=surface_radius,
                 fit_type=fit_type,

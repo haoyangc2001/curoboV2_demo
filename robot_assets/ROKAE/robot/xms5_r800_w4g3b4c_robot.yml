@@ -13,7 +13,7 @@ robot_cfg:
     - XMS5-R800-W4G3B4C_link4
     - XMS5-R800-W4G3B4C_link5
     - XMS5-R800-W4G3B4C_link6
-    collision_spheres: spheres/ROKAE_SR5_0.9C_spherized.yml
+    collision_spheres: curobo/ROKAE_SR5_0.9C_spherized.yml
     collision_sphere_buffer: 0.0
     self_collision_ignore:
       XMS5-R800-W4G3B4C_link1:

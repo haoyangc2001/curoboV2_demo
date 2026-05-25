@@ -181,6 +181,7 @@ def resolve_robot_config_for_workspace(
         print("Using CuRobo V2 to generate collision spheres...")
         urdf_path = Path(kinematics_cfg.get("urdf_path", workspace_urdf_path()))
         asset_path = Path(kinematics_cfg.get("asset_root_path", WORKSPACE_CUROBO_ROOT))
+        print(f"Collision spheres source: auto-generated from URDF {urdf_path}")
 
         kinematics_cfg["collision_spheres"] = generate_collision_spheres(
             urdf_path=urdf_path,
@@ -200,6 +201,7 @@ def resolve_robot_config_for_workspace(
 
             urdf_path = Path(kinematics_cfg.get("urdf_path", workspace_urdf_path()))
             asset_path = Path(kinematics_cfg.get("asset_root_path", WORKSPACE_CUROBO_ROOT))
+            print(f"Collision spheres source: auto-generated from URDF {urdf_path}")
 
             kinematics_cfg["collision_spheres"] = generate_collision_spheres(
                 urdf_path=urdf_path,
@@ -207,6 +209,7 @@ def resolve_robot_config_for_workspace(
                 sphere_density=sphere_density,
             )
         else:
+            print(f"Using collision spheres from file: {collision_spheres_path}")
             kinematics_cfg["collision_spheres"] = load_yaml(collision_spheres_path)[
                 "collision_spheres"
             ]

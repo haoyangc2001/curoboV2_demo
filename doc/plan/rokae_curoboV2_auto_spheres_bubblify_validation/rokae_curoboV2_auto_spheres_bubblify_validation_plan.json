@@ -181,14 +181,36 @@
         "生成 density=0.5 的 candidate-C。",
         "生成 density=0.6 的 candidate-D。",
         "必要时生成同密度不同参数的对照组。",
-        "收集各档位 total_spheres、per-link sphere count 与 metrics。"
+        "收集各档位 total_spheres、per-link sphere count 与 metrics。",
+        "生成 low_prot candidate：density=0.15, protrusion_weight=1.0（少球+适度突出）。",
+        "生成 aggressive candidate：density=0.1, protrusion_weight=0.1（极少大球+大量突出）。",
+        "生成 high_cov candidate：density=0.1, protrusion_weight=0.5, coverage_weight=2000.0（极少球+强覆盖）。",
+        "收集新实验组的 metrics，与 baseline 和已有 candidate 对比。"
       ],
       "expected_results": [
         "得到覆盖 0.2 到 0.6 的主要 candidate 文件。",
-        "形成 candidate 指标对比表。"
+        "形成 candidate 指标对比表。",
+        "得到 3 组「大球+允许突出」candidate，验证低 protrusion_weight 是否能生成更少、更大的球。",
+        "对比新旧 candidate 的 coverage、protrusion、volume_ratio 和球数差异。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "使用 generate_rokae_spheres.py --compute-metrics 生成 density=0.2 candidate（137 球，7 links）。",
+        "使用 generate_rokae_spheres.py --compute-metrics 生成 density=0.4 candidate（245 球，7 links）。",
+        "使用 generate_rokae_spheres.py --compute-metrics 生成 density=0.5 candidate（273 球，7 links）。",
+        "使用 generate_rokae_spheres.py --compute-metrics 生成 density=0.6 candidate（326 球，7 links）。",
+        "同时使用 density=0.3 重新生成 baseline metrics（202 球）用于横向对比。",
+        "所有 candidate 文件保存到 doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/。",
+        "编写 metrics_comparison.md 对比表，包含 total_spheres、per-link sphere count、coverage%、protrusion%、volume ratio 五项指标。",
+        "关键发现：link6 在 d=0.6 时覆盖率从 15.4% 跳升到 55.5%；link2 在 d=0.5 时覆盖异常下降到 14.1%；link5 的 volume_ratio 始终偏高（最高 1.853）。",
+        "生成 low_prot candidate（density=0.15, protrusion_weight=1.0）：104 球，link4 覆盖率 47.5%，link1/link5 覆盖率下降显著。",
+        "生成 aggressive candidate（density=0.1, protrusion_weight=0.1）：79 球，link4 覆盖率 48.6%，球数减少 61%。",
+        "生成 high_cov candidate（density=0.1, protrusion_weight=0.5, coverage_weight=2000）：73 球，球数最少。",
+        "大球实验组结论：低 protrusion_weight 确实能生成更少的球（73~104 vs baseline 202），但 link1/link5 覆盖率下降显著（从 62%/77.9% 降到 11~32%/35~38%），link6 覆盖率维持在 15% 左右。",
+        "生成 d=0.08 pw=0 candidate：55 球，link2 覆盖率 38.7%，link1 覆盖率 22.3%。",
+        "生成 d=0.05 pw=0 candidate：37 球，link3/link5 覆盖率 42.5%/47.8%，link1 覆盖率 26.4%。",
+        "生成 d=0.03 pw=0 candidate：23 球，link3/link5 覆盖率 44.2%/47.8%，link1 覆盖率 20.3%。"
+      ]
     },
     {
       "stage_id": 7,
@@ -203,8 +225,16 @@
         "形成 baseline 与 candidate 的几何人工对比结论。",
         "筛掉明显不合理的 candidate。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "编写 tests/validate_spheres_geometry.py 自动化几何验证脚本，检测超大球、漏包、球数异常和体积比偏差。",
+        "对 baseline（d=0.3）、candidate_density_0.4_pw10_cw1000 和 candidate_density_0.6_pw10_cw1000 执行自动化几何验证。",
+        "生成 bubblify_review_report.md，包含各 link 的球数、半径范围、bbox 对角线、体积等详细统计。",
+        "检测到的'球大小差异过大'经分析属正常现象（关节处与连杆处几何天然不均匀），不作为淘汰依据。",
+        "d=0.6 的 link2/link4/link6 体积变化较大（+231%/+179%/+541%），与覆盖率改善一致，需 stress test 验证。",
+        "自动化检测未发现结构性缺陷（无超大球跨区、无零覆盖 link、无球数过少）。",
+        "几何复核结论：d=0.4 通过，d=0.6 有条件通过（推荐优先进入 smoke test 和 stress test）。"
+      ]
     },
     {
       "stage_id": 8,
@@ -219,15 +249,23 @@
         "确认两条路径都能独立跑通。",
         "发现潜在的行为差异。"
       ],
-      "is_completed": false,
-      "completed_work": []
+      "is_completed": true,
+      "completed_work": [
+        "编写 tests/smoke_test_spheres.py 脚本，覆盖 3 种场景：自动生成+点到点、文件加载+点到点、自动生成+关节目标。",
+        "测试 1（自动生成 density=0.6 + 点到点）：PASS，81 waypoints，30.4s。",
+        "测试 2（文件加载 candidate_density_0.6_pw10_cw1000.yml + 点到点）：PASS，81 waypoints，15.3s。",
+        "测试 3（自动生成 density=0.6 + 关节目标）：PASS，41 waypoints，26.2s。",
+        "修复文件加载模式的 URDF 路径解析问题：_make_temp_robot_config() 中将 urdf_path 和 asset_root_path 设为绝对路径，避免临时配置文件在 /tmp/ 下解析失败。",
+        "生成 smoke_test_report.md，归档到 doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/。",
+        "结论：自动生成模式与文件加载模式均可正常完成规划，碰撞球验证无回归。"
+      ]
     },
     {
       "stage_id": 9,
       "title": "完成 baseline / candidate stress test",
       "goal": "从规划、合同导出与回放三个层面评估 candidate 是否引入回归。",
       "work_items": [
-        "对优先 candidate 执行 stress_test_rokae_pipeline.py。",
+        "对优先 candidate 执行 tests/stress_test_rokae_pipeline.py。",
         "收集 stress_summary.json 与 round_records.json。",
         "分析失败 case 的模式分布与归因。"
       ],
@@ -261,8 +299,17 @@
     "已确认历史 remap seed spheres 文件不可用，并已基于 CuRobo V2 自动生成脚本重新生成 baseline。",
     "已分析并修正 generate_rokae_spheres.py 的毫米/米尺度问题，避免输出超大碰撞球。",
     "已完成 baseline 的初步 Bubblify 人工复核，确认当前几何结果恢复到可继续实验的状态。",
-    "下一阶段将围绕 baseline 执行 0.2 / 0.4 / 0.5 / 0.6 四档 density 扫描。",
-    "candidate 生成、系统化 metrics 对比、smoke test、stress test 与最终结论尚未完成。"
+    "已完成 0.2 / 0.3 / 0.4 / 0.5 / 0.6 五档 density 的 candidate 生成与 metrics 采样。",
+    "已生成 metrics_comparison.md 对比表，归档到 doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/。",
+    "已完成 Bubblify 几何复核（自动化验证 + 人工分析），生成 bubblify_review_report.md。",
+    "几何复核结论：d=0.4 通过，d=0.6 有条件通过，推荐 d=0.6 优先进入 smoke/stress test。",
+    "已完成 smoke test（3/3 通过）：自动生成+点到点、文件加载+点到点、自动生成+关节目标均成功。",
+    "smoke test 结论：自动生成模式与文件加载模式均可正常完成规划，无回归。",
+    "stage 6 新增 3 组「大球+允许突出」实验已完成：low_prot（104 球）、aggressive（79 球）、high_cov（73 球）。",
+    "大球实验组结论：低 protrusion_weight 能生成更少的球，但 link1/link5 覆盖率下降显著，link6 覆盖率维持在 15% 左右。",
+    "stage 6 新增 3 组 pw=0 实验已完成：d=0.08 pw=0（55 球）、d=0.05 pw=0（37 球）、d=0.03 pw=0（23 球）。",
+    "pw=0 实验组结论：protrusion_weight=0 能生成更少的球（23~55），link3/link5 覆盖率维持在 42~48%，link1 覆盖率下降到 20~26%。",
+    "stress test 与最终结论尚未完成。"
   ],
   "risk_points": [
     "如果直接使用未验证 candidate 覆盖 baseline，后续回归分析会失去可信基线。",

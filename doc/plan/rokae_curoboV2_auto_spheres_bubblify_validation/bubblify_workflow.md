@@ -107,7 +107,7 @@ bubblify \
 1. 用 `scripts/generate_rokae_spheres.py` 生成 candidate
 2. 读取控制台 metrics，先做静态筛选
 3. 用 Bubblify 做人工可视化验证
-4. 再用 `scripts/stress_test_rokae_pipeline.py` 做 baseline / candidate 回归对比
+4. 再用 `tests/stress_test_rokae_pipeline.py` 做 baseline / candidate 回归对比
 
 也就是说，Bubblify 位于：
 
@@ -140,4 +140,4 @@ bubblify \
 - Bubblify 导出转换脚本：
   `scripts/convert_bubblify_spheres.py`
 - 压测脚本：
-  `scripts/stress_test_rokae_pipeline.py`
+  `tests/stress_test_rokae_pipeline.py`

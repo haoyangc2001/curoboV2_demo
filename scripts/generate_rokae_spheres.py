@@ -41,6 +41,8 @@ CUROBO_PATH = WORKSPACE_ROOT / "third_party" / "curobo"
 if str(CUROBO_PATH) not in sys.path:
     sys.path.insert(0, str(CUROBO_PATH))
 
+# CuRobo V2 imports
+from curobo.sphere_fit import SphereFitType
 from curobo.robot_builder import RobotBuilder
 
 # 默认路径
@@ -67,6 +69,9 @@ def parse_args() -> argparse.Namespace:
 
     # 球拟合参数
     parser.add_argument("--sphere-density", type=float, default=0.3, help="球密度倍数（默认 0.3，约 200 球）")
+    parser.add_argument("--num-spheres", type=int, default=None, help="每个 link 的显式球数（覆盖 sphere-density）")
+    parser.add_argument("--fit-type", type=str, default="MORPHIT", choices=["SURFACE", "VOXEL", "MORPHIT"], help="拟合算法（默认 MORPHIT）")
+    parser.add_argument("--surface-radius", type=float, default=0.002, help="SURFACE 模式固定半径(m)（默认 0.002）")
     parser.add_argument("--coverage-weight", type=float, default=None, help="MorphIt coverage 损失权重（默认 1000）")
     parser.add_argument("--protrusion-weight", type=float, default=None, help="MorphIt protrusion 损失权重（默认 10）")
     parser.add_argument("--iterations", type=int, default=200, help="MorphIt 迭代次数")
@@ -157,14 +162,17 @@ def normalize_spheres_to_meters(collision_spheres: dict) -> dict:
     if max_coord <= 10.0 and radius <= 10.0:
         return collision_spheres
 
+    scale_radius = radius > 1.0
+    radius_msg = "centers+radii" if scale_radius else "centers only"
     print(
         f"\nDetected oversized sphere units (max_coord={max_coord:.3f}, radius={radius:.3f}); "
-        "converting fitted spheres from millimeters to meters..."
+        f"converting fitted spheres from millimeters to meters ({radius_msg})..."
     )
     for spheres in collision_spheres.values():
         for sphere in spheres:
             sphere["center"] = [float(c) / 1000.0 for c in sphere["center"]]
-            sphere["radius"] = float(sphere["radius"]) / 1000.0
+            if scale_radius:
+                sphere["radius"] = float(sphere["radius"]) / 1000.0
     return collision_spheres
 
 
@@ -184,8 +192,12 @@ def build_new_robot(args: argparse.Namespace) -> None:
 
     # 拟合碰撞球
     print("\nFitting collision spheres...")
+    fit_type = SphereFitType[args.fit_type]
     builder.fit_collision_spheres(
         sphere_density=args.sphere_density,
+        num_spheres=args.num_spheres,
+        fit_type=fit_type,
+        surface_radius=args.surface_radius,
         coverage_weight=args.coverage_weight,
         protrusion_weight=args.protrusion_weight,
         iterations=args.iterations,
@@ -293,7 +305,7 @@ def edit_existing_robot(args: argparse.Namespace) -> None:
 
 def run_stress_test(args: argparse.Namespace) -> None:
     """运行压测对比（如果有 stress_test_rokae_pipeline.py）。"""
-    stress_test_script = WORKSPACE_ROOT / "scripts" / "stress_test_rokae_pipeline.py"
+    stress_test_script = WORKSPACE_ROOT / "tests" / "stress_test_rokae_pipeline.py"
     if not stress_test_script.exists():
         print(f"\nStress test script not found: {stress_test_script}")
         return

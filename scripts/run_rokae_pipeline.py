@@ -80,7 +80,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--playback-speed", type=float, help="实时 viewer 播放速度倍率")
     parser.add_argument("--final-hold-s", type=float, help="实时 viewer 最后一帧停留秒数")
     bool_action = argparse.BooleanOptionalAction
-    parser.add_argument("--auto-generate-spheres", action=bool_action, default=True, help="使用 CuRobo V2 自动生成碰撞球（默认启用，--no-auto-generate-spheres 禁用）")
+    parser.add_argument("--auto-generate-spheres", action=bool_action, default=None, help="是否使用 CuRobo V2 自动生成碰撞球（默认按配置文件）")
     parser.add_argument("--sphere-density", type=float, default=0.3, help="自动生成碰撞球的密度倍数（默认 0.3，约 200 球）")
     parser.add_argument("--plan", action=bool_action, default=None, help="是否执行规划阶段")
     parser.add_argument("--export-contract", action=bool_action, default=None, help="是否导出回放合同")
@@ -115,8 +115,8 @@ def _apply_pipeline_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> 
         cfg.pipeline.resume_from_plan_output_dir = str(Path(args.plan_output_dir).resolve())
     if args.contract_json:
         cfg.pipeline.resume_from_contract_json = str(Path(args.contract_json).resolve())
-    if args.auto_generate_spheres:
-        cfg.auto_generate_spheres = True
+    if args.auto_generate_spheres is not None:
+        cfg.auto_generate_spheres = args.auto_generate_spheres
     if args.sphere_density is not None:
         cfg.sphere_density = args.sphere_density
     return cfg

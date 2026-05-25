@@ -18,7 +18,7 @@
 | 场景建模 | 支持 `abs.autosave.json` / `rel.autosave.json` 转换为 CuRobo cuboid world |
 | 速度与约束 | 支持 `speed_scale`、`hold_vec_weight`、`approach_offset` |
 | 回放链路 | `trajectory.json` → `playback_contract.json` → MuJoCo GIF / viewer |
-| 碰撞球 | 默认启用 CuRobo V2 自动生成，可导出为独立 YAML |
+| 碰撞球 | 默认直接加载已固化的独立 YAML，必要时可切换为 CuRobo V2 自动生成 |
 
 ## 项目结构
 
@@ -38,6 +38,8 @@ curoboV2_demo/
 - `scripts/run_rokae_pipeline.py`：推荐主入口
 - `scripts/plan_rokae_motion.py`：规划子阶段入口
 - `scripts/generate_rokae_spheres.py`：自动生成碰撞球
+- `tests/validate_spheres_geometry.py`：碰撞球几何验证
+- `tests/stress_test_rokae_pipeline.py`：规划链路压力测试
 - `playback/export_rokae_playback_contract.py`：规划结果转回放合同
 - `playback/replay_rokae_mujoco.py`：MuJoCo 离屏回放
 
@@ -90,7 +92,7 @@ MUJOCO_GL=egl python playback/replay_rokae_mujoco.py \
 
 当前默认策略：
 
-- 主规划链路默认启用 `auto_generate_spheres: true`
+- 主规划链路默认从 robot config 指定的 YAML 文件加载碰撞球
 - `sphere_density` 默认值为 `0.3`
 - 自动生成脚本为 `scripts/generate_rokae_spheres.py`
 

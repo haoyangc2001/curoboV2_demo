@@ -252,7 +252,7 @@
 后续如果要把这套模型真正用于更可信的规划和实机联调，建议按下面顺序继续：
 
 1. 完成一版 Bubblify 手工调球，并通过 `scripts/convert_bubblify_spheres.py` 覆盖活动 spheres 文件。
-2. 用 `scripts/stress_test_rokae_pipeline.py` 先跑 `baseline`，再跑 `candidate`，保留 evidence。
+2. 用 `tests/stress_test_rokae_pipeline.py` 先跑 `baseline`，再跑 `candidate`，保留 evidence。
 3. 根据压测结果微调 base/link1..link6 的球布局，重点观察障碍物附近规划与 `grasp` 阶段稳定性。
 4. 根据真实末端工具安装关系，确认 `tool0` 的固定变换是否应继续是 `0 0 0`，还是需要设置真实 TCP 偏移。
 5. 根据实机驱动要求，确认 `start.launch.yaml` 中使用的新 joint 名是否与下游驱动节点/状态话题完全一致。

@@ -17,7 +17,7 @@
 ```bash
 python scripts/run_rokae_pipeline.py --config resource/config/examples/pose_plan_example.yaml
 python scripts/plan_rokae_motion.py --config resource/config/examples/joint_plan_example.yaml --output-dir /tmp/rokae_demo
-python scripts/stress_test_rokae_pipeline.py --output-root evidence/rokae_bubblify_stress
+python tests/stress_test_rokae_pipeline.py --output-root evidence/rokae_bubblify_stress
 ```
 
 第一个命令运行完整的规划 / 合约 / 回放流水线；第二个命令只运行规划部分；第三个命令运行可重复的、类似回归测试的压力测试用例。
@@ -34,7 +34,7 @@ python scripts/stress_test_rokae_pipeline.py --output-root evidence/rokae_bubbli
 
 ## 测试指南
 
-当前没有顶层覆盖率门槛。修改后，应先用最小但真实的脚本运行来验证；如果改动涉及规划、碰撞球或回放行为，再使用 `scripts/stress_test_rokae_pipeline.py` 生成更全面的回归验证证据。
+当前没有顶层覆盖率门槛。修改后，应先用最小但真实的脚本运行来验证；如果改动涉及规划、碰撞球或回放行为，再使用 `tests/stress_test_rokae_pipeline.py` 生成更全面的回归验证证据。
 
 如果修改了 vendored CuRobo 代码，请运行 `third_party/curobo/curobo/tests/` 下有针对性的 `pytest` 测试，并在 PR 中说明任何 CUDA 或 MuJoCo 前置要求。
 

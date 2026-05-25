@@ -45,7 +45,7 @@
 - 当前活动 robot config：`robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml`
 - 当前目标 spheres 输出路径：`robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`
 - 自动生成工具：`scripts/generate_rokae_spheres.py`
-- 压测工具：`scripts/stress_test_rokae_pipeline.py`
+- 压测工具：`tests/stress_test_rokae_pipeline.py`
 
 ### 3.2 不纳入本次实验的范围
 
@@ -84,7 +84,7 @@ Bubblify 当前主要用于：
 
 ### 4.3 已有验证基础
 
-- `scripts/stress_test_rokae_pipeline.py` 已支持 baseline / candidate 全链路对比
+- `tests/stress_test_rokae_pipeline.py` 已支持 baseline / candidate 全链路对比
 - `README.md` 与 `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/bubblify_workflow.md` 已说明推荐命令与切换原则
 
 ### 4.4 当前已确认的问题与修正
@@ -308,7 +308,7 @@ python scripts/run_rokae_pipeline.py --config resource/config/examples/pose_plan
 
 ### 需要做的事情
 
-- 优先从 `0.2 / 0.4 / 0.5 / 0.6` 中筛出 1 到 2 个候选，再执行 `scripts/stress_test_rokae_pipeline.py`
+- 优先从 `0.2 / 0.4 / 0.5 / 0.6` 中筛出 1 到 2 个候选，再执行 `tests/stress_test_rokae_pipeline.py`
 - baseline 参数必须指向新生成且通过复核的 spheres 文件
 - 收集：
   - `stress_summary.json`
@@ -319,7 +319,7 @@ python scripts/run_rokae_pipeline.py --config resource/config/examples/pose_plan
 ### 参考命令
 
 ```bash
-python scripts/stress_test_rokae_pipeline.py \
+python tests/stress_test_rokae_pipeline.py \
   --baseline-spheres robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml \
   --candidate-spheres /tmp/rokae_auto_spheres_candidates/rokae_spheres_d05.yml
 ```

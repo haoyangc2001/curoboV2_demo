@@ -42,7 +42,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--approach-offset", type=float, help="接近偏移量（米）")
     p.add_argument("--approach-axis", default="z", help="接近轴（x/y/z，默认 z）")
     bool_action = argparse.BooleanOptionalAction
-    p.add_argument("--auto-generate-spheres", action=bool_action, default=True, help="使用 CuRobo V2 自动生成碰撞球（默认启用，--no-auto-generate-spheres 禁用）")
+    p.add_argument("--auto-generate-spheres", action=bool_action, default=None, help="是否使用 CuRobo V2 自动生成碰撞球（默认按配置文件）")
     p.add_argument("--sphere-density", type=float, default=0.3, help="自动生成碰撞球的密度倍数（默认 0.3，约 200 球）")
     return p.parse_args()
 
@@ -71,8 +71,8 @@ def apply_overrides(cfg: PlanningConfig, args: argparse.Namespace) -> PlanningCo
         cfg.hold_vec_weight = [float(x) for x in args.hold_vec_weight.split(",")]
     if getattr(args, "approach_offset", None) is not None:
         cfg.approach_offset = args.approach_offset
-    if getattr(args, "auto_generate_spheres", False):
-        cfg.auto_generate_spheres = True
+    if getattr(args, "auto_generate_spheres", None) is not None:
+        cfg.auto_generate_spheres = args.auto_generate_spheres
     if getattr(args, "sphere_density", None) is not None:
         cfg.sphere_density = args.sphere_density
     return cfg
