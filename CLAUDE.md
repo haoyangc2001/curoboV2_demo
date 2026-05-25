@@ -1,231 +1,155 @@
 # CLAUDE.md
 
-本文件为 Claude Code (claude.ai/code) 在本仓库中工作时提供指引。
+本文件用于说明 **当前项目状态、正在进行的工作、协作时的注意事项**。  
+`README.md` 负责介绍项目本身；本文件只关注“现在要完成什么”。
 
-## 项目介绍
+## 项目当前状态
 
-`curoboV2_demo` 是面向 ROKAE SR5 机械臂的离线 CuRobo V2 规划工具，具备工程化输入输出、障碍物场景建模和 MuJoCo 回放能力。
+`curoboV2_demo` 当前已经具备以下稳定能力：
 
-**核心特性：**
-- 使用 vendored 的 `third_party/curobo` (NVIDIA CuRobo V2)
-- **默认启用 CuRobo V2 自动生成碰撞球**（MorphIt 优化器，`sphere_density=0.3`，约 200 球）
-- 自动检测 URDF 中的毫米单位并转换为米
-- 支持多种规划模式：`point_to_point` / `joint_target` / `approach` / `grasp`
-- 障碍物场景建模（绝对/相对障碍物 JSON → CuRobo cuboid world）
-- 速度缩放（`speed_scale`）和方向约束（`hold_vec_weight`）
-- 默认轻量输出：成功后只保留 `trajectory.json`
-- MuJoCo 实时可视化默认开启，GIF/PNG 按需开启
+- 离线规划入口：`scripts/plan_rokae_motion.py`
+- 统一流水线入口：`scripts/run_rokae_pipeline.py`
+- 绝对/相对障碍物 world 构建
+- `trajectory.json` 为中心的规划输出
+- MuJoCo 合同导出与回放链路
+- CuRobo V2 自动碰撞球生成
 
-## 环境启动
+当前活动资产：
 
-本项目运行在 LXD 容器 `zhongji-dev-2204` 中（Ubuntu 22.04），与主项目共享 GPU 和 CUDA，但 Python 环境完全隔离。
+- robot config：`robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_robot.yml`
+- URDF：`robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
+- spheres 输出路径：`robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml`
 
-### 1. 从宿主机进入容器
+## 当前正在做的工作
 
-```bash
-sudo lxc start zhongji-dev-2204
-sudo lxc exec zhongji-dev-2204 -- bash
-```
+当前主任务是：
 
-### 2. 激活 conda 环境
+**验证 CuRobo V2 自动生成碰撞球在当前 ROKAE SR5 模型上的可用性，并确定默认方案。**
 
-```bash
-source ~/miniconda3/etc/profile.d/conda.sh
-conda activate curoboV2
+对应文档：
 
-# 验证环境
-python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
-# 期望输出: 2.11.0+cu128 True
-```
+- 实验计划：
+  `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/rokae_curoboV2_auto_spheres_bubblify_validation_plan.md`
+- 实验状态 JSON：
+  `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/rokae_curoboV2_auto_spheres_bubblify_validation_plan.json`
+- Bubblify 说明：
+  `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/bubblify_workflow.md`
+- 实验结果目录：
+  `doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/`
 
-### 3. 推荐入口：统一流水线
+## 已完成的关键工作
 
-```bash
-cd ~/rep/curoboV2_demo
+- 已确认历史 remap seed spheres 文件不可用。
+- 已重建新的 baseline spheres 文件。
+- 已分析并修正 `scripts/generate_rokae_spheres.py` 中的毫米/米尺度问题。
+- 已确认 `generate_rokae_spheres.py` 使用的是 CuRobo V2 `RobotBuilder.fit_collision_spheres()`。
+- 已完成 baseline 的初步 Bubblify 人工复核，当前球形状已恢复到“可继续实验”的状态。
+- 已将活动 robot config 名称清理为 `xms5_r800_w4g3b4c_robot.yml`。
 
-# 默认：plan -> contract -> realtime viewer
-python scripts/run_rokae_pipeline.py \
-  --config resource/config/examples/pose_plan_example.yaml
+## 尚未完成的工作
 
-# 只规划，最终只保留 trajectory.json
-python scripts/run_rokae_pipeline.py \
-  --config resource/config/examples/pose_plan_example.yaml \
-  --no-export-contract \
-  --no-replay-gif \
-  --no-viewer
+以下工作默认仍待完成，除非实验 JSON 明确更新为已完成：
 
-# 规划 + GIF，不开 realtime viewer
-python scripts/run_rokae_pipeline.py \
-  --config resource/config/examples/pose_plan_example.yaml \
-  --replay-gif \
-  --no-viewer
-```
+- 生成 `density=0.2 / 0.4 / 0.5 / 0.6` 四档 candidate
+- 汇总 baseline / candidate metrics 对比
+- 使用 Bubblify 对 candidate 做最终人工复核
+- 执行自动生成模式 vs 文件加载模式的 smoke test
+- 执行 baseline / candidate stress test
+- 形成最终默认方案结论
 
-默认行为：
+## 当前关键结论
 
-- **默认启用 CuRobo V2 自动生成碰撞球**（`auto_generate_spheres: true`，`sphere_density: 0.3`）
-- 自动检测 URDF 中的毫米单位并转换为米
-- 执行 `plan -> contract -> realtime viewer`
-- 默认输出目录在 `/tmp/curoboV2_demo/...`
-- 成功后只保留 `trajectory.json`
-- 如果显式开启 `replay_gif`，额外保留：
-  - `playback.gif`
-  - `playback_start.png`
-  - `playback_end.png`
-- 合同、摘要、MJCF、review 文件等中间产物成功后会自动清理
+### 1. Bubblify 的角色
 
-### 4. 运行规划子阶段
+Bubblify 在本项目中**只用于几何可视化复核**，不是默认球生成器，也不是主链路真源。
 
-```bash
-cd ~/rep/curoboV2_demo
+### 2. 自动生成球的来源
 
-# 位姿规划
-python scripts/plan_rokae_motion.py \
-  --config resource/config/examples/pose_plan_example.yaml \
-  --output-dir /tmp/rokae_demo/pose_plan
+`scripts/generate_rokae_spheres.py` 生成的球来自：
 
-# 关节目标规划
-python scripts/plan_rokae_motion.py \
-  --config resource/config/examples/joint_plan_example.yaml \
-  --output-dir /tmp/rokae_demo/joint_plan
-```
+1. 当前活动 URDF
+2. URDF 中引用的 base/link1..link6 mesh
+3. CuRobo V2 `RobotBuilder.fit_collision_spheres()` 拟合结果
 
-### 5. 完整链路：规划 → 合同 → MuJoCo 回放（高级/调试）
+不是直接扫描 mesh 目录盲生成。
 
-```bash
-cd ~/rep/curoboV2_demo
+### 3. 当前已知技术 caveat
 
-# 规划
-python scripts/plan_rokae_motion.py \
-  --config resource/config/examples/pose_plan_example.yaml \
-  --output-dir /tmp/rokae_full/plan
+当前模型在 CuRobo 这条拟合路径上存在 **mesh scale 传递不完整** 的问题。  
+如果不做补救，会生成毫米尺度的超大碰撞球。
 
-# 构建回放合同
-python playback/export_rokae_playback_contract.py \
-  --plan-output-dir /tmp/rokae_full/plan \
-  --output-dir /tmp/rokae_full/contract
+当前本地补救方式：
 
-# MuJoCo 离屏回放
-export MUJOCO_GL=egl
-python playback/replay_rokae_mujoco.py \
-  --contract-json /tmp/rokae_full/contract/playback_contract.json \
-  --output-dir /tmp/rokae_full/playback \
-  --render-every 4
+- `scripts/generate_rokae_spheres.py` 已增加自动归一化逻辑
+- 若检测到异常大球，会自动从毫米换算到米
 
-# 一键方式（从规划输出直接回放）
-python playback/run_rokae_demo.py \
-  --plan-output-dir /tmp/rokae_full/plan \
-  --output-root /tmp/rokae_full \
-  --no-viewer --render-every 4
-```
+### 4. 可视化限制
 
-### 6. 复杂障碍物 + 长路径 + 实时窗口
+`generate_rokae_spheres.py --visualize`：
 
-已提供一个经过验证的复杂场景 viewer 配置：
+- 适合快速检查球尺度是否异常
+- 适合看球是否大致贴住局部 mesh
+- **不适合作为最终整机装配正确性的唯一依据**
 
-- `resource/config/examples/joint_plan_complex_viewer.yaml`
-- `resource/config/examples/obstacles/complex_viewer_test.json`
-
-运行命令：
+最终几何复核应优先使用：
 
 ```bash
-cd ~/rep/curoboV2_demo
-
-DISPLAY=:1 MUJOCO_GL=glx python scripts/run_rokae_pipeline.py \
-  --config resource/config/examples/joint_plan_complex_viewer.yaml
+bubblify \
+  --urdf_path robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf \
+  --spherization_yml robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml \
+  --show_collision
 ```
 
-最近一次验证结果：
+## 推荐执行顺序
 
-- `joint_target` 模式
-- 3 个 cuboid 障碍物
-- `speed_scale=0.5`
-- `101` 个 waypoint
-- realtime viewer 正常完成播放
+1. 先确认当前 baseline 的 metrics 与 Bubblify 结果
+2. 生成 `0.2 / 0.4 / 0.5 / 0.6` 四档 candidate
+3. 汇总 metrics 对比，观察 density 变化趋势
+4. 做 candidate 的 Bubblify 最终复核
+5. 做 smoke test
+6. 做 stress test
+7. 更新实验 JSON 与最终结论
 
-窗口效果：
+## 协作注意点
 
-- MuJoCo 实时窗口
-- 显示机械臂、地面和半透明橙色 cuboid 障碍物
-- 机械臂按轨迹逐点播放
+- 不要再把 Bubblify 写成默认球生成主流程。
+- 不要把 `--visualize` 的局部调试视图误当作最终装配视图。
+- 每次修改项目代码后，必须先验证项目从头到尾是否还能完整执行一遍。
+- 每完成一个子阶段，必须对该子阶段做一次压力测试，并把结果写入对应实验记录。
+- 修改实验状态时，优先同步更新对应 JSON，而不是只改 Markdown。
+- 后续实验生成的 metrics 汇总、截图、对比表、压测摘要和结论文档，统一放到 `doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/`。
+- 如果某阶段声称完成，必须写清楚：
+  - 完成了什么
+  - 有什么证据
+  - 遇到了什么问题
+  - 如何解决
 
-### 7. 非交互方式（从宿主机直接执行）
+## 常用命令
+
+重新生成 baseline：
 
 ```bash
-sudo lxc exec zhongji-dev-2204 -- bash -c "\
-  source /home/tanshan/miniconda3/etc/profile.d/conda.sh && \
-  conda activate curoboV2 && \
-  cd /home/tanshan/rep/curoboV2_demo && \
-  python scripts/run_rokae_pipeline.py \
-    --config resource/config/examples/pose_plan_example.yaml"
+python scripts/generate_rokae_spheres.py \
+  --sphere-density 0.3 \
+  --compute-metrics \
+  --output robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml
 ```
 
-## 项目结构
+快速局部检查：
 
-```text
-curoboV2_demo/
-├── scripts/                          # 工程化规划脚本（主入口）
-│   ├── config_utils.py               # 配置加载与校验
-│   ├── rokae_asset_utils.py          # 机器人资产路径解析
-│   ├── rokae_world_utils.py          # 障碍物 JSON → CuRobo world
-│   ├── rokae_motion_gen.py           # CuRobo V2 规划核心封装
-│   ├── plan_rokae_motion.py          # 通用离线规划入口（兼容保留）
-│   ├── run_rokae_pipeline.py         # 统一流水线主入口（推荐）
-│   ├── generate_rokae_spheres.py     # CuRobo V2 自动生成碰撞球（推荐）
-│   └── convert_bubblify_spheres.py   # Bubblify 导出转换（手工调整用）
-├── demo_scripts/                     # 最小演示样例（保留）
-├── playback/                         # 轨迹导出与 MuJoCo 回放
-│   ├── export_rokae_playback_contract.py
-│   ├── replay_rokae_mujoco.py
-│   └── run_rokae_demo.py
-├── resource/config/examples/         # 示例配置文件
-│   ├── pose_plan_example.yaml
-│   ├── joint_plan_example.yaml
-│   ├── grasp_plan_example.yaml
-│   ├── joint_plan_complex_viewer.yaml
-│   └── obstacles/                    # 示例障碍物数据
-│       ├── complex_viewer_test.json
-│       ├── abs.autosave.json
-│       └── rel.autosave.json
-├── robot_assets/ROKAE/               # 机器人资产包
-├── doc/plan/                         # 升级计划文档
-└── third_party/curobo/               # Vendored CuRobo V2
+```bash
+python scripts/generate_rokae_spheres.py \
+  --sphere-density 0.3 \
+  --compute-metrics \
+  --visualize \
+  --output robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml
 ```
 
-### 核心模块职责
+最终几何复核：
 
-| 模块 | 职责 |
-|------|------|
-| `scripts/config_utils.py` | 配置加载、校验、路径解析 |
-| `scripts/rokae_asset_utils.py` | 机器人资产路径和配置解析，支持自动生成碰撞球 |
-| `scripts/rokae_world_utils.py` | 障碍物 JSON 加载、坐标变换、world dict 构建 |
-| `scripts/rokae_motion_gen.py` | CuRobo V2 MotionPlanner 封装（plan_single/plan_single_js/plan_grasp_single） |
-| `scripts/plan_rokae_motion.py` | 通用离线规划入口（CLI + YAML 配置） |
-| `scripts/run_rokae_pipeline.py` | 推荐主入口（plan / contract / viewer / GIF 编排） |
-| `scripts/generate_rokae_spheres.py` | CuRobo V2 自动生成碰撞球（默认启用，替代 Bubblify） |
-| `playback/export_rokae_playback_contract.py` | 规划输出 → MuJoCo 回放合同 |
-| `playback/replay_rokae_mujoco.py` | 合同 → MJCF → 离屏渲染 |
-| `playback/run_rokae_demo.py` | 一键编排（规划 → 合同 → 回放） |
-
-### 导入模式
-
-本项目没有 `setup.py` 或包安装。所有脚本通过 `Path(__file__).resolve().parents[1]` 计算 `WORKSPACE_ROOT`，并将 `third_party/curobo` 注入 `sys.path`。
-
-### Vendored CuRobo V2
-
-`third_party/curobo/` 是 NVIDIA CuRobo V2 的 vendored 副本（Apache-2.0）。关键模块：`motion_planner.py`、`types.py`、`_src/cost/tool_pose_criteria.py`。如需启用 pybind CUDA 扩展，设置环境变量 `CUROBO_USE_PYBIND=1`。
-
-## 重要注意事项
-
-- **URDF 统一路径**：`robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf`
-- **conda 环境隔离**：`curoboV2`（CuRobo V2）与 `zhongji`（CuRobo V1）互不兼容，切勿混用
-- **四元数顺序**：配置文件使用 `[qx, qy, qz, qw]`（xyzw），CuRobo 内部使用 `[qw, qx, qy, qz]`（wxyz），脚本自动转换
-- **CuRobo V2 API 差异**：V2 使用 `MotionPlanner`（非 V1 的 `MotionGen`），`ToolPoseCriteria`（非 V1 的 `hold_vec_weight`），实施前必须检索 `third_party/curobo/` 源码确认
-- **speed_scale**：通过 robot config 的 `cspace.velocity_scale` 实现，必须在规划器构造时设置
-- **grasp 模式**：线性运动约束对某些构型可能难以满足，approach 成功但 grasp 步骤可能失败
-- **viewer 默认开启**：统一入口默认尝试启动 MuJoCo realtime viewer；如果只想保留轨迹，显式传 `--no-export-contract --no-replay-gif --no-viewer`
-- **输出策略**：成功运行后默认只保留 `trajectory.json`；如果开启 `replay_gif`，额外保留 GIF 和首尾 PNG；中间 JSON/XML 会自动清理
-- **障碍物回放来源**：MuJoCo 回放和 realtime viewer 从 `trajectory.json` 内嵌的 metadata 读取障碍物摘要
-- **碰撞球生成**：默认启用 CuRobo V2 自动生成（`auto_generate_spheres: true`），`sphere_density` 默认 0.3（约 200 球）；脚本自动检测 URDF 中的毫米单位并转换为米；禁用自动生成使用 `--no-auto-generate-spheres`
-- 容器共享宿主机的 NVIDIA GPU 驱动和 CUDA 12.8 运行时
-- `ROKAE_migration_notes.md` 记录历史迁移决策，非当前使用文档
+```bash
+bubblify \
+  --urdf_path robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf \
+  --spherization_yml robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml \
+  --show_collision
+```

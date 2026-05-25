@@ -1,0 +1,281 @@
+{
+  "project_name": "curoboV2_demo",
+  "document_type": "auto_spheres_validation_plan",
+  "source_markdown": "doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/rokae_curoboV2_auto_spheres_bubblify_validation_plan.md",
+  "background": [
+    "当前 curoboV2_demo 已接入 CuRobo V2 自动生成碰撞球能力，主规划链路默认启用 auto_generate_spheres。",
+    "历史 remap seed spheres 文件已经确认不匹配当前 ROKAE mesh，不能继续作为有效 baseline。",
+    "本次任务不是开发新的规划功能，而是验证自动生成碰撞球在当前 ROKAE SR5 模型上的几何质量与规划回归风险。",
+    "Bubblify 在本次任务中的角色仅限于几何可视化复核和人工验证，不作为默认球生成真源。"
+  ],
+  "overall_goal": [
+    "建立当前 ROKAE SR5 模型的一份可用 baseline collision_spheres 文件。",
+    "验证 CuRobo V2 自动生成碰撞球的覆盖质量、球数量与局部几何合理性。",
+    "通过 Bubblify 对 baseline 与 candidate 做人工几何复核。",
+    "通过 smoke test 和 stress test 评估 baseline / candidate 对规划与回放链路的影响。",
+    "形成可执行的默认方案选择结论，并沉淀 evidence。"
+  ],
+  "implementation_principles": [
+    "先确认 baseline 可用，再做 candidate 对比。",
+    "Bubblify 仅用于人工复核，不作为默认生成路径。",
+    "快速局部可视化与最终几何结论分开处理。",
+    "指标分析、人工复核、规划回归三条证据链必须同时具备。",
+    "只有当新文件通过几何与回归验证后，才允许固化为活动 spheres 文件。"
+  ],
+  "mandatory_requirements": [
+    "每个阶段都必须记录工作目标、是否完成以及实际完成工作。",
+    "如果某阶段标记为已完成，则 completed_work 不能留空，必须写明本次实际做了什么。",
+    "如果某阶段尚未完成，则 completed_work 默认为空数组。",
+    "后续每推进一个阶段，都应同步更新本 JSON，而不是只更新 Markdown 文档。",
+    "当前活动 URDF 统一使用 curoboV2_demo/robot_assets/ROKAE/robot/curobo/ROKAE_SR5_0.9C.urdf。",
+    "实验结论必须同时参考 metrics、Bubblify 人工复核、smoke test 与 stress test，不能只凭单一证据做决策。"
+  ],
+  "current_scope": {
+    "included": [
+      "baseline spheres 文件重建。",
+      "candidate spheres 生成与比较。",
+      "CuRobo 自动生成脚本的尺度问题分析与修正。",
+      "Bubblify 几何可视化复核。",
+      "基于文件加载与运行时自动生成两条路径的 smoke test。",
+      "baseline / candidate stress test。"
+    ],
+    "excluded": [
+      "tashan_robot 代码改动。",
+      "真机联动。",
+      "ROS 工程重构。",
+      "Bubblify 作为默认球生成器。",
+      "本阶段引入新的规划模式。"
+    ],
+    "handling_rules": [
+      "未通过验证的 candidate 不得覆盖 baseline。",
+      "快速可视化结果不能直接替代 Bubblify 最终复核结论。",
+      "如存在单位/尺度问题，应优先修正生成链路，再继续实验。"
+    ]
+  },
+  "stages": [
+    {
+      "stage_id": 1,
+      "title": "整理实验文档与目录结构",
+      "goal": "建立与本次实验对应的 Markdown 计划、Bubblify 说明文档及目录组织。",
+      "work_items": [
+        "建立本次实验的计划目录与实验结果归档目录。",
+        "编写实验计划 Markdown。",
+        "重写 Bubblify 文档，明确其角色仅限于可视化复核。",
+        "整理 doc/experiments 与 doc/plan 的职责划分。"
+      ],
+      "expected_results": [
+        "实验文档结构统一。",
+        "Bubblify 文档定位清晰。",
+        "后续实验执行有明确计划依据。"
+      ],
+      "is_completed": true,
+      "completed_work": [
+        "保留 doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/ 作为本次实验的计划目录。",
+        "编写 rokae_curoboV2_auto_spheres_bubblify_validation_plan.md，形成完整实验计划。",
+        "重写 Bubblify 文档，明确 Bubblify 只用于可视化验证和人工复核。",
+        "明确后续实验记录、截图、对比表与结论统一归档到 doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/。",
+        "将旧的 rokae_curobo_planning_upgrade_plan.md/json 移动到独立目录，并修正 JSON 中的 source_markdown 路径。"
+      ]
+    },
+    {
+      "stage_id": 2,
+      "title": "清理历史命名与路径引用",
+      "goal": "清除当前实验相关文件中不再适用的历史命名和路径引用，保证活动资产语义清晰。",
+      "work_items": [
+        "重命名活动 robot config 文件。",
+        "同步更新脚本、配置和文档中的引用。",
+        "检查 plan / README / workflow 文档中的路径一致性。"
+      ],
+      "expected_results": [
+        "活动 robot config 命名不再包含历史 dahuafuhe 名称。",
+        "路径引用统一。"
+      ],
+      "is_completed": true,
+      "completed_work": [
+        "将 robot_assets/ROKAE/robot/xms5_r800_w4g3b4c_dahuafuhe.yml 重命名为 xms5_r800_w4g3b4c_robot.yml。",
+        "同步更新 scripts/、demo_scripts/、README、workflow、start.launch.yaml、bundle_manifest.json、plan 文档与迁移说明中的相关引用。",
+        "完成全仓检索，清除旧 robot config 文件名的直接引用。"
+      ]
+    },
+    {
+      "stage_id": 3,
+      "title": "诊断历史 spheres 文件并重建 baseline",
+      "goal": "确认历史 seed 文件不可用，建立当前模型的可用 baseline collision_spheres。",
+      "work_items": [
+        "确认历史 remap seed 与当前 mesh 不匹配。",
+        "移除错误 seed 文件。",
+        "使用 generate_rokae_spheres.py 重新生成 baseline。",
+        "记录 baseline 的来源与 metadata。"
+      ],
+      "expected_results": [
+        "历史无效 baseline 不再继续使用。",
+        "新的 baseline 文件可作为后续验证起点。"
+      ],
+      "is_completed": true,
+      "completed_work": [
+        "通过可视化确认历史 ROKAE_SR5_0.9C_spherized.yml 无法包裹当前 mesh，不可继续作为有效 baseline。",
+        "删除历史 remap seed 文件，并将相关实验计划表述改为“先重建 baseline”。",
+        "使用 scripts/generate_rokae_spheres.py 重新生成新的 baseline 文件到 robot_assets/ROKAE/robot/spheres/ROKAE_SR5_0.9C_spherized.yml。",
+        "确认新 baseline metadata.source 已变为 curobo_v2_robot_builder，total_spheres 当前为 192。"
+      ]
+    },
+    {
+      "stage_id": 4,
+      "title": "分析并修正自动生成脚本的尺度问题",
+      "goal": "定位自动生成碰撞球异常过大的原因，并在本地生成脚本中加入补救逻辑。",
+      "work_items": [
+        "确认 generate_rokae_spheres.py 确实走的是 CuRobo V2 RobotBuilder。",
+        "分析 URDF mesh scale 与解析链路中的尺度传递问题。",
+        "补充毫米到米的归一化逻辑。",
+        "改进 visualize 默认行为，避免只显示球造成误判。"
+      ],
+      "expected_results": [
+        "生成脚本输出的球尺度回到合理范围。",
+        "visualize 能同时显示 mesh 与 spheres 进行快速对照。"
+      ],
+      "is_completed": true,
+      "completed_work": [
+        "确认 scripts/generate_rokae_spheres.py 使用的是 CuRobo V2 RobotBuilder.fit_collision_spheres() 生成球，而不是历史 seed 文件。",
+        "分析 third_party/curobo 代码后确认：当前拟合路径对 URDF mesh scale 传递不完整，可能导致毫米尺度 mesh 被直接用于拟合。",
+        "在 scripts/generate_rokae_spheres.py 中新增 normalize_spheres_to_meters()，检测异常大球后自动从毫米换算到米。",
+        "将 generate_rokae_spheres.py 的 visualize 调用改为 show_meshes=True，便于快速局部检查。"
+      ],
+      "problems_and_solutions": [
+        {
+          "problem": "自动生成的球半径与中心坐标达到十几到上百的量级，明显不符合当前机械臂的米制尺寸。",
+          "solution": "对照 URDF 中的 scale=0.001 与 CuRobo 解析链路，确认属于毫米/米尺度不一致；在本地脚本中增加自动归一化补丁。"
+        },
+        {
+          "problem": "visualize 默认只显示 spheres，容易把“球显示异常”和“mesh 根本没显示”混在一起判断。",
+          "solution": "显式打开 show_meshes=True，并在实验计划中注明该视图仅用于快速局部检查。"
+        }
+      ]
+    },
+    {
+      "stage_id": 5,
+      "title": "建立 baseline 几何复核结论",
+      "goal": "确认当前新 baseline 在 Bubblify 中与 URDF 外形基本一致，可作为后续 candidate 对比基准。",
+      "work_items": [
+        "使用 Bubblify 加载 baseline 文件做人工复核。",
+        "检查 base、link2、link4、link6 等重点 link。",
+        "记录 baseline 的人工结论。"
+      ],
+      "expected_results": [
+        "baseline 几何复核通过。",
+        "后续 candidate 对比具备稳定起点。"
+      ],
+      "is_completed": true,
+      "completed_work": [
+        "重新运行 generate_rokae_spheres.py 生成 baseline 后，使用 Bubblify 加载 URDF + spherization_yml 做人工复核。",
+        "确认当前 baseline 与 URDF 形状“差不多”，已从明显错误状态恢复到可继续实验的状态。",
+        "据此将实验计划调整为“先确认 baseline，再围绕 baseline 生成 candidate”。"
+      ]
+    },
+    {
+      "stage_id": 6,
+      "title": "生成 candidate 档位并完成指标采样",
+      "goal": "围绕 baseline 生成主要 candidate，并记录 metrics 用于比较。",
+      "work_items": [
+        "生成 density=0.2 的 candidate-A。",
+        "生成 density=0.4 的 candidate-B。",
+        "生成 density=0.5 的 candidate-C。",
+        "生成 density=0.6 的 candidate-D。",
+        "必要时生成同密度不同参数的对照组。",
+        "收集各档位 total_spheres、per-link sphere count 与 metrics。"
+      ],
+      "expected_results": [
+        "得到覆盖 0.2 到 0.6 的主要 candidate 文件。",
+        "形成 candidate 指标对比表。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 7,
+      "title": "完成 candidate 的 Bubblify 最终几何复核",
+      "goal": "使用 Bubblify 对 baseline 与 candidate 做最终几何人工比较。",
+      "work_items": [
+        "逐个加载 baseline / candidate 文件。",
+        "记录重点 link 的覆盖情况、漏包、过膨胀与空洞。",
+        "保留截图和人工结论。"
+      ],
+      "expected_results": [
+        "形成 baseline 与 candidate 的几何人工对比结论。",
+        "筛掉明显不合理的 candidate。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 8,
+      "title": "完成 smoke test",
+      "goal": "验证自动生成模式与文件加载模式在主规划链路中的最小功能可用性。",
+      "work_items": [
+        "运行自动生成模式的最小规划。",
+        "运行基于 baseline 文件加载的最小规划。",
+        "比较 point_to_point、joint_target、障碍物 case 的行为差异。"
+      ],
+      "expected_results": [
+        "确认两条路径都能独立跑通。",
+        "发现潜在的行为差异。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 9,
+      "title": "完成 baseline / candidate stress test",
+      "goal": "从规划、合同导出与回放三个层面评估 candidate 是否引入回归。",
+      "work_items": [
+        "对优先 candidate 执行 stress_test_rokae_pipeline.py。",
+        "收集 stress_summary.json 与 round_records.json。",
+        "分析失败 case 的模式分布与归因。"
+      ],
+      "expected_results": [
+        "形成 baseline / candidate 的回归对比结论。",
+        "明确优先 candidate 是否可接受。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    },
+    {
+      "stage_id": 10,
+      "title": "形成最终实验结论",
+      "goal": "确定默认方案，并决定活动 spheres 文件是否替换。",
+      "work_items": [
+        "基于 metrics、Bubblify 复核与回归测试综合决策。",
+        "明确是否保留 baseline 或切换 candidate。",
+        "沉淀 evidence 路径与结论文档。"
+      ],
+      "expected_results": [
+        "形成可执行的默认方案结论。",
+        "活动 spheres 文件的选择有明确依据。"
+      ],
+      "is_completed": false,
+      "completed_work": []
+    }
+  ],
+  "current_progress": [
+    "已建立本次实验的 plan 目录、Markdown 计划与 Bubblify 说明文档。",
+    "已将历史 xms5_r800_w4g3b4c_dahuafuhe.yml 重命名为 xms5_r800_w4g3b4c_robot.yml，并同步清理相关引用。",
+    "已确认历史 remap seed spheres 文件不可用，并已基于 CuRobo V2 自动生成脚本重新生成 baseline。",
+    "已分析并修正 generate_rokae_spheres.py 的毫米/米尺度问题，避免输出超大碰撞球。",
+    "已完成 baseline 的初步 Bubblify 人工复核，确认当前几何结果恢复到可继续实验的状态。",
+    "下一阶段将围绕 baseline 执行 0.2 / 0.4 / 0.5 / 0.6 四档 density 扫描。",
+    "candidate 生成、系统化 metrics 对比、smoke test、stress test 与最终结论尚未完成。"
+  ],
+  "risk_points": [
+    "如果直接使用未验证 candidate 覆盖 baseline，后续回归分析会失去可信基线。",
+    "如果把 generate_rokae_spheres.py --visualize 的结果当成最终装配视图，可能会误判球几何质量。",
+    "如果不区分运行时自动生成与文件加载两条路径，后续 smoke test 与 stress test 的结果会混淆。",
+    "如果只做几何复核不做回归测试，无法证明 candidate 对规划行为没有退化。",
+    "当前尺度修正仍是本地脚本补丁；若后续改动 third_party/curobo，需要重新验证这部分假设。"
+  ],
+  "recommended_route": [
+    "先固化 baseline 结论。",
+    "再生成 0.2 / 0.4 / 0.5 / 0.6 四档主要 candidate 并收集 metrics。",
+    "然后用 Bubblify 做最终几何复核。",
+    "接着执行 smoke test 与 stress test。",
+    "最后形成默认方案与活动文件切换结论。"
+  ]
+}

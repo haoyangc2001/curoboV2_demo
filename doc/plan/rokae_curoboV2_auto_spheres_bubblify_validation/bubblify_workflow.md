@@ -2,6 +2,9 @@
 
 本文档用于说明在 `curoboV2_demo` 中如何使用 **Bubblify** 辅助验证自动生成碰撞球。
 
+本文档本身保留在 `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/`。
+在执行 Bubblify 过程中产出的截图、人工结论和对比记录，应统一归档到 `doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/`。
+
 本项目当前的默认策略是：
 
 - 规划运行时优先使用 **CuRobo V2 自动生成碰撞球**
@@ -130,6 +133,8 @@ bubblify \
 
 - 本次实验计划：
   `doc/plan/rokae_curoboV2_auto_spheres_bubblify_validation/rokae_curoboV2_auto_spheres_bubblify_validation_plan.md`
+- 实验结果目录：
+  `doc/experiments/rokae_curoboV2_auto_spheres_bubblify_validation/`
 - 自动生成碰撞球脚本：
   `scripts/generate_rokae_spheres.py`
 - Bubblify 导出转换脚本：
